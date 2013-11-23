@@ -118,13 +118,14 @@ public:
         return high < bucket.low;
     }
     
-    
-    inline const_iterator begin()  const { return _elements.begin(); }
-    inline const_iterator end()    const { return _elements.begin()+addressCount; }
+    inline const_iterator begin()  const { return cbegin(); }
+    inline const_iterator end()    const { return cend(); }
+
     inline const_iterator cbegin() const { return _elements.begin(); }
     inline const_iterator cend()   const { return _elements.begin()+addressCount; }
-    
-    
+
+    std::ostream& string( std::ostream& out ) const;
+
 private:
     
     inline iterator begin()       { return _elements.begin(); }
@@ -285,6 +286,24 @@ void AddressBucket<MaxSizeT>::remove(
 
     if (!found)
         throw std::invalid_argument("Address not in this bucket");
+}
+
+template <size_t MaxSizeT>
+std::ostream& operator<<( std::ostream& out, const AddressBucket<MaxSizeT>& element )
+{
+    return element.string(out);
+}
+
+template <size_t MaxSizeT>
+std::ostream& AddressBucket<MaxSizeT>::string( std::ostream& out ) const
+{
+    out << low << ' ' << high << std::endl;
+    for( const_iterator it = cbegin(); it != cend(); ++it )
+    {
+        assert(it->get());
+        out << **it << std::endl;
+    }
+    return out;
 }
 
 }; // dht

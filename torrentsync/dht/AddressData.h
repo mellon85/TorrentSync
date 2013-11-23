@@ -88,6 +88,12 @@ protected:
     uint32_t p3; // 128 -> 159
 };
 
+template <class Stream>
+Stream& operator<<( Stream& out, const AddressData& data )
+{
+    out << data.string();
+    return out;
+}
 
 }; // dht
 }; // torrentsync
