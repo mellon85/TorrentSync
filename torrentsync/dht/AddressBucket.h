@@ -1,5 +1,4 @@
 #pragma once
-
 #include <torrentsync/dht/AddressData.h>
 #include <torrentsync/dht/Address.h>
 #include <boost/shared_ptr.hpp>
@@ -16,17 +15,7 @@ namespace
 
 class AddressSharedPtrEquality
 {
-    const boost::shared_ptr<Address>& _storage;
 public:
-    AddressSharedPtrEquality(const boost::shared_ptr<Address>& s) : _storage(s) {}
-    bool operator()(
-            const boost::shared_ptr<Address>& a) const
-    {
-        assert(_storage.get());
-        assert(a.get());
-        return *a == *_storage;
-    }
-
     bool operator()(
             const boost::shared_ptr<Address>& a,
             const boost::shared_ptr<Address>& b) const
@@ -76,8 +65,6 @@ public:
 
 };
 
-//! invariants:
-//!     _elements.size() <= this->maxSize()
 template <size_t MaxSizeT>
 class AddressBucket : public boost::noncopyable
 {
@@ -192,7 +179,12 @@ bool AddressBucket<MaxSizeT>::add( const boost::shared_ptr<Address>& addr )
 
     if (size() < maxSize())
     {
-        _elements[addressCount++] = addr;
+        // find first greater than the current address
+        iterator it = std::find_if( begin(), end(),
+            bind1st(std::less<boost::shared_ptr<Address> >(),addr) );
+        std::copy_backward(it,end(),end()+1);
+        *it = addr;
+        ++addressCount;
         return true;
     }
 

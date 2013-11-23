@@ -260,4 +260,64 @@ BOOST_AUTO_TEST_CASE(removeBad_2)
     }
 }
 
+BOOST_AUTO_TEST_CASE(addIsSorted)
+{
+    AddressData bot("0000000000000000000000000000000000000000");
+    AddressData top("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+
+    std::vector<Address> addresses = {
+    Address("0000000000000000000000000000000000000001"),
+    Address("0000000000000000000000000000000000000002"),
+    Address("00000000000000000000000000F0000000000000"),
+    Address("00000000000000000000F0000000000000000000"),
+    Address("0000000000000000F00000000000000000000000")};
+
+    std::vector<Address> sorted_addresses = addresses;
+
+    do
+    {
+        AddressBucket<10> bucket(bot,top);
+        BOOST_FOREACH(const Address& addr, addresses)
+        {
+            boost::shared_ptr<Address> a(new Address(addr));
+            bucket.add(a);
+        }
+        std::vector<Address>::iterator it2 = sorted_addresses.begin();
+        for ( AddressBucket<10>::const_iterator it = bucket.cbegin();
+              it != bucket.cend(); ++it, ++it2)
+        {
+            BOOST_REQUIRE_EQUAL(**it,*it2);
+        }
+    } while(std::next_permutation(addresses.begin(),addresses.end()));
+}
+
+BOOST_AUTO_TEST_CASE(addIsSortedRandom)
+{
+    AddressData bot("0000000000000000000000000000000000000000");
+    AddressData top("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+
+    for( int loop = 0; loop < TEST_LOOP_COUNT; ++loop )
+    {
+        std::vector<Address> addresses;
+        for( int i = 0; i < 10; ++i)
+        {
+            addresses.push_back(Address(generateRandomAddress()));
+        }
+        std::vector<Address> sorted_addresses = addresses;
+        std::sort(sorted_addresses.begin(),sorted_addresses.end());
+
+        AddressBucket<10> bucket(bot,top);
+        BOOST_FOREACH(const Address& addr, addresses)
+        {
+            boost::shared_ptr<Address> a(new Address(addr));
+            bucket.add(a);
+        }
+        std::vector<Address>::iterator it2 = sorted_addresses.begin();
+        for ( AddressBucket<10>::const_iterator it = bucket.cbegin();
+              it != bucket.cend(); ++it, ++it2)
+        {
+            BOOST_REQUIRE_EQUAL(**it,*it2);
+        }
+    }
+}
 BOOST_AUTO_TEST_SUITE_END();

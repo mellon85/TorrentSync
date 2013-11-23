@@ -3,6 +3,7 @@
 
 #include <torrentsync/dht/AddressData.h>
 #include <torrentsync/dht/Distance.h>
+#include <boost/shared_ptr.hpp>
 
 namespace torrentsync
 {
@@ -46,6 +47,33 @@ protected:
     size_t last_unanswered_queries;
 };
 
+inline bool operator<(
+        const boost::shared_ptr<Address> a,
+        const boost::shared_ptr<Address> b)
+{
+    return *a < *b;
+}
+
+inline bool operator<=(
+        const boost::shared_ptr<Address> a,
+        const boost::shared_ptr<Address> b)
+{
+    return *a <= *b;
+}
+
+inline bool operator>=(
+        const boost::shared_ptr<Address> a,
+        const boost::shared_ptr<Address> b)
+{
+    return *a >= *b;
+}
+
+inline bool operator>(
+        const boost::shared_ptr<Address> a,
+        const boost::shared_ptr<Address> b)
+{
+    return *a > *b;
+}
 
 }; // dht
 }; // torrentsync
