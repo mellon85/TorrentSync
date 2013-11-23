@@ -80,7 +80,7 @@ public:
     typedef typename boost::array<boost::shared_ptr<Address>, MaxSizeT >::iterator iterator;
 
     bool add(
-        const boost::shared_ptr<Address>& addr);
+        const boost::shared_ptr<Address> addr);
 
     void remove(
         const Address& addr);
@@ -95,12 +95,12 @@ public:
     void clear();
 
     bool canAcceptAddress(
-            const boost::shared_ptr<Address>& addr ) const;
+            const boost::shared_ptr<Address> addr ) const;
 
     bool inBounds(
-            const boost::shared_ptr<Address>& addr ) const;
+            const boost::shared_ptr<Address> addr ) const;
 
-    bool operator<(const AddressBucket& bucket) const
+    inline bool operator<(const AddressBucket& bucket) const
     {
         return high < bucket.low;
     }
@@ -159,10 +159,8 @@ void AddressBucket<MaxSizeT>::clear()
     addressCount = 0;
 }
 
-
-// TODO should be kept in order for efficiency reason
 template <size_t MaxSizeT>
-bool AddressBucket<MaxSizeT>::add( const boost::shared_ptr<Address>& addr )
+bool AddressBucket<MaxSizeT>::add( const boost::shared_ptr<Address> addr )
 {
     if (!addr.get())
         throw std::invalid_argument("Address is NULL");
@@ -208,7 +206,7 @@ void AddressBucket<MaxSizeT>::removeBad()
 
 template <size_t MaxSizeT>
 bool AddressBucket<MaxSizeT>::inBounds(
-        const boost::shared_ptr<Address>& addr ) const
+        const boost::shared_ptr<Address> addr ) const
 {
     if (!addr.get())
         throw std::invalid_argument("Address is NULL");
@@ -218,7 +216,7 @@ bool AddressBucket<MaxSizeT>::inBounds(
 
 template <size_t MaxSizeT>
 bool AddressBucket<MaxSizeT>::canAcceptAddress(
-        const boost::shared_ptr<Address>& addr ) const
+        const boost::shared_ptr<Address> addr ) const
 {
     if (!addr.get())
         throw std::invalid_argument("Address is NULL");

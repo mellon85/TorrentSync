@@ -17,7 +17,6 @@ public:
 
 private:
 
-
     //! Serialization friend class
     friend class boost::serialization::access;
     
