@@ -281,7 +281,10 @@ BOOST_AUTO_TEST_CASE(increase_random)
 	for (int i = 0; i < a1_2; ++i)
 	{
 		a1.increase();
+        BOOST_REQUIRE(a1 <= a2);
 	}
+	BOOST_REQUIRE(a1 >= a2);
+    a1.increase();
 	BOOST_REQUIRE(a1 > a2);
 	BOOST_REQUIRE(a1 >= a2);
 }
