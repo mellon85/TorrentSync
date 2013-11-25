@@ -89,8 +89,6 @@ public:
 
     inline size_t size()                      const { return addressCount;}
     inline size_t maxSize()                   const { return MaxSizeT;   }
-    inline const AddressData& getLowerBound() const { return low;  }
-    inline const AddressData& getUpperBound() const { return high; }
 
     void clear();
 
@@ -99,6 +97,9 @@ public:
 
     bool inBounds(
             const boost::shared_ptr<Address> addr ) const;
+
+    inline const AddressData& getLowerBound() const { return low;  }
+    inline const AddressData& getUpperBound() const { return high; }
 
     inline const_iterator begin()  const { return cbegin(); }
     inline const_iterator end()    const { return cend(); }
@@ -123,15 +124,13 @@ private:
     bool canAcceptAddress(const AddressData* const addr ) const;
 
     bool inBounds(const AddressData* const addr ) const;
-
 };
 
 template <size_t MaxSizeT>
 AddressBucket<MaxSizeT>::AddressBucket(
             const AddressData& low,
             const AddressData& high ) :
-    low(low),
-    high(high),
+    low(low), high(high),
     addressCount(0)
 {
 }

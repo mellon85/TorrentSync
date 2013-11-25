@@ -25,12 +25,14 @@ include_directories(${PROJECT_SOURCE_DIR})
 set(DHT
     torrentsync/dht/AddressData.cpp
     torrentsync/dht/Address.cpp 
-    torrentsync/dht/RoutingTable.cpp )
+    torrentsync/dht/RoutingTable.cpp
+    torrentsync/dht/AddressContainer.cpp )
 set(DHT_UT ${DHT}
     test/torrentsync/dht/AddressData.cpp
     test/torrentsync/dht/Address.cpp
     test/torrentsync/dht/RoutingTable.cpp
-    test/torrentsync/dht/AddressBucket.cpp )
+    test/torrentsync/dht/AddressBucket.cpp
+    test/torrentsync/dht/AddressContainer.cpp )
 
 # boost
 find_package(Boost
