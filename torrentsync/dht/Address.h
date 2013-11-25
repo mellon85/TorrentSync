@@ -75,5 +75,7 @@ inline bool operator>(
     return *a > *b;
 }
 
+typedef boost::shared_ptr<Address> AddressSPtr;
+
 }; // dht
 }; // torrentsync

@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(bucket_ordering)
     a2.increase();
     AddressBucket<3> b2(a2,a3);
     
-    BOOST_REQUIRE(b1 < b2);
+    BOOST_REQUIRE(std::less<AddressBucket<3> >()(b1,b2));
 }
 
 BOOST_AUTO_TEST_CASE(add_remove)

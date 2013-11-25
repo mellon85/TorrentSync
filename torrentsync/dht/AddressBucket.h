@@ -100,11 +100,6 @@ public:
     bool inBounds(
             const boost::shared_ptr<Address> addr ) const;
 
-    inline bool operator<(const AddressBucket& bucket) const
-    {
-        return high < bucket.low;
-    }
-    
     inline const_iterator begin()  const { return cbegin(); }
     inline const_iterator end()    const { return cend(); }
 
@@ -298,4 +293,16 @@ std::ostream& AddressBucket<MaxSizeT>::string( std::ostream& out ) const
 
 }; // dht
 }; // torrentsync
+
+namespace std
+{
+template <size_t Size>
+struct less<torrentsync::dht::AddressBucket<Size> >
+{
+      bool operator()
+          (const torrentsync::dht::AddressBucket<Size>& x
+          , const torrentsync::dht::AddressBucket<Size>& y) const
+      {return x.getUpperBound() < y.getLowerBound();}
+};
+}; // std
 
