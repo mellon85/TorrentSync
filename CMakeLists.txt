@@ -36,12 +36,14 @@ set(DHT_UT ${DHT}
 find_package(Boost
     COMPONENTS
     serialization
+    thread
+    system
     unit_test_framework)
 
 if (NOT ${Boost_FOUND})
     message(FATAL_ERROR "Boost not found")
 endif()
-set(COMMON_BOOST_LIBS ${Boost_SERIALIZATION_LIBRARIES})
+set(COMMON_BOOST_LIBS ${Boost_SERIALIZATION_LIBRARIES} ${Boost_THREAD_LIBRARIES} ${Boost_SYSTEM_LIBRARIES})
 include_directories(${Boost_INCLUDE_DIRS})
 
 # main executable
