@@ -83,31 +83,6 @@ const std::string AddressData::string() const
     return ret;
 }
 
-AddressData& AddressData::increase()
-{
-	if (!isMax(p3))
-		++p3;
-	else
-	{
-		p3 = 0;
-		if (!isMax(p2))
-			++p2;
-		else
-		{
-			p2 = 0;
-			if (!isMax(p1))
-				++p1;
-			else
-			{
-				throw std::logic_error("Address is already at maximum value");
-			}
-		}
-	}
-	
-	return *this;
-}
-
-
 const AddressData AddressData::minValue =
     AddressData("0000000000000000000000000000000000000000");
 const AddressData AddressData::maxValue =

@@ -93,13 +93,13 @@ BOOST_AUTO_TEST_CASE(bucket_ordering)
     AddressData a1("0000000000000000000000000000000000000000");
     AddressData a2("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF");
     AddressData a3("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData a2_1("0000020034010000000000000000000000000000");
     
     BOOST_REQUIRE(a1 <= a2);
     BOOST_REQUIRE(a2 <= a3);
     
     AddressBucket<3> b1(a1,a2);
-    a2.increase();
-    AddressBucket<3> b2(a2,a3);
+    AddressBucket<3> b2(a2_1,a3);
     
     BOOST_REQUIRE(std::less<AddressBucket<3> >()(b1,b2));
 }

@@ -22,54 +22,13 @@ public:
     AddressData(const std::string&);
     inline ~AddressData() {};
 	
-    inline bool operator==( const AddressData& addr ) const
-    {
-        return p1 == addr.p1 &&
-               p2 == addr.p2 &&
-               p3 == addr.p3;
-    }
+    inline bool operator==( const AddressData& addr ) const;
+    inline bool operator!=( const AddressData& addr ) const;
+    inline bool operator< ( const AddressData& addr ) const;
+    inline bool operator<=( const AddressData& addr ) const;
+    inline bool operator> ( const AddressData& addr ) const;
+    inline bool operator>=( const AddressData& addr ) const;
 
-    inline bool operator!=( const AddressData& addr ) const
-    {
-        return p1 != addr.p1 ||
-               p2 != addr.p2 ||
-               p3 != addr.p3;
-    }
-
-    inline bool operator<( const AddressData& addr ) const
-    {
-        return p1 < addr.p1 ||
-			   (p1 == addr.p1 && p2 < addr.p2) ||
-			   (p1 == addr.p1 && p2 == addr.p2 && p3 < addr.p3);
-    }
-
-    inline bool operator<=( const AddressData& addr ) const
-    {
-        return 	p1 < addr.p1 ||
-				(p1 == addr.p1 && p2 < addr.p2) ||
-				(p1 == addr.p1 && p2 == addr.p2 && p3 < addr.p3) ||
-				(p1 == addr.p1 && p2 == addr.p2 && p3 == addr.p3);
-    }
-
-    inline bool operator>( const AddressData& addr ) const
-    {
-        return p1 > addr.p1 ||
-			   (p1 == addr.p1 && p2 > addr.p2) ||
-			   (p1 == addr.p1 && p2 == addr.p2 && p3 > addr.p3);
-    }
-
-    inline bool operator>=( const AddressData& addr ) const
-    {
-		return 	p1 > addr.p1 ||
-				(p1 == addr.p1 && p2 > addr.p2) ||
-				(p1 == addr.p1 && p2 == addr.p2 && p3 > addr.p3) ||
-				(p1 == addr.p1 && p2 == addr.p2 && p3 == addr.p3);
-    }
-
-	// TODO need tests
-	//! may throw logic error
-	AddressData& increase();
-	
     const std::string string() const;
 
     //! may throw std::invalid_argument
@@ -87,6 +46,52 @@ protected:
     uint64_t p2; // 64  -> 127
     uint32_t p3; // 128 -> 159
 };
+
+inline bool AddressData::operator==( const AddressData& addr ) const
+{
+    return p1 == addr.p1 &&
+           p2 == addr.p2 &&
+           p3 == addr.p3;
+}
+
+inline bool AddressData::operator!=( const AddressData& addr ) const
+{
+    return p1 != addr.p1 ||
+           p2 != addr.p2 ||
+           p3 != addr.p3;
+}
+
+inline bool AddressData::operator<( const AddressData& addr ) const
+{
+    return p1 < addr.p1 ||
+           (p1 == addr.p1 && p2 < addr.p2) ||
+           (p1 == addr.p1 && p2 == addr.p2 && p3 < addr.p3);
+}
+
+inline bool AddressData::operator<=( const AddressData& addr ) const
+{
+    return 	p1 < addr.p1 ||
+            (p1 == addr.p1 && p2 < addr.p2) ||
+            (p1 == addr.p1 && p2 == addr.p2 && p3 < addr.p3) ||
+            (p1 == addr.p1 && p2 == addr.p2 && p3 == addr.p3);
+}
+
+inline bool AddressData::operator>( const AddressData& addr ) const
+{
+    return p1 > addr.p1 ||
+           (p1 == addr.p1 && p2 > addr.p2) ||
+           (p1 == addr.p1 && p2 == addr.p2 && p3 > addr.p3);
+}
+
+inline bool AddressData::operator>=( const AddressData& addr ) const
+{
+    return 	p1 > addr.p1 ||
+            (p1 == addr.p1 && p2 > addr.p2) ||
+            (p1 == addr.p1 && p2 == addr.p2 && p3 > addr.p3) ||
+            (p1 == addr.p1 && p2 == addr.p2 && p3 == addr.p3);
+}
+
+
 
 template <class Stream>
 Stream& operator<<( Stream& out, const AddressData& data )
