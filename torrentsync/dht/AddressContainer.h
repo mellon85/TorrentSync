@@ -53,12 +53,12 @@ protected:
     //! Finds the bucket containing the address space for this address.
     //! Should be called from a read-lock.
     //! @param address the address
-    //! @return bucket
-    BucketContainer::key_type findBucket( AddressData& address ) const; 
+    //! @return iterator to bucket
+    BucketContainer::const_iterator findBucket( AddressData& address ) const; 
 
-    void merge( BucketSPtr bucket );
+    void merge( BucketContainer::const_iterator bucket_it );
 
-    std::pair<BucketSPtr,BucketSPtr> split( BucketSPtr bucket );
+    std::pair<BucketSPtr,BucketSPtr> split( BucketContainer::const_iterator bucket_it );
 };
  
 }; // dht

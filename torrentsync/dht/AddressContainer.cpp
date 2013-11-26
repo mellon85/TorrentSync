@@ -1,5 +1,5 @@
 #include <torrentsync/dht/AddressContainer.h>
- 
+
 #include <exception>
 
 namespace torrentsync
@@ -17,7 +17,7 @@ inline size_t size_op( const size_t init,const T& t)
 }
 };
 #endif
- 
+
 AddressContainer::AddressContainer(
         const AddressData& nodeAddress) : nodeAddress(nodeAddress)
 {
@@ -26,7 +26,7 @@ AddressContainer::AddressContainer(
             new Bucket( AddressData::minValue, AddressData::maxValue));
     buckets.insert(bucket);
 }
- 
+
 AddressContainer::~AddressContainer()
 {
 }
@@ -37,7 +37,11 @@ void AddressContainer::addAddress( AddressSPtr address )
         throw std::invalid_argument("Address is not set");
 
     UpgradableLock rlock(mutex);
-    BucketContainer::key_type bucket = findBucket(*address);
+
+    BucketContainer::const_iterator bucket_it = findBucket(*address);
+    assert(bucket_it != buckets.end());
+
+    BucketContainer::key_type bucket = *bucket_it;
     assert(bucket->inBounds(address));
 
     if ( bucket->canAcceptAddress(address) )
@@ -47,8 +51,8 @@ void AddressContainer::addAddress( AddressSPtr address )
     else
     {
         UpgradedWriteLock wlock(rlock);
-        std::pair<BucketSPtr,BucketSPtr> split_buckets = split(bucket);
-        
+        std::pair<BucketSPtr,BucketSPtr> split_buckets = split(bucket_it);
+
         assert(split_buckets.first->inBounds(address) ||
                split_buckets.second->inBounds(address));
 
@@ -72,7 +76,11 @@ void AddressContainer::removeAddress( AddressSPtr address )
         throw std::invalid_argument("Address is not set");
 
     UpgradableLock rlock(mutex);
-    BucketContainer::key_type bucket = findBucket(*address);
+
+    BucketContainer::const_iterator bucket_it = findBucket(*address);
+    assert(bucket_it != buckets.end());
+
+    BucketContainer::key_type bucket = *bucket_it;
     assert(bucket->inBounds(address));
 
     bucket->remove(*address);
@@ -80,7 +88,7 @@ void AddressContainer::removeAddress( AddressSPtr address )
     if ( bucket->size() == 0 )
     {
         UpgradedWriteLock wlock(rlock);
-        merge(bucket); 
+        merge(bucket_it);
     }
 }
 
@@ -97,27 +105,45 @@ size_t AddressContainer::size() const
             );
 }
 
-AddressContainer::BucketContainer::key_type
-    AddressContainer::findBucket( AddressData& addr ) const
+AddressContainer::BucketContainer::const_iterator
+AddressContainer::findBucket( AddressData& addr ) const
 {
     const BucketContainer::key_type key(new Bucket(addr,addr));
     const BucketContainer::const_iterator it = buckets.lower_bound(key);
 
     assert( it != buckets.end() );
     assert( it->get() );
-    return *it;
+    return it;
 }
 
-void AddressContainer::merge( AddressContainer::BucketSPtr bucket )
+void AddressContainer::merge( BucketContainer::const_iterator bucket_it )
 {
-    assert(bucket.get());
+    assert(bucket_it != buckets.end());
+    assert(bucket_it->get());
+
+    if ( buckets.size() == 1 )
+        return;
+
     // TODO
 }
 
 std::pair<AddressContainer::BucketSPtr,AddressContainer::BucketSPtr>
-AddressContainer::split( AddressContainer::BucketSPtr bucket )
+AddressContainer::split( BucketContainer::const_iterator bucket_it )
 {
-    assert(bucket.get());
+    assert(bucket_it != buckets.end());
+    assert(bucket_it->get());
+    BucketSPtr bucket = *bucket_it;
+
+    if ( buckets.size() == 1 )
+    {
+        // split the space in 2 equal parts
+        // split in 0x0 -> 0x8000::0000
+        // 0x800::0001 -> 0xFFFF::FFFF
+    }
+    else // split as specifid by bep_0005
+    {
+    }
+
     // TODO
     return std::make_pair(bucket,bucket);
 }
