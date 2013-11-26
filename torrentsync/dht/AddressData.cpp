@@ -7,6 +7,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <boost/integer_traits.hpp>
+#include <boost/integer.hpp>
 
 namespace
 {
@@ -22,35 +23,22 @@ bool isxdigit(const std::string& str)
 }
 #endif
 
-class uint32hex
+template <size_t N>
+class hexconverter
 {
 public:
-	uint32_t value;
-	inline uint32_t operator()() { return value; }
-    inline friend std::istream& operator>>( std::istream& in, uint32hex& out )
+    typedef typename boost::uint_t<N>::fast value_type;
+    value_type value;
+	inline value_type operator()() { return value; }
+    inline friend std::istream& operator>>( std::istream& in, hexconverter<N>& out )
     {
         in >> std::hex >> out.value;
     }
 };
 
-class uint64hex
-{
-public:
-	uint64_t value;
-	inline uint64_t operator()() { return value; }
-    inline friend std::istream& operator>>( std::istream& in, uint64hex& out )
-    {
-        in >> std::hex >> out.value;
-    }
-};
-
-template <class T>
-inline bool isMax( T& v )
-{
-	return v == boost::integer_traits<T>::const_max;
-}
-
-};
+typedef hexconverter<32> uint32hex;
+typedef hexconverter<64> uint64hex;
+}; // anonymous namespace
 
 namespace torrentsync
 {
