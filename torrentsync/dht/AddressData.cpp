@@ -1,13 +1,15 @@
 
-#include <torrentsync/dht/AddressData.h>
 #include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <stdexcept>
+
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
-
 #include <boost/integer_traits.hpp>
 #include <boost/integer.hpp>
+
+#include <torrentsync/dht/AddressData.h>
 
 namespace
 {
@@ -87,6 +89,56 @@ const AddressData AddressData::minValue =
     AddressData("0000000000000000000000000000000000000000");
 const AddressData AddressData::maxValue =
     AddressData("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+
+AddressData::MaybeBounds AddressData::splitInHalf(
+    const AddressData& low,
+    const AddressData& high)
+{
+    AddressData half_low,half_high;
+
+    // a masks 1..10....0 where the 1s are the root of the tree mask
+    // low & mask == high & mask
+    AddressData mask;
+    mask.p1 = ~(low.p1 ^ high.p1);
+    mask.p2 = ~(low.p2 ^ high.p2);
+    mask.p3 = ~(low.p3 ^ high.p3);
+
+    // bit mask full set, can't split anymore
+    if (~mask.p3 == 0 && ~mask.p2 == 0 && ~mask.p3 == 0)
+        return MaybeBounds();
+
+    // create the mask to set/unset the new bit to add to next addresses
+    AddressData new_bit = mask;
+    const bool p2_first_bit = new_bit.p2 & 1;
+    const bool p1_first_bit = new_bit.p1 & 1;
+    new_bit.p1 >>= 1;
+    new_bit.p1 |= 0x8000000000000000;
+    new_bit.p2 >>= p1_first_bit;
+    new_bit.p2 |= 0x8000000000000000 * (p1_first_bit); // set bit for carryover
+    new_bit.p3 >>= p2_first_bit;
+    new_bit.p3 |= 0x80000000 * (p2_first_bit); // set bit for carryover
+    new_bit.p1 ^= mask.p1;
+    new_bit.p2 ^= mask.p2;
+    new_bit.p3 ^= mask.p3;
+
+    // assert (only one bit set in all p1, p2, p3
+
+    // creating half_low (the high of the lower pair)
+    half_low = low;
+    // also all the bits on the right of the bit are 0s, and must be 1s
+    half_low.p1 |= ~(mask.p1 | new_bit.p1);
+    half_low.p2 |= ~(mask.p2 | new_bit.p2);
+    half_low.p3 |= ~(mask.p3 | new_bit.p3);
+
+    // creating half_high (the low of the higher pair)
+    half_high = high;
+    // also all the bits on the right of the bit are 1s, and must be 0s
+    half_high.p1 &= mask.p1 | new_bit.p1;
+    half_high.p2 &= mask.p2 | new_bit.p2;
+    half_high.p3 &= mask.p3 | new_bit.p3;
+
+    return MaybeBounds(Bounds(half_low,half_high));
+}
 
 }; // dht
 }; // torrentsync

@@ -174,5 +174,43 @@ BOOST_AUTO_TEST_CASE(comparing_fixed4)
 	BOOST_REQUIRE_EQUAL(a3 == a1, false);
 }
 
+BOOST_AUTO_TEST_CASE(splitInHalf_ok)
+{
+	AddressData low = AddressData::minValue;
+	AddressData high = AddressData::maxValue;
+    
+    AddressData::MaybeBounds bounds = AddressData::splitInHalf(low,high);
+
+    BOOST_REQUIRE(!!bounds);
+	BOOST_REQUIRE_LT(low,bounds->first);
+	BOOST_REQUIRE_LT(bounds->first,bounds->second);
+	BOOST_REQUIRE_LT(bounds->second,high);
+    
+    BOOST_REQUIRE_EQUAL(bounds->first.string(),"7fffffffffffffffffffffffffffffffffffffff");
+    BOOST_REQUIRE_EQUAL(bounds->second.string(),"8000000000000000000000000000000000000000");
+
+    // sub bounds low-bounds.
+    AddressData::MaybeBounds bounds_low = AddressData::splitInHalf(low,bounds->first);
+
+    BOOST_REQUIRE(!!bounds_low);
+	BOOST_REQUIRE_LT(low,bounds_low->first);
+	BOOST_REQUIRE_LT(bounds_low->first,bounds_low->second);
+	BOOST_REQUIRE_LT(bounds_low->second,bounds->first);
+    
+    BOOST_REQUIRE_EQUAL(bounds_low->first.string(),"3fffffffffffffffffffffffffffffffffffffff");
+    BOOST_REQUIRE_EQUAL(bounds_low->second.string(),"4000000000000000000000000000000000000000");
+
+    // sub bounds high-bounds.
+    AddressData::MaybeBounds bounds_high = AddressData::splitInHalf(bounds->second,high);
+
+    BOOST_REQUIRE(!!bounds_high);
+	BOOST_REQUIRE_LT(bounds->second,bounds_high->first);
+	BOOST_REQUIRE_LT(bounds_high->first,bounds_high->second);
+	BOOST_REQUIRE_LT(bounds_high->second,high);
+    
+    BOOST_REQUIRE_EQUAL(bounds_high->first.string(),"bfffffffffffffffffffffffffffffffffffffff");
+    BOOST_REQUIRE_EQUAL(bounds_high->second.string(),"c000000000000000000000000000000000000000");
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 

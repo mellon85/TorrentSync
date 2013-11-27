@@ -7,7 +7,7 @@
 #endif
 #include <string>
 
-#include <stdexcept>
+#include <boost/optional.hpp>
 
 namespace torrentsync
 {
@@ -39,9 +39,16 @@ public:
     
 	static const uint32_t ADDRESS_STRING_LENGTH;
 	static const uint32_t ADDRESS_BITS;
+
+    typedef std::pair<AddressData,AddressData> Bounds;
+    typedef boost::optional<Bounds> MaybeBounds;
+    static MaybeBounds splitInHalf(const AddressData& low, const AddressData& high);
+
 protected:
     inline AddressData() {};
 
+    // not using std::bitset for lack of comparing operators
+    // but complicates splitInHalf
     uint64_t p1; // 0   -> 63
     uint64_t p2; // 64  -> 127
     uint32_t p3; // 128 -> 159
