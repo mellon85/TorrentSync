@@ -14,6 +14,11 @@ namespace torrentsync
 {
 namespace dht
 {
+typedef AddressBucket<DHT_K> Bucket;
+typedef boost::shared_ptr<Bucket> BucketSPtr;
+typedef std::set< boost::shared_ptr<Bucket> > BucketContainer;
+typedef std::pair<BucketSPtr,BucketSPtr> BucketSPtrPair;
+typedef boost::optional<BucketSPtrPair> MaybeBuckets;
  
 class AddressContainer : public boost::noncopyable
 {
@@ -21,12 +26,12 @@ public:
 
     //! The constructor initializes the container and saves a reference to the
     //! current node address
-    AddressContainer(const AddressData&);
+    AddressContainer(const AddressData);
 
     //! destructor
     ~AddressContainer();
  
-    void addAddress( AddressSPtr address );
+    bool addAddress( AddressSPtr address );
     void removeAddress( AddressSPtr address );
 
     //! returns the number of addresses store in the container
@@ -34,8 +39,6 @@ public:
     size_t size() const;
 
 protected:
-    typedef AddressBucket<DHT_K> Bucket;
-    typedef boost::shared_ptr<Bucket> BucketSPtr;
 
     typedef boost::shared_mutex Mutex;
     typedef boost::unique_lock<Mutex> WriteLock;
@@ -44,11 +47,11 @@ protected:
     typedef boost::upgrade_to_unique_lock<Mutex> UpgradedWriteLock;
     mutable Mutex mutex; // RW mutex
 
-    typedef std::set< boost::shared_ptr<Bucket> > BucketContainer;
+    MaybeBuckets split( BucketContainer::const_iterator bucket_it );
 
     BucketContainer buckets;
 
-    const AddressData& nodeAddress;
+    const AddressData nodeAddress;
 
     //! Finds the bucket containing the address space for this address.
     //! Should be called from a read-lock.
@@ -57,8 +60,6 @@ protected:
     BucketContainer::const_iterator findBucket( AddressData& address ) const; 
 
     void merge( BucketContainer::const_iterator bucket_it );
-
-    std::pair<BucketSPtr,BucketSPtr> split( BucketContainer::const_iterator bucket_it );
 };
  
 }; // dht

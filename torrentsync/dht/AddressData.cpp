@@ -90,7 +90,7 @@ const AddressData AddressData::minValue =
 const AddressData AddressData::maxValue =
     AddressData("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
-AddressData::MaybeBounds AddressData::splitInHalf(
+MaybeBounds AddressData::splitInHalf(
     const AddressData& low,
     const AddressData& high)
 {

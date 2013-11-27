@@ -14,6 +14,10 @@ namespace torrentsync
 namespace dht
 {
 
+class AddressData;
+typedef std::pair<AddressData,AddressData> Bounds;
+typedef boost::optional<Bounds> MaybeBounds;
+
 //! Basic implementation of a 160 bit data block
 //! This class can't be instantiated alone, must be subclassed first.
 class AddressData
@@ -36,12 +40,10 @@ public:
 
     static const AddressData minValue;
     static const AddressData maxValue;
-    
+
 	static const uint32_t ADDRESS_STRING_LENGTH;
 	static const uint32_t ADDRESS_BITS;
 
-    typedef std::pair<AddressData,AddressData> Bounds;
-    typedef boost::optional<Bounds> MaybeBounds;
     static MaybeBounds splitInHalf(const AddressData& low, const AddressData& high);
 
 protected:

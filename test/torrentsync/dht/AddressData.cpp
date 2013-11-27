@@ -17,6 +17,7 @@ class AddressData_fix : public torrentsync::dht::AddressData
  
 BOOST_FIXTURE_TEST_SUITE(torrentsync_dht_AddressData,AddressData_fix);
 
+using namespace torrentsync::dht;
 
 BOOST_AUTO_TEST_CASE(static_data_uppercase)
 {
@@ -179,7 +180,7 @@ BOOST_AUTO_TEST_CASE(splitInHalf_ok)
 	AddressData low = AddressData::minValue;
 	AddressData high = AddressData::maxValue;
     
-    AddressData::MaybeBounds bounds = AddressData::splitInHalf(low,high);
+    MaybeBounds bounds = AddressData::splitInHalf(low,high);
 
     BOOST_REQUIRE(!!bounds);
 	BOOST_REQUIRE_LT(low,bounds->first);
@@ -190,7 +191,7 @@ BOOST_AUTO_TEST_CASE(splitInHalf_ok)
     BOOST_REQUIRE_EQUAL(bounds->second.string(),"8000000000000000000000000000000000000000");
 
     // sub bounds low-bounds.
-    AddressData::MaybeBounds bounds_low = AddressData::splitInHalf(low,bounds->first);
+    MaybeBounds bounds_low = AddressData::splitInHalf(low,bounds->first);
 
     BOOST_REQUIRE(!!bounds_low);
 	BOOST_REQUIRE_LT(low,bounds_low->first);
@@ -201,7 +202,7 @@ BOOST_AUTO_TEST_CASE(splitInHalf_ok)
     BOOST_REQUIRE_EQUAL(bounds_low->second.string(),"4000000000000000000000000000000000000000");
 
     // sub bounds high-bounds.
-    AddressData::MaybeBounds bounds_high = AddressData::splitInHalf(bounds->second,high);
+    MaybeBounds bounds_high = AddressData::splitInHalf(bounds->second,high);
 
     BOOST_REQUIRE(!!bounds_high);
 	BOOST_REQUIRE_LT(bounds->second,bounds_high->first);

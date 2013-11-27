@@ -19,7 +19,7 @@ inline size_t size_op( const size_t init,const T& t)
 #endif
 
 AddressContainer::AddressContainer(
-        const AddressData& nodeAddress) : nodeAddress(nodeAddress)
+        const AddressData nodeAddress) : nodeAddress(nodeAddress)
 {
     // create first bucket
     boost::shared_ptr<Bucket> bucket(
@@ -31,7 +31,7 @@ AddressContainer::~AddressContainer()
 {
 }
 
-void AddressContainer::addAddress( AddressSPtr address )
+bool AddressContainer::addAddress( AddressSPtr address )
 {
     if (!address.get())
         throw std::invalid_argument("Address is not set");
@@ -48,10 +48,16 @@ void AddressContainer::addAddress( AddressSPtr address )
     {
         bucket->add(address);
     }
-    else
+    else if ( bucket->inBounds(nodeAddress) )
     {
         UpgradedWriteLock wlock(rlock);
-        std::pair<BucketSPtr,BucketSPtr> split_buckets = split(bucket_it);
+        MaybeBuckets maybe_split_buckets = split(bucket_it);
+
+        // unsplittable, ignore it
+        if (!maybe_split_buckets)
+            return false;
+
+        BucketSPtrPair& split_buckets = *maybe_split_buckets;
 
         assert(split_buckets.first->inBounds(address) ||
                split_buckets.second->inBounds(address));
@@ -68,6 +74,11 @@ void AddressContainer::addAddress( AddressSPtr address )
             split_buckets.first->add(address);
         }
     }
+    else
+    {
+        return false;
+    }
+    return true;
 }
 
 void AddressContainer::removeAddress( AddressSPtr address )
@@ -84,12 +95,6 @@ void AddressContainer::removeAddress( AddressSPtr address )
     assert(bucket->inBounds(address));
 
     bucket->remove(*address);
-
-    if ( bucket->size() == 0 )
-    {
-        UpgradedWriteLock wlock(rlock);
-        merge(bucket_it);
-    }
 }
 
 size_t AddressContainer::size() const
@@ -105,47 +110,55 @@ size_t AddressContainer::size() const
             );
 }
 
-AddressContainer::BucketContainer::const_iterator
+BucketContainer::const_iterator
 AddressContainer::findBucket( AddressData& addr ) const
 {
     const BucketContainer::key_type key(new Bucket(addr,addr));
-    const BucketContainer::const_iterator it = buckets.lower_bound(key);
+    BucketContainer::const_iterator it = buckets.lower_bound(key);
+
+    if (it == buckets.end() )
+        it = buckets.begin();
 
     assert( it != buckets.end() );
     assert( it->get() );
     return it;
 }
 
-void AddressContainer::merge( BucketContainer::const_iterator bucket_it )
-{
-    assert(bucket_it != buckets.end());
-    assert(bucket_it->get());
-
-    if ( buckets.size() == 1 )
-        return;
-
-    // TODO
-}
-
-std::pair<AddressContainer::BucketSPtr,AddressContainer::BucketSPtr>
+MaybeBuckets
 AddressContainer::split( BucketContainer::const_iterator bucket_it )
 {
     assert(bucket_it != buckets.end());
     assert(bucket_it->get());
     BucketSPtr bucket = *bucket_it;
 
-    if ( buckets.size() == 1 )
-    {
-        // split the space in 2 equal parts
-        // split in 0x0 -> 0x8000::0000
-        // 0x800::0001 -> 0xFFFF::FFFF
-    }
-    else // split as specifid by bep_0005
-    {
-    }
+    MaybeBounds bounds = AddressData::splitInHalf(
+            bucket->getLowerBound(), bucket->getUpperBound());
 
-    // TODO
-    return std::make_pair(bucket,bucket);
+    if (!bounds)
+        return MaybeBuckets();
+
+    BucketSPtr lower_bucket(new Bucket(bucket->getLowerBound(),bounds->first));
+    BucketSPtr upper_bucket(new Bucket(bucket->getLowerBound(),bounds->second));
+    // split addresses in buckets
+    for( Bucket::const_iterator it = bucket->cbegin(); it != bucket->cend(); ++it)
+    {
+        if (lower_bucket->inBounds(*it))
+        {
+            lower_bucket->add(*it);
+        }
+        else
+        {
+            assert(upper_bucket->inBounds(*it));
+            upper_bucket->add(*it);
+        }
+     }
+    assert(upper_bucket->size() + lower_bucket->size() == bucket->size());
+ 
+    buckets.insert(bucket_it,upper_bucket);
+    buckets.insert(bucket_it,lower_bucket);
+    buckets.erase(bucket_it);
+    
+    return MaybeBuckets(BucketSPtrPair(lower_bucket,upper_bucket));
 }
 
 }; // dht

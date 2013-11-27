@@ -97,6 +97,8 @@ public:
 
     bool inBounds(
             const boost::shared_ptr<Address> addr ) const;
+    bool inBounds(
+            const AddressData& addr ) const;
 
     inline const AddressData& getLowerBound() const { return low;  }
     inline const AddressData& getUpperBound() const { return high; }
@@ -122,8 +124,6 @@ private:
     mutable AddressList _elements;
 
     bool canAcceptAddress(const AddressData* const addr ) const;
-
-    bool inBounds(const AddressData* const addr ) const;
 };
 
 template <size_t MaxSizeT>
@@ -205,7 +205,14 @@ bool AddressBucket<MaxSizeT>::inBounds(
     if (!addr.get())
         throw std::invalid_argument("Address is NULL");
         
-    return low <= *addr && *addr <= high;
+    return inBounds(*addr);
+}
+
+template <size_t MaxSizeT>
+bool AddressBucket<MaxSizeT>::inBounds(
+        const AddressData& addr ) const
+{
+    return low <= addr && addr <= high;
 }
 
 template <size_t MaxSizeT>
