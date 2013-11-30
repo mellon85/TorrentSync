@@ -38,6 +38,11 @@ public:
     //! @return number of address
     size_t size() const;
 
+    inline const AddressData& getNodeAddress() const { return nodeAddress; }
+
+    // clears every bucket
+    void clear();
+
 protected:
 
     typedef boost::shared_mutex Mutex;
@@ -59,7 +64,6 @@ protected:
     //! @return iterator to bucket
     BucketContainer::const_iterator findBucket( AddressData& address ) const; 
 
-    void merge( BucketContainer::const_iterator bucket_it );
 };
  
 }; // dht

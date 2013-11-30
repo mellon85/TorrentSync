@@ -21,10 +21,7 @@ inline size_t size_op( const size_t init,const T& t)
 AddressTree::AddressTree(
         const AddressData nodeAddress) : nodeAddress(nodeAddress)
 {
-    // create first bucket
-    boost::shared_ptr<Bucket> bucket(
-            new Bucket( AddressData::minValue, AddressData::maxValue));
-    buckets.insert(bucket);
+    clear();
 }
 
 AddressTree::~AddressTree()
@@ -159,6 +156,17 @@ AddressTree::split( BucketContainer::const_iterator bucket_it )
     buckets.erase(bucket_it);
     
     return MaybeBuckets(BucketSPtrPair(lower_bucket,upper_bucket));
+}
+
+void AddressTree::clear()
+{
+    WriteLock lock(mutex);
+    buckets.clear();
+
+    // initialize first bucket
+    boost::shared_ptr<Bucket> bucket(
+            new Bucket( AddressData::minValue, AddressData::maxValue));
+    buckets.insert(bucket);
 }
 
 }; // dht
