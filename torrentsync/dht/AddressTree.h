@@ -20,16 +20,16 @@ typedef std::set< boost::shared_ptr<Bucket> > BucketContainer;
 typedef std::pair<BucketSPtr,BucketSPtr> BucketSPtrPair;
 typedef boost::optional<BucketSPtrPair> MaybeBuckets;
  
-class AddressContainer : public boost::noncopyable
+class AddressTree : public boost::noncopyable
 {
 public:
 
     //! The constructor initializes the container and saves a reference to the
     //! current node address
-    AddressContainer(const AddressData);
+    AddressTree(const AddressData);
 
     //! destructor
-    ~AddressContainer();
+    ~AddressTree();
  
     bool addAddress( AddressSPtr address );
     void removeAddress( AddressSPtr address );

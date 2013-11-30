@@ -26,13 +26,13 @@ set(DHT
     torrentsync/dht/AddressData.cpp
     torrentsync/dht/Address.cpp 
     torrentsync/dht/RoutingTable.cpp
-    torrentsync/dht/AddressContainer.cpp )
+    torrentsync/dht/AddressTree.cpp )
 set(DHT_UT ${DHT}
     test/torrentsync/dht/AddressData.cpp
     test/torrentsync/dht/Address.cpp
     test/torrentsync/dht/RoutingTable.cpp
     test/torrentsync/dht/AddressBucket.cpp
-    test/torrentsync/dht/AddressContainer.cpp )
+    test/torrentsync/dht/AddressTree.cpp )
 
 # boost
 find_package(Boost
@@ -50,7 +50,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 # main executable
 add_executable(TorrentSync
-    torrentsync/test.cpp ${DHT})
+    torrentsync/main.cpp ${DHT})
 
 # unit tests
 add_executable(unittest

@@ -1,4 +1,4 @@
-#include <torrentsync/dht/AddressContainer.h>
+#include <torrentsync/dht/AddressTree.h>
 
 #include <exception>
 
@@ -18,7 +18,7 @@ inline size_t size_op( const size_t init,const T& t)
 };
 #endif
 
-AddressContainer::AddressContainer(
+AddressTree::AddressTree(
         const AddressData nodeAddress) : nodeAddress(nodeAddress)
 {
     // create first bucket
@@ -27,11 +27,11 @@ AddressContainer::AddressContainer(
     buckets.insert(bucket);
 }
 
-AddressContainer::~AddressContainer()
+AddressTree::~AddressTree()
 {
 }
 
-bool AddressContainer::addAddress( AddressSPtr address )
+bool AddressTree::addAddress( AddressSPtr address )
 {
     if (!address.get())
         throw std::invalid_argument("Address is not set");
@@ -81,7 +81,7 @@ bool AddressContainer::addAddress( AddressSPtr address )
     return true;
 }
 
-void AddressContainer::removeAddress( AddressSPtr address )
+void AddressTree::removeAddress( AddressSPtr address )
 {
     if (!address.get())
         throw std::invalid_argument("Address is not set");
@@ -97,7 +97,7 @@ void AddressContainer::removeAddress( AddressSPtr address )
     bucket->remove(*address);
 }
 
-size_t AddressContainer::size() const
+size_t AddressTree::size() const
 {
     ReadLock rlock(mutex);
     return std::accumulate(buckets.begin(), buckets.end(), static_cast<size_t>(0),
@@ -111,7 +111,7 @@ size_t AddressContainer::size() const
 }
 
 BucketContainer::const_iterator
-AddressContainer::findBucket( AddressData& addr ) const
+AddressTree::findBucket( AddressData& addr ) const
 {
     const BucketContainer::key_type key(new Bucket(addr,addr));
     BucketContainer::const_iterator it = buckets.lower_bound(key);
@@ -125,7 +125,7 @@ AddressContainer::findBucket( AddressData& addr ) const
 }
 
 MaybeBuckets
-AddressContainer::split( BucketContainer::const_iterator bucket_it )
+AddressTree::split( BucketContainer::const_iterator bucket_it )
 {
     assert(bucket_it != buckets.end());
     assert(bucket_it->get());
