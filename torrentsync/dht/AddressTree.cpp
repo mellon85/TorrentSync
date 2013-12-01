@@ -135,7 +135,8 @@ AddressTree::split( BucketContainer::const_iterator bucket_it )
         return MaybeBuckets();
 
     BucketSPtr lower_bucket(new Bucket(bucket->getLowerBound(),bounds->first));
-    BucketSPtr upper_bucket(new Bucket(bucket->getLowerBound(),bounds->second));
+    BucketSPtr upper_bucket(new Bucket(bounds->second,bucket->getUpperBound()));
+    
     // split addresses in buckets
     for( Bucket::const_iterator it = bucket->cbegin(); it != bucket->cend(); ++it)
     {
@@ -148,13 +149,14 @@ AddressTree::split( BucketContainer::const_iterator bucket_it )
             assert(upper_bucket->inBounds(*it));
             upper_bucket->add(*it);
         }
-     }
+    }
+
     assert(upper_bucket->size() + lower_bucket->size() == bucket->size());
  
     buckets.insert(bucket_it,upper_bucket);
     buckets.insert(bucket_it,lower_bucket);
     buckets.erase(bucket_it);
-    
+
     return MaybeBuckets(BucketSPtrPair(lower_bucket,upper_bucket));
 }
 

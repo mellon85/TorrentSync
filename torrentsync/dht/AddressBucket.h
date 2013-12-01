@@ -234,8 +234,8 @@ bool AddressBucket<MaxSizeT>::canAcceptAddress(
     isBadPredicate()
 #endif
                     
-                    ) == _elements.end())
-        return true;
+                    ) == end())
+            return false;
     }
 
     if (size() < maxSize())
