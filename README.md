@@ -22,12 +22,16 @@ Files
 Glue stuff together
   * Minimal app for development testing
 
-To be put in place
-  * building scripts
-  * testing scripts
+
 
 Additional stuff
   * NAT, UPNP
   * Hole punching systems
   * bandwith reduction by checksum hashtable checking if we have the data already
   
+
+Done:
+
+Automation
+  * building scripts
+  * testing scripts
