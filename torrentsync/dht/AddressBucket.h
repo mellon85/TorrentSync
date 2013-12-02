@@ -161,7 +161,8 @@ bool AddressBucket<MaxSizeT>::add( const boost::shared_ptr<Address> addr )
 
     if (*addr > high || *addr < low)
     {
-        throw std::invalid_argument("The address can't stay in this Bucket");
+        throw std::invalid_argument("The address can't stay in this Bucket: "
+            + addr->string() + " "+low.string()+"-"+high.string());
     }
 
     if (size() == maxSize())

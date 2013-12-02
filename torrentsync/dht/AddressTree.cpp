@@ -68,7 +68,7 @@ bool AddressTree::addAddress( AddressSPtr address )
         {
             assert(split_buckets.second->inBounds(address));
             assert(split_buckets.second->canAcceptAddress(address));
-            split_buckets.first->add(address);
+            split_buckets.second->add(address);
         }
     }
     else
