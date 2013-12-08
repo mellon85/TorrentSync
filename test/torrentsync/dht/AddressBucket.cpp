@@ -29,7 +29,6 @@ BOOST_AUTO_TEST_CASE(constructor)
         const std::string str = generateRandomAddress();
         boost::shared_ptr<Address> addr(new Address(str));
         BOOST_REQUIRE_EQUAL(true,bucket.inBounds(addr));
-        BOOST_REQUIRE_EQUAL(true,bucket.canAcceptAddress(addr));
     }
 
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -54,7 +53,6 @@ BOOST_AUTO_TEST_CASE(outside)
         std::string str = generateRandomAddress("F");
         boost::shared_ptr<Address> addr(new Address(str));
         BOOST_REQUIRE_EQUAL(false,bucket.inBounds(addr));
-        BOOST_REQUIRE_EQUAL(true,bucket.canAcceptAddress(addr));
     }
 
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -79,7 +77,6 @@ BOOST_AUTO_TEST_CASE(inside)
         std::string str = generateRandomAddress("000002003400");
         boost::shared_ptr<Address> addr(new Address(str));
         BOOST_REQUIRE_EQUAL(true,bucket.inBounds(addr));
-        BOOST_REQUIRE_EQUAL(true,bucket.canAcceptAddress(addr));
     }
 
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);

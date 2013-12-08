@@ -54,9 +54,6 @@ protected:
 
     MaybeBuckets split( BucketContainer::const_iterator bucket_it );
 
-    BucketContainer buckets;
-
-    const AddressData nodeAddress;
 
     //! Finds the bucket containing the address space for this address.
     //! Should be called from a read-lock.
@@ -64,6 +61,12 @@ protected:
     //! @return iterator to bucket
     BucketContainer::const_iterator findBucket( AddressData& address ) const; 
 
+    inline const size_t getBucketsCount() const { return buckets.size(); }
+
+private:
+    BucketContainer buckets;
+
+    const AddressData nodeAddress;
 };
  
 }; // dht

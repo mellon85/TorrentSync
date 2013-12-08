@@ -41,11 +41,8 @@ bool AddressTree::addAddress( AddressSPtr address )
     BucketContainer::key_type bucket = *bucket_it;
     assert(bucket->inBounds(address));
 
-    if ( bucket->canAcceptAddress(address) )
-    {
-        bucket->add(address);
-    }
-    else if ( bucket->inBounds(nodeAddress) )
+    const bool isAdded = bucket->add(address);
+    if ( !isAdded && bucket->inBounds(nodeAddress) )
     {
         UpgradedWriteLock wlock(rlock);
         MaybeBuckets maybe_split_buckets = split(bucket_it);
@@ -61,13 +58,11 @@ bool AddressTree::addAddress( AddressSPtr address )
 
         if (split_buckets.first->inBounds(address))
         {
-            assert(split_buckets.first->canAcceptAddress(address));
             split_buckets.first->add(address);
         }
         else
         {
             assert(split_buckets.second->inBounds(address));
-            assert(split_buckets.second->canAcceptAddress(address));
             split_buckets.second->add(address);
         }
     }
@@ -111,10 +106,20 @@ BucketContainer::const_iterator
 AddressTree::findBucket( AddressData& addr ) const
 {
     const BucketContainer::key_type key(new Bucket(addr,addr));
+
+    
+    BucketContainer::const_iterator it = buckets.begin();
+    while ( it != buckets.end() && ! (*it)->inBounds(addr))
+    {
+        ++it;
+    }
+
+    /*
     BucketContainer::const_iterator it = buckets.lower_bound(key);
 
     if (it == buckets.end() )
         it = buckets.begin();
+        */
 
     assert( it != buckets.end() );
     assert( it->get() );

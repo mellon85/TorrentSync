@@ -92,9 +92,6 @@ public:
 
     void clear();
 
-    bool canAcceptAddress(
-            const boost::shared_ptr<Address> addr ) const;
-
     bool inBounds(
             const boost::shared_ptr<Address> addr ) const;
     bool inBounds(
@@ -122,8 +119,6 @@ private:
     size_t addressCount;
 
     mutable AddressList _elements;
-
-    bool canAcceptAddress(const AddressData* const addr ) const;
 };
 
 template <size_t MaxSizeT>
@@ -214,36 +209,6 @@ bool AddressBucket<MaxSizeT>::inBounds(
         const AddressData& addr ) const
 {
     return low <= addr && addr <= high;
-}
-
-template <size_t MaxSizeT>
-bool AddressBucket<MaxSizeT>::canAcceptAddress(
-        const boost::shared_ptr<Address> addr ) const
-{
-    if (!addr.get())
-        throw std::invalid_argument("Address is NULL");
-
-    // try to clean the elements
-    if (size() == maxSize())
-    {
-        if( std::find_if(begin(),end(),
-#ifdef HAS_Cxx11
-     [](const boost::shared_ptr<Address>& addr) -> bool {
-                assert(addr.get());
-                return addr->isBad(); }
-#else
-    isBadPredicate()
-#endif
-                    
-                    ) == end())
-            return false;
-    }
-
-    if (size() < maxSize())
-    {
-        return true;
-    }
-    return false;
 }
 
 template <size_t MaxSizeT>

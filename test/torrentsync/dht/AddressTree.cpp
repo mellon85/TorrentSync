@@ -3,6 +3,7 @@
 #include <boost/foreach.hpp>
 #include <torrentsync/dht/AddressTree.h>
 #include <test/torrentsync/dht/CommonAddressTest.h>
+#include <boost/lexical_cast.hpp>
 
 namespace
 {
@@ -16,6 +17,200 @@ public:
 BOOST_FIXTURE_TEST_SUITE(torrentsync_dht_AddressTree,AddressTreeFixture);
 
 using namespace torrentsync::dht;
+
+BOOST_AUTO_TEST_CASE(addAddress_oneSplit_toUp)
+{
+    addAddress(AddressSPtr(new Address(generateRandomAddress("00"))));
+    BOOST_REQUIRE_EQUAL(size(),1);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("01"))));
+    BOOST_REQUIRE_EQUAL(size(),2);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("02"))));
+    BOOST_REQUIRE_EQUAL(size(),3);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("03"))));
+    BOOST_REQUIRE_EQUAL(size(),4);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f0"))));
+    BOOST_REQUIRE_EQUAL(size(),5);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f1"))));
+    BOOST_REQUIRE_EQUAL(size(),6);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f2"))));
+    BOOST_REQUIRE_EQUAL(size(),7);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f3"))));
+    BOOST_REQUIRE_EQUAL(size(),8);
+    BOOST_REQUIRE_EQUAL(getBucketsCount(),1);
+
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f4"))));
+    BOOST_REQUIRE_EQUAL(size(),9);
+    BOOST_REQUIRE_EQUAL(getBucketsCount(),2);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f5"))));
+    BOOST_REQUIRE_EQUAL(size(),10);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f6"))));
+    BOOST_REQUIRE_EQUAL(size(),11);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("04"))));
+    BOOST_REQUIRE_EQUAL(size(),12);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("05"))));
+    BOOST_REQUIRE_EQUAL(size(),13);
+    BOOST_REQUIRE_EQUAL(getBucketsCount(),2);
+}
+
+BOOST_AUTO_TEST_CASE(addAddress_oneSplit_toLower)
+{
+    addAddress(AddressSPtr(new Address(generateRandomAddress("00"))));
+    BOOST_REQUIRE_EQUAL(size(),1);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("01"))));
+    BOOST_REQUIRE_EQUAL(size(),2);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("02"))));
+    BOOST_REQUIRE_EQUAL(size(),3);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("03"))));
+    BOOST_REQUIRE_EQUAL(size(),4);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f0"))));
+    BOOST_REQUIRE_EQUAL(size(),5);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f1"))));
+    BOOST_REQUIRE_EQUAL(size(),6);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f2"))));
+    BOOST_REQUIRE_EQUAL(size(),7);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f3"))));
+    BOOST_REQUIRE_EQUAL(size(),8);
+    BOOST_REQUIRE_EQUAL(getBucketsCount(),1);
+
+    addAddress(AddressSPtr(new Address(generateRandomAddress("04"))));
+    BOOST_REQUIRE_EQUAL(size(),9);
+    BOOST_REQUIRE_EQUAL(getBucketsCount(),2);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("05"))));
+    BOOST_REQUIRE_EQUAL(size(),10);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("06"))));
+    BOOST_REQUIRE_EQUAL(size(),11);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f4"))));
+    BOOST_REQUIRE_EQUAL(size(),12);
+    addAddress(AddressSPtr(new Address(generateRandomAddress("f5"))));
+    BOOST_REQUIRE_EQUAL(size(),13);
+    BOOST_REQUIRE_EQUAL(getBucketsCount(),2);
+}
+
+BOOST_AUTO_TEST_CASE(addAddress_inARow_000_to_999)
+{
+    int count;
+    for ( int a = 0; a < 9; ++a )
+    {
+        for ( int b = 0; b < 9; ++b )
+        {
+            for ( int c = 0; c < 9; ++c )
+            {
+                ++count;
+                std::stringstream num;
+                num << a << b << c;
+                addAddress(AddressSPtr(new Address(generateRandomAddress(num.str()))));
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(addAddress_inARow_999_to_000)
+{
+    int count = 0;
+    for ( int a = 9; a >= 0; --a )
+    {
+        for ( int b = 9; b >= 0; --b )
+        {
+            for ( int c = 9; c >= 0; --c )
+            {
+                ++count;
+                std::stringstream num;
+                num << a << b << c;
+                addAddress(AddressSPtr(new Address(generateRandomAddress(num.str()))));
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(addAddress_inARow_000_to_999_cba)
+{
+    int count;
+    for ( int a = 0; a < 9; ++a )
+    {
+        for ( int b = 0; b < 9; ++b )
+        {
+            for ( int c = 0; c < 9; ++c )
+            {
+                ++count;
+                std::stringstream num;
+                num << c << b << a;
+                addAddress(AddressSPtr(new Address(generateRandomAddress(num.str()))));
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(addAddress_inARow_000_to_999_bca)
+{
+    int count;
+    for ( int a = 0; a < 9; ++a )
+    {
+        for ( int b = 0; b < 9; ++b )
+        {
+            for ( int c = 0; c < 9; ++c )
+            {
+                ++count;
+                std::stringstream num;
+                num << b << c << a;
+                addAddress(AddressSPtr(new Address(generateRandomAddress(num.str()))));
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(addAddress_inARow_000_to_999_acb)
+{
+    int count;
+    for ( int a = 0; a < 9; ++a )
+    {
+        for ( int b = 0; b < 9; ++b )
+        {
+            for ( int c = 0; c < 9; ++c )
+            {
+                ++count;
+                std::stringstream num;
+                num << a << c << b;
+                addAddress(AddressSPtr(new Address(generateRandomAddress(num.str()))));
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(addAddress_inARow_000_to_999_cab)
+{
+    int count;
+    for ( int a = 0; a < 9; ++a )
+    {
+        for ( int b = 0; b < 9; ++b )
+        {
+            for ( int c = 0; c < 9; ++c )
+            {
+                ++count;
+                std::stringstream num;
+                num << c << a << b;
+                addAddress(AddressSPtr(new Address(generateRandomAddress(num.str()))));
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(addAddress_inARow_000_to_999_bac)
+{
+    int count;
+    for ( int a = 0; a < 9; ++a )
+    {
+        for ( int b = 0; b < 9; ++b )
+        {
+            for ( int c = 0; c < 9; ++c )
+            {
+                ++count;
+                std::stringstream num;
+                num << b << a << c;
+                addAddress(AddressSPtr(new Address(generateRandomAddress(num.str()))));
+            }
+        }
+    }
+}
 
 BOOST_AUTO_TEST_CASE(addAddress_someRandom)
 {
@@ -40,7 +235,6 @@ BOOST_AUTO_TEST_CASE(addAddress_someRandom)
             {
                 addresses.push_back(a);
                 addAddress(a);
-                BOOST_REQUIRE_EQUAL(this->size(),j+1);
             }
         }
         this->clear();
