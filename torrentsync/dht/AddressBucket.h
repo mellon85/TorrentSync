@@ -1,9 +1,12 @@
 #pragma once
+
 #include <torrentsync/dht/AddressData.h>
 #include <torrentsync/dht/Address.h>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include <boost/utility.hpp>
+#include <boost/optional.hpp>
 
 namespace torrentsync
 {
@@ -84,6 +87,9 @@ public:
 
     void remove(
         const Address& addr);
+
+    const boost::optional<AddressSPtr> find(
+        const AddressData& addr) const;
 
     void removeBad();
 
@@ -261,6 +267,28 @@ std::ostream& AddressBucket<MaxSizeT>::string( std::ostream& out ) const
         out << **it << std::endl;
     }
     return out;
+}
+
+template <size_t MaxSizeT>
+const boost::optional<AddressSPtr> AddressBucket<MaxSizeT>::find(
+    const AddressData& addr) const
+{
+    const_iterator it = std::find_if( begin(), end(), 
+#ifdef HAS_Cxx11
+            [addr](const boost::shared_ptr<Address>& bucket_addr) -> bool {
+                assert(bucket_addr.get());
+                return static_cast<AddressData&>(*bucket_addr) == addr; }
+#else
+                 AddressSharedPtrEquality()
+#endif
+            );
+
+    boost::optional<AddressSPtr> ret;
+    if ( it != end() )
+    {
+        ret = *it;
+    }
+    return ret;
 }
 
 }; // dht

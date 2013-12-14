@@ -103,7 +103,7 @@ size_t AddressTree::size() const
 }
 
 BucketContainer::const_iterator
-AddressTree::findBucket( AddressData& addr ) const
+AddressTree::findBucket( const AddressData& addr ) const
 {
     const BucketContainer::key_type key(new Bucket(addr,addr));
 
@@ -174,6 +174,12 @@ void AddressTree::clear()
     boost::shared_ptr<Bucket> bucket(
             new Bucket( AddressData::minValue, AddressData::maxValue));
     buckets.insert(bucket);
+}
+
+const boost::optional<AddressSPtr> AddressTree::getAddress(
+    const AddressData& data ) const
+{
+    return (*findBucket(data))->find(data);
 }
 
 }; // dht

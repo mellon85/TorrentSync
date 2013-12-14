@@ -4,6 +4,7 @@
 #include <torrentsync/dht/AddressTree.h>
 #include <test/torrentsync/dht/CommonAddressTest.h>
 #include <boost/lexical_cast.hpp>
+#include <boost/optional.hpp>
 
 namespace
 {
@@ -239,6 +240,49 @@ BOOST_AUTO_TEST_CASE(addAddress_someRandom)
         }
         this->clear();
         BOOST_REQUIRE_EQUAL(this->size(),0);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(addAddress_and_find)
+{
+    for( int i = 0; i < TEST_LOOP_COUNT; ++i )
+    {
+        std::vector<AddressSPtr> v = {
+            AddressSPtr(new Address(generateRandomAddress("00"))),
+            AddressSPtr(new Address(generateRandomAddress("01"))),
+            AddressSPtr(new Address(generateRandomAddress("02"))),
+            AddressSPtr(new Address(generateRandomAddress("03"))),
+            AddressSPtr(new Address(generateRandomAddress("f0"))),
+            AddressSPtr(new Address(generateRandomAddress("f1"))),
+            AddressSPtr(new Address(generateRandomAddress("f2"))),
+            AddressSPtr(new Address(generateRandomAddress("f3"))),
+            AddressSPtr(new Address(generateRandomAddress("f4"))),
+            AddressSPtr(new Address(generateRandomAddress("f5"))),
+            AddressSPtr(new Address(generateRandomAddress("f6"))),
+            AddressSPtr(new Address(generateRandomAddress("04"))),
+            AddressSPtr(new Address(generateRandomAddress("05"))) };
+
+        BOOST_FOREACH( AddressSPtr addr, v )
+        {
+            BOOST_REQUIRE_NO_THROW(addAddress(addr));
+        }
+
+        BOOST_FOREACH( const AddressSPtr& addr, v )
+        {
+            boost::optional<AddressSPtr> b = getAddress(*addr);
+            BOOST_CHECK(!!b);
+            BOOST_REQUIRE(b.get());
+            BOOST_CHECK_EQUAL(**b,*addr);
+        }
+
+        for ( int j = 0; j < TEST_LOOP_COUNT; ++j )
+        {
+            boost::optional<AddressSPtr> b = getAddress(
+                   AddressData(generateRandomAddress("b")));
+            BOOST_CHECK(!b);
+        }
+
+        clear();
     }
 }
 
