@@ -3,6 +3,7 @@
 
 #include <torrentsync/dht/AddressData.h>
 #include <torrentsync/dht/Distance.h>
+
 #include <boost/shared_ptr.hpp>
 
 namespace torrentsync
@@ -27,11 +28,11 @@ public:
         return ret;
     }
 
-    inline void setGood()        { last_time_good = time(0); last_unanswered_queries = 0; }
-    inline bool isGood()         const { return last_time_good > time(0)-good_interval; }
-    inline bool isQuestionable() const { return !isGood() && last_unanswered_queries <= allowed_unanswered_queries;}
-    inline bool isBad()          const { return !isGood() && last_unanswered_queries >  allowed_unanswered_queries;}
-    inline const time_t& getLastTimeGood() const { return last_time_good; }
+    inline void setGood();
+    inline bool isGood() const;
+    inline bool isQuestionable() const;
+    inline bool isBad()          const;
+    inline const time_t& getLastTimeGood() const;
 
     static const time_t good_interval; 
 
@@ -48,6 +49,31 @@ protected:
 };
 
 typedef boost::shared_ptr<Address> AddressSPtr;
+
+
+void Address::setGood() 
+{
+    last_time_good = time(0);
+    last_unanswered_queries = 0;
+}
+
+bool Address::isGood() const
+{
+    return last_time_good > time(0)-good_interval;
+}
+
+bool Address::isQuestionable() const {
+    return !isGood() && last_unanswered_queries <= allowed_unanswered_queries;
+}
+
+bool Address::isBad() const {
+    return !isGood() && last_unanswered_queries >  allowed_unanswered_queries;
+}
+
+const time_t& Address::getLastTimeGood() const
+{
+    return last_time_good;
+}
 
 }; // dht
 }; // torrentsync
