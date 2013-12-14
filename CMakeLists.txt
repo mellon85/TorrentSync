@@ -26,13 +26,21 @@ set(DHT
     torrentsync/dht/AddressData.cpp
     torrentsync/dht/Address.cpp 
     torrentsync/dht/RoutingTable.cpp
+    torrentsync/dht/Node.cpp
+    torrentsync/dht/message/Message.cpp
+    torrentsync/dht/message/Ping.cpp
     torrentsync/dht/AddressTree.cpp )
 set(DHT_UT ${DHT}
     test/torrentsync/dht/AddressData.cpp
     test/torrentsync/dht/Address.cpp
+    test/torrentsync/dht/Node.cpp
     test/torrentsync/dht/RoutingTable.cpp
     test/torrentsync/dht/AddressBucket.cpp
     test/torrentsync/dht/AddressTree.cpp )
+
+# threads
+find_package(Threads)
+set(COMMON_LIBS ${CMAKE_THREAD_LIBS_INIT})
 
 # boost
 find_package(Boost
@@ -61,6 +69,6 @@ add_test(NAME unit_test
          COMMAND unittest)
 
 # add linking
-target_link_libraries(TorrentSync ${COMMON_BOOST_LIBS})
-target_link_libraries(unittest ${COMMON_BOOST_LIBS} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES})
+target_link_libraries(TorrentSync ${COMMON_BOOST_LIBS} ${COMMON_LIBS})
+target_link_libraries(unittest ${COMMON_BOOST_LIBS} ${COMMON_LIBS} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES})
 
