@@ -15,6 +15,7 @@ class Address : public AddressData
 {
 public:
     Address( const std::string& );
+    Address( const Address& addr );
 
     ~Address() {};
 

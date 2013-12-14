@@ -21,6 +21,12 @@ Address::Address(const std::string& str)
     setGood();
 }
 
+Address::Address( const Address& addr )
+{
+    *this = addr;
+    setGood();
+}
+
 }; // dht
 }; // torrentsync
 
