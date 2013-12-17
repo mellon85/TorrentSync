@@ -1,0 +1,2 @@
+/home/rustyrick/git/TorrentSync/CMakeFiles/TorrentSync.dir
+/home/rustyrick/git/TorrentSync/CMakeFiles/unittest.dir

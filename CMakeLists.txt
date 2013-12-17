@@ -27,6 +27,7 @@ set(DHT
     torrentsync/dht/Address.cpp 
     torrentsync/dht/RoutingTable.cpp
     torrentsync/dht/Node.cpp
+    torrentsync/dht/message/BencodedMessage.cpp
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Ping.cpp
     torrentsync/dht/AddressTree.cpp )
