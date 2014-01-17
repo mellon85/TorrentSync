@@ -27,7 +27,6 @@ set(DHT
     torrentsync/dht/Address.cpp 
     torrentsync/dht/RoutingTable.cpp
     torrentsync/dht/Node.cpp
-    torrentsync/dht/message/BencodedMessage.cpp
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Ping.cpp
     torrentsync/dht/AddressTree.cpp )
@@ -37,7 +36,8 @@ set(DHT_UT ${DHT}
     test/torrentsync/dht/Node.cpp
     test/torrentsync/dht/RoutingTable.cpp
     test/torrentsync/dht/AddressBucket.cpp
-    test/torrentsync/dht/AddressTree.cpp )
+    test/torrentsync/dht/AddressTree.cpp
+    test/torrentsync/dht/message/BEncodeEncoder.cpp)
 
 # threads
 find_package(Threads)
