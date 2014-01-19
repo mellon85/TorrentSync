@@ -1,8 +1,5 @@
 /*
- * BencodedMessage.h
- *
- *  Created on: 15/dic/2013
- *      Author: rustyrick
+ * BEncodedEncoder.h
  */
 
 #pragma once
