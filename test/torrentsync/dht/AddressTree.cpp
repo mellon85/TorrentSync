@@ -3,6 +3,7 @@
 #include <boost/foreach.hpp>
 #include <torrentsync/dht/AddressTree.h>
 #include <test/torrentsync/dht/CommonAddressTest.h>
+#include <boost/assign/std/vector.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
 
@@ -18,6 +19,7 @@ public:
 BOOST_FIXTURE_TEST_SUITE(torrentsync_dht_AddressTree,AddressTreeFixture);
 
 using namespace torrentsync::dht;
+using namespace boost::assign;
 
 BOOST_AUTO_TEST_CASE(addAddress_oneSplit_toUp)
 {
@@ -219,7 +221,7 @@ BOOST_AUTO_TEST_CASE(addAddress_someRandom)
     {
         std::vector<AddressSPtr> addresses;
         const size_t count = rand()%(rand()%4096);
-        for( int j = 0; j < count; j++ )
+        for( size_t j = 0; j < count; j++ )
         {
             bool bad = false;
             AddressSPtr a(new Address(generateRandomAddress()));
@@ -247,20 +249,20 @@ BOOST_AUTO_TEST_CASE(addAddress_and_find)
 {
     for( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
-        std::vector<AddressSPtr> v = {
-            AddressSPtr(new Address(generateRandomAddress("00"))),
-            AddressSPtr(new Address(generateRandomAddress("01"))),
-            AddressSPtr(new Address(generateRandomAddress("02"))),
-            AddressSPtr(new Address(generateRandomAddress("03"))),
-            AddressSPtr(new Address(generateRandomAddress("f0"))),
-            AddressSPtr(new Address(generateRandomAddress("f1"))),
-            AddressSPtr(new Address(generateRandomAddress("f2"))),
-            AddressSPtr(new Address(generateRandomAddress("f3"))),
-            AddressSPtr(new Address(generateRandomAddress("f4"))),
-            AddressSPtr(new Address(generateRandomAddress("f5"))),
-            AddressSPtr(new Address(generateRandomAddress("f6"))),
-            AddressSPtr(new Address(generateRandomAddress("04"))),
-            AddressSPtr(new Address(generateRandomAddress("05"))) };
+        std::vector<AddressSPtr> v;
+        v += AddressSPtr(new Address(generateRandomAddress("00"))),
+             AddressSPtr(new Address(generateRandomAddress("01"))),
+             AddressSPtr(new Address(generateRandomAddress("02"))),
+             AddressSPtr(new Address(generateRandomAddress("03"))),
+             AddressSPtr(new Address(generateRandomAddress("f0"))),
+             AddressSPtr(new Address(generateRandomAddress("f1"))),
+             AddressSPtr(new Address(generateRandomAddress("f2"))),
+             AddressSPtr(new Address(generateRandomAddress("f3"))),
+             AddressSPtr(new Address(generateRandomAddress("f4"))),
+             AddressSPtr(new Address(generateRandomAddress("f5"))),
+             AddressSPtr(new Address(generateRandomAddress("f6"))),
+             AddressSPtr(new Address(generateRandomAddress("04"))),
+             AddressSPtr(new Address(generateRandomAddress("05")));
 
         BOOST_FOREACH( AddressSPtr addr, v )
         {

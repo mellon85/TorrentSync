@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <exception>
 
 namespace torrentsync
 {
@@ -16,9 +17,18 @@ namespace message
 class BEncodeException : public std::exception
 {
 public:
-    BEncodeException( const std::string reason )
-        : std::exception(reason) {}
-}
+    inline BEncodeException( const std::string& reason ) throw ();
+    inline BEncodeException( const char* reason ) throw ();
+
+    virtual ~BEncodeException() throw () {}
+
+    virtual const char* what() const throw()
+    {
+        return reason.c_str();
+    }
+
+    const std::string reason;
+};
 
 //! Decoder for a BEncode message decoder
 class BEncodeDecoder
@@ -26,15 +36,14 @@ class BEncodeDecoder
 public:
 
     //! Constructor
-    BEncodeDecoder( std::istream &stream )
-        : stream(stream) {}
+    BEncodeDecoder() {}
 
     //! Destructor
-    virtual ~BEncodeDecoder();
+    virtual ~BEncodeDecoder() {}
 
     //! Parse the message from the istream
-    //! @param istream stream parser
-    void parseMessage();
+    //! @param stream stream parser
+    void parseMessage( std::istream &stream );
 
 protected:
 
@@ -63,11 +72,9 @@ protected:
             const std::string& element)=0;
 
 private:
-    std::string readElement() const;
+    std::string readElement( std::istream& stream );
 
     std::vector<bool> structureStack;
-
-    std::istream &stream
 
     enum {
         DICTIONARY = false,
@@ -75,6 +82,10 @@ private:
     };
 
 };
+
+
+BEncodeException::BEncodeException( const std::string& str ) throw () : reason(str) {}
+BEncodeException::BEncodeException( const char* str ) throw () : reason(str) {}
 
 } // torrentsync
 } // dht

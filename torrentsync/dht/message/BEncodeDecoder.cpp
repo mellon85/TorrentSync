@@ -1,4 +1,6 @@
 #include <torrentsync/dht/message/BEncodeDecoder.h>
+#include <cassert>
+#include <boost/scoped_ptr.hpp>
 
 namespace torrentsync
 {
@@ -7,61 +9,93 @@ namespace dht
 namespace message
 {
 
-virtual void BEncodeDecoder::parseMessage()
+void BEncodeDecoder::parseMessage( std::istream& stream )
 {
-    const char buff = stream.get(1);
-    //! TODO check failbit
-
-    switch (buff)
+    bool parseEnded = false;
+    while ( !stream.eof() && !parseEnded )
     {
-        case 'd':
-            structureStack.push_back(DICTIONARY);
-            onDictionaryStart();
-            break;
+        char buff;
+        stream >> buff;
+        if (!stream.good())
+            throw BEncodeException("Error in stream while reading a char");
 
-        case 'l':
-            structureStack.push_back(LIST);
-            onListStart();
-            break;
+        switch (buff)
+        {
+            case 'd':
+                structureStack.push_back(DICTIONARY);
+                onDictionaryStart();
+                break;
 
-        case 'e':
-            if (structureStack.size() <= 0)
-                throw BEncodeException("Malformed message - end not in a structure");
-            
-            if (structureStack.pop_back() == DICTIONARY)
-                onDictionaryEnd();
-            else
-                onListEnd();
-            break;
+            case 'l':
+                structureStack.push_back(LIST);
+                onListStart();
+                break;
 
-        default:
-            if (structureStack.empty())
-                throw BEncodeException("Malformed message - no structure found");
+            case 'e':
+                if (structureStack.size() <= 0)
+                    throw BEncodeException("Malformed message - end not in a structure");
+                
+                if (structureStack.back() == DICTIONARY)
+                    onDictionaryEnd();
+                else
+                    onListEnd();
+                structureStack.pop_back();
+                if (structureStack.size() == 0)
+                {
+                    parseEnded = true;
+                }
+                break;
 
-            if (structureStack.end()-1 == DICTIONARY)
-            {
-                const std::string key, value;
-                key = readElement();
-                value = readElement();
-                onElement(key,value);
-            }
-            else
-            {
-                assert(structureStack.end()-1 == LIST);
-                const std::string value;
-                value = readElement();
-                onElement(value);
-            }
+            default:
+                if (structureStack.empty())
+                    throw BEncodeException("Malformed message - no structure found");
+
+                stream.putback(buff);
+                if (structureStack.back() == DICTIONARY)
+                {
+                    std::string key, value;
+                    key = readElement(stream);
+
+                    // peek if it's a 'l' or a 'd' (substructure)
+                    buff = stream.peek();
+                    switch (buff)
+                    {
+                    case 'l':
+                    case 'd':
+                        onElement(key); // the next loop will take care of the
+                                        // structure itself
+                        break;
+                    default:
+                        value = readElement(stream);
+                        onElement(key,value);
+                        break;
+                    }
+                }
+                else
+                {
+                    assert(structureStack.back() == LIST);
+                    std::string value;
+                    value = readElement(stream);
+                    onElement(value);
+                }
+        }
     }
+
+    if (!parseEnded)
+        throw BEncodeException("Message could not be parsed correctly");
 }
 
-std::string BEncodeDecoder::readElement()
+std::string BEncodeDecoder::readElement( std::istream& stream )
 {
     //! TODO check failbit
+    char buff;
     int length;
-    char *string;
+
+    //! TODO should throw not assert
+    assert( stream.good() );
 
     stream >> length;
+
     stream >> buff;
     if (buff != ':')
     {
@@ -70,11 +104,13 @@ std::string BEncodeDecoder::readElement()
         msg << buff;
         throw BEncodeException(msg.str());
     }
-    string = alloca(length+1);
-    stream.get(string,length);
-    string[length] = '\0';
 
-    return string;
+    {
+        char string[length+1];
+        stream.read(string,length);
+        string[length] = '\0';
+        return string; // copyed into a std::string object
+    }
 }
 
 } // torrentsync

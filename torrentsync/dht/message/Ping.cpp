@@ -10,7 +10,7 @@ namespace message
 const std::string Ping::name = "ping";
 
 Ping::Ping()
-    : Message( MessageType::Query )
+    : Message( Query )
 {
 }
 

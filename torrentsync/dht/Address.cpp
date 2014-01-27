@@ -13,7 +13,7 @@ namespace dht
 {
 
 const time_t Address::good_interval              = 15 * 60;  // 15 minutes
-const time_t Address::allowed_unanswered_queries = 10;
+const size_t Address::allowed_unanswered_queries = 10;
 
 Address::Address(const std::string& str)
 {

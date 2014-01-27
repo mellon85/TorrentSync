@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
+#include <boost/assign/std/vector.hpp>
 #include <boost/bind.hpp>
 #include <cstdlib>
 #include <sstream>
@@ -12,6 +13,7 @@
 BOOST_AUTO_TEST_SUITE(torrentsync_dht_AddressBucket);
 
 using namespace torrentsync::dht;
+using namespace boost::assign;
 
 BOOST_AUTO_TEST_CASE(constructor)
 {
@@ -262,12 +264,13 @@ BOOST_AUTO_TEST_CASE(addIsSorted)
     AddressData bot("0000000000000000000000000000000000000000");
     AddressData top("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
-    std::vector<Address> addresses = {
-    Address("0000000000000000000000000000000000000001"),
-    Address("0000000000000000000000000000000000000002"),
-    Address("00000000000000000000000000F0000000000000"),
-    Address("00000000000000000000F0000000000000000000"),
-    Address("0000000000000000F00000000000000000000000")};
+    std::vector<Address> addresses;
+    addresses += 
+        Address("0000000000000000000000000000000000000001"),
+        Address("0000000000000000000000000000000000000002"),
+        Address("00000000000000000000000000F0000000000000"),
+        Address("00000000000000000000F0000000000000000000"),
+        Address("0000000000000000F00000000000000000000000");
 
     std::vector<Address> sorted_addresses = addresses;
 
@@ -323,12 +326,12 @@ BOOST_AUTO_TEST_CASE(add_and_find)
     AddressData bot("0000000000000000000000000000000000000000");
     AddressData top("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
-    std::vector<Address> addresses = {
-    Address("0000000000000000000000000000000000000001"),
-    Address("0000000000000000000000000000000000000002"),
-    Address("00000000000000000000000000F0000000000000"),
-    Address("00000000000000000000F0000000000000000000"),
-    Address("0000000000000000F00000000000000000000000")};
+    std::vector<Address> addresses;
+    addresses += Address("0000000000000000000000000000000000000001"),
+                 Address("0000000000000000000000000000000000000002"),
+                 Address("00000000000000000000000000F0000000000000"),
+                 Address("00000000000000000000F0000000000000000000"),
+                 Address("0000000000000000F00000000000000000000000");
 
     std::vector<Address> sorted_addresses = addresses;
 
@@ -340,7 +343,6 @@ BOOST_AUTO_TEST_CASE(add_and_find)
             boost::shared_ptr<Address> a(new Address(addr));
             bucket.add(a);
         }
-        std::vector<Address>::iterator it2 = sorted_addresses.begin();
         BOOST_FOREACH( const Address& addr, addresses )
         {
             boost::optional<AddressSPtr> b = bucket.find(addr);

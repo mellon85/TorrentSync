@@ -74,7 +74,7 @@ void RoutingTable::load( Archive &ar, const unsigned int version)
     // 2. perform normal startup operation and let the bucket refreshing do it's job
 }
 
-boost::asio::io_service& RoutingTable::getIo_service()
+boost::asio::io_service& RoutingTable::getIO_service()
 {
     return io_service;
 }

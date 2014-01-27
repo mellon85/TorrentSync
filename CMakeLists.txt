@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project (TorrentSync)
 
 include(CheckCXXCompilerFlag)
+SET(GMOCK_PATH "${PROJECT_SOURCE_DIR}/gmock-1.7.0")
 SET(CMAKE_BUILD_TYPE Debug)
 
 enable_testing()
@@ -21,7 +22,6 @@ endif()
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-
 set(DHT
     torrentsync/dht/AddressData.cpp
     torrentsync/dht/Address.cpp 
@@ -29,7 +29,8 @@ set(DHT
     torrentsync/dht/Node.cpp
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Ping.cpp
-    torrentsync/dht/AddressTree.cpp )
+    torrentsync/dht/AddressTree.cpp
+    torrentsync/dht/message/BEncodeDecoder.cpp)
 set(DHT_UT ${DHT}
     test/torrentsync/dht/AddressData.cpp
     test/torrentsync/dht/Address.cpp
@@ -37,7 +38,8 @@ set(DHT_UT ${DHT}
     test/torrentsync/dht/RoutingTable.cpp
     test/torrentsync/dht/AddressBucket.cpp
     test/torrentsync/dht/AddressTree.cpp
-    test/torrentsync/dht/message/BEncodeEncoder.cpp)
+    test/torrentsync/dht/message/BEncodeEncoder.cpp
+    test/torrentsync/dht/message/BEncodeDecoder.cpp)
 
 # threads
 find_package(Threads)
@@ -61,6 +63,12 @@ include_directories(${Boost_INCLUDE_DIRS})
 add_executable(TorrentSync
     torrentsync/main.cpp ${DHT})
 
+# GMock configuration
+find_library(GMOCK_LIBRARY gmock HINTS ${GMOCK_PATH})
+find_library(GMOCK_MAIN_LIBRARY gmock_main HINTS ${GMOCK_PATH})
+include_directories("${GMOCK_PATH}/include")
+include_directories("${GMOCK_PATH}/gtest/include")
+
 # unit tests
 add_executable(unittest
     test/main.cpp ${DHT_UT})
@@ -71,5 +79,6 @@ add_test(NAME unit_test
 
 # add linking
 target_link_libraries(TorrentSync ${COMMON_BOOST_LIBS} ${COMMON_LIBS})
-target_link_libraries(unittest ${COMMON_BOOST_LIBS} ${COMMON_LIBS} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES})
+
+target_link_libraries(unittest ${COMMON_BOOST_LIBS} ${COMMON_LIBS} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${GMOCK_LIBRARY} ${GMOCK_MAIN_LIBRARY})
 
