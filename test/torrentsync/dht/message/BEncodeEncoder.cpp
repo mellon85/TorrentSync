@@ -11,7 +11,7 @@ using namespace torrentsync::dht::message;
 
 BOOST_AUTO_TEST_CASE(constructor_destructor)
 {
-    BEncodeEncoder enc();
+    BEncodeEncoder enc;
 }
 
 BOOST_AUTO_TEST_CASE(check_lexicographic_order)

@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <streambuf>
-#include <gmock/gmock.h>
+#include <turtle/mock.hpp>
 
 #include <torrentsync/dht/message/BEncodeDecoder.h>
 
@@ -11,155 +11,162 @@ BOOST_AUTO_TEST_SUITE(torrentsync_dht_message_BEncodeDecoder);
 
 using namespace torrentsync::dht::message;
 
-class MockDecoder : public BEncodeDecoder
+MOCK_BASE_CLASS(MockDecoder, BEncodeDecoder)
 {
 public:
-    MOCK_METHOD0(onDictionaryStart, void());
-    MOCK_METHOD0(onDictionaryEnd, void());
-    MOCK_METHOD0(onListStart, void());
-    MOCK_METHOD0(onListEnd, void());
-    MOCK_METHOD1(onElement, void(const std::string&));
-    MOCK_METHOD2(onElement, void(const std::string&,const std::string&));
+    // pure virtual methods can't use MOCK_METHOD
+    MOCK_METHOD_EXT(onDictionaryStart, 0, void(), onDictionaryStart);
+    MOCK_METHOD_EXT(onDictionaryEnd, 0, void(), onDictionaryEnd);
+    MOCK_METHOD_EXT(onListStart, 0, void(), onListStart);
+    MOCK_METHOD_EXT(onListEnd, 0, void(), onListEnd);
+    MOCK_METHOD_EXT(onElement, 1, void(const std::string&), onElement_1);
+    MOCK_METHOD_EXT(onElement, 2, void(const std::string&,const std::string&), onElement_2);
 };
 
 BOOST_AUTO_TEST_CASE(constructor_destructor)
 {
-    MockDecoder decoder();
+    MockDecoder decoder;
 }
 
 BOOST_AUTO_TEST_CASE(parse_emptyDictionary)
 {
-    std::string message = "de";
-    std::istringstream str;
-    str.str(message);
+    std::istringstream str("de");
 
     MockDecoder decoder;
 
-    ::testing::Sequence s;
-    EXPECT_CALL( decoder, onDictionaryStart() ).InSequence(s);
-    EXPECT_CALL( decoder, onDictionaryEnd()   ).InSequence(s);
+    mock::sequence s;
+    MOCK_EXPECT( decoder.onDictionaryStart ).in(s);
+    MOCK_EXPECT( decoder.onDictionaryEnd   ).in(s);
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
 }
 
 BOOST_AUTO_TEST_CASE(parse_emptyList)
 {
-    std::string message = "le";
-    std::istringstream str;
-    str.str(message);
+    std::istringstream str("le");
 
     MockDecoder decoder;
 
-    ::testing::Sequence s;
-    EXPECT_CALL( decoder, onListStart() ).InSequence(s);
-    EXPECT_CALL( decoder, onListEnd()   ).InSequence(s);
+    mock::sequence s;
+    MOCK_EXPECT( decoder.onListStart ).in(s);
+    MOCK_EXPECT( decoder.onListEnd   ).in(s);
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
 }
 
 BOOST_AUTO_TEST_CASE(parse_dictionary)
 {
-    std::string message = "d1:a2:bb2:yy4:plple";
-    std::istringstream str;
-    str.str(message);
+    std::istringstream str("d1:a2:bb2:yy4:plple");
 
     MockDecoder decoder;
 
-    ::testing::Sequence s;
-    EXPECT_CALL( decoder, onDictionaryStart()).InSequence(s);
-    EXPECT_CALL( decoder, onElement("a","bb")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("yy","plpl") ).InSequence(s);
-    EXPECT_CALL( decoder, onDictionaryEnd()).InSequence(s);
+    mock::sequence s;
+    MOCK_EXPECT( decoder.onDictionaryStart).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("a"), mock::equal("bb")).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("yy"), mock::equal("plpl")).in(s);
+    MOCK_EXPECT( decoder.onDictionaryEnd ).in(s);
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
 }
 
 BOOST_AUTO_TEST_CASE(parse_list)
 {
-    std::string message = "l1:a2:bb2:yy4:plple";
-    std::istringstream str;
-    str.str(message);
+    std::istringstream str("l1:a2:bb2:yy4:plple");
 
     MockDecoder decoder;
 
-    ::testing::Sequence s;
-    EXPECT_CALL( decoder, onListStart()).InSequence(s);
-    EXPECT_CALL( decoder, onElement("a")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("bb")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("yy")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("plpl")).InSequence(s);
-    EXPECT_CALL( decoder, onListEnd()).InSequence(s);
+    mock::sequence s;
+    MOCK_EXPECT( decoder.onListStart ).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with(mock::equal("a")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with(mock::equal("bb")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with(mock::equal("yy")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with(mock::equal("plpl")).in(s);
+    MOCK_EXPECT( decoder.onListEnd ).in(s);
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
 }
 
 BOOST_AUTO_TEST_CASE(parse_dictionaryWithList)
 {
-    std::string message = "d1:a2:bb2:yy4:plpl1:ql1:a1:b1:cee";
-    std::istringstream str;
-    str.str(message);
+    std::istringstream str("d1:a2:bb2:yy4:plpl1:ql1:a1:b1:cee");
 
     MockDecoder decoder;
 
-    ::testing::Sequence s;
-    EXPECT_CALL( decoder, onDictionaryStart() ).InSequence(s);
-    EXPECT_CALL( decoder, onElement("a","bb")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("yy","plpl")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("q")).InSequence(s);
-    EXPECT_CALL( decoder, onListStart() ).InSequence(s);
-    EXPECT_CALL( decoder, onElement("a")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("b")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("c")).InSequence(s);
-    EXPECT_CALL( decoder, onListEnd() ).InSequence(s);
-    EXPECT_CALL( decoder, onDictionaryEnd()).InSequence(s);
+    mock::sequence s;
+    MOCK_EXPECT( decoder.onDictionaryStart ).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("a"), mock::equal("bb")).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("yy"), mock::equal("plpl")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("q")).in(s);
+    MOCK_EXPECT( decoder.onListStart ).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("a")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("b")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("c")).in(s);
+    MOCK_EXPECT( decoder.onListEnd ).in(s);
+    MOCK_EXPECT( decoder.onDictionaryEnd ).in(s);
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
 }
 
 BOOST_AUTO_TEST_CASE(parse_dictionaryWithDictionary)
 {
-    std::string message = "d1:a2:bb2:yy4:plpl1:qd1:a1:b1:c2:ababee";
-    std::istringstream str;
-    str.str(message);
+    std::istringstream str("d1:a2:bb2:yy4:plpl1:qd1:a1:b1:c4:ababee");
 
     MockDecoder decoder;
 
-    ::testing::Sequence s;
-    EXPECT_CALL( decoder, onDictionaryStart() ).InSequence(s);
-    EXPECT_CALL( decoder, onElement("a","bb")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("yy","plpl")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("q")).InSequence(s);
-    EXPECT_CALL( decoder, onDictionaryStart() ).InSequence(s);
-    EXPECT_CALL( decoder, onElement("a","b")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("c","abab")).InSequence(s);
-    EXPECT_CALL( decoder, onDictionaryEnd()).InSequence(s);
-    EXPECT_CALL( decoder, onDictionaryEnd()).InSequence(s);
+    mock::sequence s;
+    MOCK_EXPECT( decoder.onDictionaryStart ).exactly(1).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("a"), mock::equal("bb")).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("yy"),mock::equal("plpl")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("q")).in(s);
+    MOCK_EXPECT( decoder.onDictionaryStart ).exactly(1).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("a"),mock::equal("b")).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("c"),mock::equal("abab")).in(s);
+    MOCK_EXPECT( decoder.onDictionaryEnd ).exactly(1).in(s);
+    MOCK_EXPECT( decoder.onDictionaryEnd ).exactly(1).in(s);
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
 }
 
-/*
+BOOST_AUTO_TEST_CASE(parse_dictionaryWithDictionary_inTheMiddle)
+{
+    std::istringstream str("d1:a2:bb2:yy4:plpl1:qd1:a1:b1:c4:ababe1:r1:ce");
+
+    MockDecoder decoder;
+
+    mock::sequence s;
+    MOCK_EXPECT( decoder.onDictionaryStart ).exactly(1).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("a"), mock::equal("bb")).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("yy"),mock::equal("plpl")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("q")).in(s);
+    MOCK_EXPECT( decoder.onDictionaryStart ).exactly(1).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("a"),mock::equal("b")).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("c"),mock::equal("abab")).in(s);
+    MOCK_EXPECT( decoder.onDictionaryEnd ).exactly(1).in(s);
+    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("r"),mock::equal("c")).in(s);
+    MOCK_EXPECT( decoder.onDictionaryEnd ).exactly(1).in(s);
+
+    BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
+}
+
 BOOST_AUTO_TEST_CASE(parse_listWithList)
 {
-    std::string message = "l1:a2:aa1:ql1:b2:cee";
-    std::istringstream str;
-    str.str(message);
+    std::istringstream str("l1:a2:aa1:ql1:b2:ceee");
 
     MockDecoder decoder;
 
-    ::testing::Sequence s;
-    EXPECT_CALL( decoder, onListStart() ).InSequence(s);
-    EXPECT_CALL( decoder, onElement("a")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("aa")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("q")).InSequence(s);
-    EXPECT_CALL( decoder, onListStart() ).InSequence(s);
-    EXPECT_CALL( decoder, onElement("b")).InSequence(s);
-    EXPECT_CALL( decoder, onElement("c")).InSequence(s);
-    EXPECT_CALL( decoder, onListEnd()).InSequence(s);
-    EXPECT_CALL( decoder, onListEnd()).InSequence(s);
+    mock::sequence s;
+    MOCK_EXPECT( decoder.onListStart ).exactly(1).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("a")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("aa")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("q")).in(s);
+    MOCK_EXPECT( decoder.onListStart ).exactly(1).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("b")).in(s);
+    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("ce")).in(s);
+    MOCK_EXPECT( decoder.onListEnd ).exactly(1).in(s);
+    MOCK_EXPECT( decoder.onListEnd ).exactly(1).in(s);
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
 }
-*/
+
 
 BOOST_AUTO_TEST_SUITE_END();

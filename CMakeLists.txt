@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project (TorrentSync)
 
 include(CheckCXXCompilerFlag)
-SET(GMOCK_PATH "${PROJECT_SOURCE_DIR}/gmock-1.7.0")
+SET(TURTLE_PATH "${PROJECT_SOURCE_DIR}/turtle/")
 SET(CMAKE_BUILD_TYPE Debug)
 
 enable_testing()
@@ -18,7 +18,10 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_Cxx11 -std=gnu++11")
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -DHAS_Cxx11 -std=gnu++11")
     endif()
+
 endif()
+
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
 include_directories(${PROJECT_SOURCE_DIR})
 
@@ -63,11 +66,8 @@ include_directories(${Boost_INCLUDE_DIRS})
 add_executable(TorrentSync
     torrentsync/main.cpp ${DHT})
 
-# GMock configuration
-find_library(GMOCK_LIBRARY gmock HINTS ${GMOCK_PATH})
-find_library(GMOCK_MAIN_LIBRARY gmock_main HINTS ${GMOCK_PATH})
-include_directories("${GMOCK_PATH}/include")
-include_directories("${GMOCK_PATH}/gtest/include")
+# Turtle configuration
+include_directories("${TURTLE_PATH}/include")
 
 # unit tests
 add_executable(unittest
@@ -79,6 +79,5 @@ add_test(NAME unit_test
 
 # add linking
 target_link_libraries(TorrentSync ${COMMON_BOOST_LIBS} ${COMMON_LIBS})
-
-target_link_libraries(unittest ${COMMON_BOOST_LIBS} ${COMMON_LIBS} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${GMOCK_LIBRARY} ${GMOCK_MAIN_LIBRARY})
+target_link_libraries(unittest ${COMMON_BOOST_LIBS} ${COMMON_LIBS} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES})
 
