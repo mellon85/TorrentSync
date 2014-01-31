@@ -98,67 +98,55 @@ BOOST_AUTO_TEST_CASE(parse_dictionaryWithList)
     TEST_FIELD("/q/1","b");
     TEST_FIELD("/q/2","c");
 }
-/*
+
 BOOST_AUTO_TEST_CASE(parse_dictionaryWithDictionary)
 {
     std::istringstream str("d1:a2:bb2:yy4:plpl1:qd1:a1:b1:c4:ababee");
 
-    MockDecoder decoder;
-
-    mock::sequence s;
-    MOCK_EXPECT( decoder.onDictionaryStart ).exactly(1).in(s);
-    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("a"), mock::equal("bb")).in(s);
-    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("yy"),mock::equal("plpl")).in(s);
-    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("q")).in(s);
-    MOCK_EXPECT( decoder.onDictionaryStart ).exactly(1).in(s);
-    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("a"),mock::equal("b")).in(s);
-    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("c"),mock::equal("abab")).in(s);
-    MOCK_EXPECT( decoder.onDictionaryEnd ).exactly(1).in(s);
-    MOCK_EXPECT( decoder.onDictionaryEnd ).exactly(1).in(s);
+    BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
+    const std::map<std::string,std::string>& map = decoder.getData();
+    BOOST_REQUIRE_EQUAL(map.size(),4);
+
+    TEST_FIELD("/a","bb");
+    TEST_FIELD("/yy","plpl");
+    TEST_FIELD("/q/a","b");
+    TEST_FIELD("/q/c","abab");
 }
 
 BOOST_AUTO_TEST_CASE(parse_dictionaryWithDictionary_inTheMiddle)
 {
     std::istringstream str("d1:a2:bb2:yy4:plpl1:qd1:a1:b1:c4:ababe1:r1:ce");
 
-    MockDecoder decoder;
-
-    mock::sequence s;
-    MOCK_EXPECT( decoder.onDictionaryStart ).exactly(1).in(s);
-    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("a"), mock::equal("bb")).in(s);
-    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("yy"),mock::equal("plpl")).in(s);
-    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("q")).in(s);
-    MOCK_EXPECT( decoder.onDictionaryStart ).exactly(1).in(s);
-    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("a"),mock::equal("b")).in(s);
-    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("c"),mock::equal("abab")).in(s);
-    MOCK_EXPECT( decoder.onDictionaryEnd ).exactly(1).in(s);
-    MOCK_EXPECT( decoder.onElement_2 ).with( mock::equal("r"),mock::equal("c")).in(s);
-    MOCK_EXPECT( decoder.onDictionaryEnd ).exactly(1).in(s);
+    BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
+    const std::map<std::string,std::string>& map = decoder.getData();
+    BOOST_REQUIRE_EQUAL(map.size(),5);
+
+    TEST_FIELD("/a","bb");
+    TEST_FIELD("/yy","plpl");
+    TEST_FIELD("/q/a","b");
+    TEST_FIELD("/q/c","abab");
+    TEST_FIELD("/r","c");
 }
 
 BOOST_AUTO_TEST_CASE(parse_listWithList)
 {
     std::istringstream str("l1:a2:aa1:ql1:b2:ceee");
 
-    MockDecoder decoder;
+    BEncodeDecoder decoder;
 
-    mock::sequence s;
-    MOCK_EXPECT( decoder.onListStart ).exactly(1).in(s);
-    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("a")).in(s);
-    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("aa")).in(s);
-    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("q")).in(s);
-    MOCK_EXPECT( decoder.onListStart ).exactly(1).in(s);
-    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("b")).in(s);
-    MOCK_EXPECT( decoder.onElement_1 ).with( mock::equal("ce")).in(s);
-    MOCK_EXPECT( decoder.onListEnd ).exactly(1).in(s);
-    MOCK_EXPECT( decoder.onListEnd ).exactly(1).in(s);
+    decoder.parseMessage(str);
+    const std::map<std::string,std::string>& map = decoder.getData();
+    BOOST_REQUIRE_EQUAL(map.size(),5);
 
-    BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
+    TEST_FIELD("/0","a");
+    TEST_FIELD("/1","aa");
+    TEST_FIELD("/2","q");
+    TEST_FIELD("/3/0","b");
+    TEST_FIELD("/3/1","ce");
 }
 
-*/
 BOOST_AUTO_TEST_SUITE_END();
