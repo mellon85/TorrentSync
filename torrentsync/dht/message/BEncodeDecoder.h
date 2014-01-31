@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <map>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -45,36 +46,19 @@ public:
     //! @param stream stream parser
     void parseMessage( std::istream &stream );
 
-protected:
-
-    //! called when a dictionary starts
-    virtual void onDictionaryStart()=0;
-    
-    //! called when a dictionary ends
-    virtual void onDictionaryEnd()=0;
-
-    //! called when a list starts
-    virtual void onListStart()=0;
-    
-    //! called when a list ends
-    virtual void onListEnd()=0;
-
-    //! an element has been read
-    //! @param element the element content
-    virtual void onElement(
-            const std::string& element)=0;
-
-    //! an element has been read
-    //! @param key the key content
-    //! @param element the element content
-    virtual void onElement(
-            const std::string& key,
-            const std::string& element)=0;
+    const std::map<std::string,std::string>& getData() const { return data; }
 
 private:
     std::string readElement( std::istream& stream );
 
-    std::vector<bool> structureStack;
+    typedef std::pair<std::string,bool> structureStackE;
+    std::vector<structureStackE> structureStack;
+
+    std::map<std::string,std::string> data;
+
+    int listCounter;
+
+    std::string last_token;
 
     enum {
         DICTIONARY = false,

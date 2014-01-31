@@ -1,6 +1,8 @@
 #include <torrentsync/dht/message/BEncodeDecoder.h>
 #include <cassert>
 #include <boost/scoped_ptr.hpp>
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace torrentsync
 {
@@ -12,33 +14,32 @@ namespace message
 void BEncodeDecoder::parseMessage( std::istream& stream )
 {
     bool parseEnded = false;
+    listCounter = 0;
+    data.clear();
+    structureStack.clear();
+
     while ( !stream.eof() && !parseEnded )
     {
-        char buff;
-        stream >> buff;
         if (!stream.good())
             throw BEncodeException("Error in stream while reading a char");
 
-        switch (buff)
+        switch (stream.peek())
         {
             case 'd':
-                structureStack.push_back(DICTIONARY);
-                onDictionaryStart();
+                stream.ignore();
+                structureStack.push_back(std::make_pair(last_token,DICTIONARY));
                 break;
 
             case 'l':
-                structureStack.push_back(LIST);
-                onListStart();
+                stream.ignore();
+                structureStack.push_back(std::make_pair(last_token,LIST));
                 break;
 
             case 'e':
+                stream.ignore();
                 if (structureStack.size() <= 0)
                     throw BEncodeException("Malformed message - end not in a structure");
                 
-                if (structureStack.back() == DICTIONARY)
-                    onDictionaryEnd();
-                else
-                    onListEnd();
                 structureStack.pop_back();
                 if (structureStack.size() == 0)
                 {
@@ -49,34 +50,50 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
             default:
                 if (structureStack.empty())
                     throw BEncodeException("Malformed message - no structure found");
+                std::string buffer;
+                buffer.reserve(16);
 
-                stream.putback(buff);
-                if (structureStack.back() == DICTIONARY)
+                if (structureStack.back().second == DICTIONARY)
                 {
                     std::string key, value;
                     key = readElement(stream);
 
                     // peek if it's a 'l' or a 'd' (substructure)
-                    buff = stream.peek();
-                    switch (buff)
+                    switch (stream.peek())
                     {
                     case 'l':
                     case 'd':
-                        onElement(key); // the next loop will take care of the
-                                        // structure itself
+                        last_token = key; // structure itself
                         break;
                     default:
                         value = readElement(stream);
-                        onElement(key,value);
+
+                        BOOST_FOREACH( const structureStackE& path, structureStack )
+                        {
+                            buffer += path.first;
+                            buffer += '/';
+                        }
+
+                        buffer += key;
+                        data.insert(std::make_pair(buffer,value));
                         break;
                     }
                 }
                 else
                 {
-                    assert(structureStack.back() == LIST);
+                    assert(structureStack.back().second == LIST);
                     std::string value;
                     value = readElement(stream);
-                    onElement(value);
+
+                    BOOST_FOREACH( const structureStackE& path, structureStack )
+                    {
+                        buffer += path.first;
+                        buffer += '/';
+                    }
+
+                    buffer += boost::lexical_cast<std::string>(listCounter);
+                    ++listCounter;
+                    data.insert(std::make_pair(buffer,value));
                 }
         }
     }
@@ -87,21 +104,19 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
 
 std::string BEncodeDecoder::readElement( std::istream& stream )
 {
-    //! TODO check failbit
-    char buff;
+    
     int length;
 
-    //! TODO should throw not assert
-    assert( stream.good() );
-
     stream >> length;
+    const char buff = stream.get();
 
-    stream >> buff;
+    if (!stream.good())
+        throw BEncodeException("Error in stream while reading an element");
+
     if (buff != ':')
     {
         std::stringstream msg;
-        msg << "Malformed message - expecting separator : but found ";
-        msg << buff;
+        msg << "Malformed message - expecting separator : but found " << buff;
         throw BEncodeException(msg.str());
     }
 
