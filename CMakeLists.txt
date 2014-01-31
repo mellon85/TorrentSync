@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project (TorrentSync)
 
 include(CheckCXXCompilerFlag)
+SET(TURTLE_PATH "${PROJECT_SOURCE_DIR}/turtle/")
 SET(CMAKE_BUILD_TYPE Debug)
 
 enable_testing()
@@ -17,10 +18,12 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_Cxx11 -std=gnu++11")
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -DHAS_Cxx11 -std=gnu++11")
     endif()
+
 endif()
 
-include_directories(${PROJECT_SOURCE_DIR})
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
+include_directories(${PROJECT_SOURCE_DIR})
 
 set(DHT
     torrentsync/dht/AddressData.cpp
@@ -29,7 +32,8 @@ set(DHT
     torrentsync/dht/Node.cpp
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Ping.cpp
-    torrentsync/dht/AddressTree.cpp )
+    torrentsync/dht/AddressTree.cpp
+    torrentsync/dht/message/BEncodeDecoder.cpp)
 set(DHT_UT ${DHT}
     test/torrentsync/dht/AddressData.cpp
     test/torrentsync/dht/Address.cpp
@@ -37,7 +41,8 @@ set(DHT_UT ${DHT}
     test/torrentsync/dht/RoutingTable.cpp
     test/torrentsync/dht/AddressBucket.cpp
     test/torrentsync/dht/AddressTree.cpp
-    test/torrentsync/dht/message/BEncodeEncoder.cpp)
+    test/torrentsync/dht/message/BEncodeEncoder.cpp
+    test/torrentsync/dht/message/BEncodeDecoder.cpp)
 
 # threads
 find_package(Threads)
@@ -60,6 +65,9 @@ include_directories(${Boost_INCLUDE_DIRS})
 # main executable
 add_executable(TorrentSync
     torrentsync/main.cpp ${DHT})
+
+# Turtle configuration
+include_directories("${TURTLE_PATH}/include")
 
 # unit tests
 add_executable(unittest

@@ -37,7 +37,7 @@ public:
 
     static const time_t good_interval; 
 
-    static const time_t allowed_unanswered_queries;
+    static const size_t allowed_unanswered_queries;
 
 protected:
     inline Address() {};

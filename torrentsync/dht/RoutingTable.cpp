@@ -6,7 +6,10 @@ namespace torrentsync
 namespace dht
 {
 
-RoutingTable::RoutingTable()
+
+RoutingTable::RoutingTable(
+    const udp::endpoint& endpoint )
+    : endpoint(endpoint)
 {
 }
 

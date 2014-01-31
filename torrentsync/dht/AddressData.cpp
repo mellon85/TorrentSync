@@ -35,6 +35,7 @@ public:
     inline friend std::istream& operator>>( std::istream& in, hexconverter<N>& out )
     {
         in >> std::hex >> out.value;
+	return in;
     }
 };
 

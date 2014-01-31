@@ -19,14 +19,17 @@ namespace
 class AddressSharedPtrEquality
 {
 public:
+    AddressSharedPtrEquality( const AddressData& i ) : i(i) {}
+
     bool operator()(
-            const boost::shared_ptr<Address>& a,
-            const boost::shared_ptr<Address>& b) const
+            const boost::shared_ptr<Address>& a) const
     {
         assert(a.get());
-        assert(b.get());
-        return *a == *b;
+        return *a == i;
     }
+
+private:
+    const AddressData& i; 
 };
 
 class AddressSharedPtrOrder
@@ -237,7 +240,7 @@ void AddressBucket<MaxSizeT>::remove(
         }
         else
         {
-            for( int in = it+1; in < addressCount; ++in )
+            for( size_t in = it+1; in < addressCount; ++in )
             {
                 _elements[it] = _elements[in];
             }
@@ -279,7 +282,7 @@ const boost::optional<AddressSPtr> AddressBucket<MaxSizeT>::find(
                 assert(bucket_addr.get());
                 return static_cast<AddressData&>(*bucket_addr) == addr; }
 #else
-                 AddressSharedPtrEquality()
+                 AddressSharedPtrEquality(addr)
 #endif
             );
 
