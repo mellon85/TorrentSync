@@ -18,8 +18,8 @@ namespace message
 class BEncodeException : public std::exception
 {
 public:
-    inline BEncodeException( const std::string& reason ) throw ();
-    inline BEncodeException( const char* reason ) throw ();
+    BEncodeException( const std::string& reason ) throw ();
+    BEncodeException( const char* reason ) throw ();
 
     virtual ~BEncodeException() throw () {}
 

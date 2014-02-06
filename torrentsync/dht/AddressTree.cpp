@@ -74,7 +74,7 @@ bool AddressTree::addAddress( AddressSPtr address )
     return true;
 }
 
-void AddressTree::removeAddress( AddressSPtr address )
+bool AddressTree::removeAddress( AddressSPtr address )
 {
     if (!address.get())
         throw std::invalid_argument("Address is not set");
@@ -87,7 +87,7 @@ void AddressTree::removeAddress( AddressSPtr address )
     BucketContainer::key_type bucket = *bucket_it;
     assert(bucket->inBounds(address));
 
-    bucket->remove(*address);
+    return bucket->remove(*address);
 }
 
 size_t AddressTree::size() const

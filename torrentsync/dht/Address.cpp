@@ -17,7 +17,7 @@ const size_t Address::allowed_unanswered_queries = 10;
 
 Address::Address(const std::string& str)
 {
-	parse(str);
+    parse(str);
     setGood();
 }
 

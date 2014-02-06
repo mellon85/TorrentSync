@@ -48,6 +48,11 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                 listCounter = 0;
                 if (structureStack.size() > 0 && structureStack.back().second == LIST)
                 {
+#ifdef HAS_Cxx11
+                    const bool allDigits = std::all( structureStack.back().second.begin(),
+                                                     structureStack.back().second.end(),
+                                                     isdigit);
+#else
                     bool allDigits = true;
                     BOOST_FOREACH( const char c, structureStack.back().first)
                     {
@@ -57,6 +62,7 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                             break;
                         }
                     }
+#endif
                     if (allDigits)
                     {
                         try

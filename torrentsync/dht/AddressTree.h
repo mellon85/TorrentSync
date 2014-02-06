@@ -35,14 +35,14 @@ public:
     bool addAddress( AddressSPtr address );
 
     //! Removes an address
-    void removeAddress( AddressSPtr address );
+    bool removeAddress( AddressSPtr address );
 
     //! Returns the number of addresses stored in the container
     //! @return number of address.
     size_t size() const;
 
     //! Returns our own address used to setup the tree
-    inline const AddressData& getNodeAddress() const { return nodeAddress; }
+    const AddressData& getNodeAddress() const { return nodeAddress; }
 
     // clears every bucket
     void clear();
@@ -71,7 +71,7 @@ protected:
         const AddressData& address ) const; 
 
     //! return sthe counts of the buckets
-    inline const size_t getBucketsCount() const { return buckets.size(); }
+    const size_t getBucketsCount() const { return buckets.size(); }
 
 private:
     //! bucket container

@@ -14,5 +14,9 @@ Node::Node(
     
 }
 
+Node::~Node()
+{
+}
+
 } /* dht */
 } /* torrentsync */

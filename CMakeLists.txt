@@ -19,13 +19,22 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -DHAS_Cxx11 -std=gnu++11")
     endif()
 
-endif()
+    # check for code coverage unit test
+    if (COVERAGE)
+        message("-- Coverage is ON")
+        set(CMAKE_CXX_FLAGS
+            "${CMAKE_CXX_FLAGS_DEBUG} -fno-inline-small-functions -fdce -fno-default-inline -fno-elide-constructors -fno-inline -fprofile-arcs -ftest-coverage ")
+        set(CMAKE_EXE_LINKER_FLAGS
+            "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+        set(CMAKE_SHARED_LINKER_FLAGS
+            "${CMAKE_SHARED_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+    endif()
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -g")
+endif()
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-set(DHT
+set(SOURCES
     torrentsync/dht/AddressData.cpp
     torrentsync/dht/Address.cpp 
     torrentsync/dht/RoutingTable.cpp
@@ -34,7 +43,7 @@ set(DHT
     torrentsync/dht/message/Ping.cpp
     torrentsync/dht/AddressTree.cpp
     torrentsync/dht/message/BEncodeDecoder.cpp)
-set(DHT_UT ${DHT}
+set(SOURCES_UT
     test/torrentsync/dht/AddressData.cpp
     test/torrentsync/dht/Address.cpp
     test/torrentsync/dht/Node.cpp
@@ -48,6 +57,9 @@ set(DHT_UT ${DHT}
 find_package(Threads)
 set(COMMON_LIBS ${CMAKE_THREAD_LIBS_INIT})
 
+# common source code lib
+add_library(TorrentSync SHARED ${SOURCES})
+
 # boost
 find_package(Boost
     COMPONENTS
@@ -59,25 +71,45 @@ find_package(Boost
 if (NOT ${Boost_FOUND})
     message(FATAL_ERROR "Boost not found")
 endif()
-set(COMMON_BOOST_LIBS ${Boost_SERIALIZATION_LIBRARIES} ${Boost_THREAD_LIBRARIES} ${Boost_SYSTEM_LIBRARIES})
+
+set(COMMON_BOOST_LIBS
+    ${Boost_SERIALIZATION_LIBRARIES}
+    ${Boost_THREAD_LIBRARIES}
+    ${Boost_SYSTEM_LIBRARIES})
 include_directories(${Boost_INCLUDE_DIRS})
 
 # main executable
-add_executable(TorrentSync
-    torrentsync/main.cpp ${DHT})
+add_executable(TorrentSyncExecutable
+    torrentsync/main.cpp)
+
+set_target_properties(
+    TorrentSyncExecutable
+    PROPERTIES
+    OUTPUT_NAME "TorrentSync")
 
 # Turtle configuration
 include_directories("${TURTLE_PATH}/include")
 
 # unit tests
+#set_source_files_properties(${SOURCES_UT}
+#    PROPERTIES
+#    COMPILE_FLAGS "-ftest-coverage")
+
 add_executable(unittest
-    test/main.cpp ${DHT_UT})
+    test/main.cpp ${SOURCES_UT})
 
 add_test(NAME unit_test
          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests
          COMMAND unittest)
 
 # add linking
-target_link_libraries(TorrentSync ${COMMON_BOOST_LIBS} ${COMMON_LIBS})
-target_link_libraries(unittest ${COMMON_BOOST_LIBS} ${COMMON_LIBS} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES})
+target_link_libraries(TorrentSyncExecutable
+    ${COMMON_BOOST_LIBS}
+    ${COMMON_LIBS}
+    TorrentSync)
+target_link_libraries(unittest
+    ${COMMON_BOOST_LIBS}
+    ${COMMON_LIBS}
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
+    TorrentSync)
 

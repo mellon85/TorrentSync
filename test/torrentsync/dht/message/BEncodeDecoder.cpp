@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(parse_listWithList)
 
     BEncodeDecoder decoder;
 
-    decoder.parseMessage(str);
+    BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
     const std::map<std::string,std::string>& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),5);
 
@@ -149,4 +149,30 @@ BOOST_AUTO_TEST_CASE(parse_listWithList)
     TEST_FIELD("/3/1","ce");
 }
 
+BOOST_AUTO_TEST_CASE(parse_error)
+{
+    std::istringstream str("aaaaa");
+
+    BEncodeDecoder decoder;
+
+    BOOST_REQUIRE_THROW(decoder.parseMessage(str),BEncodeException);
+}
+
+BOOST_AUTO_TEST_CASE(parse_error2)
+{
+    std::istringstream str("d1:a2:be");
+
+    BEncodeDecoder decoder;
+
+    BOOST_REQUIRE_THROW(decoder.parseMessage(str),BEncodeException);
+}
+
+BOOST_AUTO_TEST_CASE(parse_error3)
+{
+    std::istringstream str("d1:ab:be");
+
+    BEncodeDecoder decoder;
+
+    BOOST_REQUIRE_THROW(decoder.parseMessage(str),BEncodeException);
+}
 BOOST_AUTO_TEST_SUITE_END();

@@ -12,10 +12,10 @@ BOOST_AUTO_TEST_CASE(constructor)
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         BOOST_REQUIRE_NO_THROW(
-            udp::endpoint endpoint;
+            udp::endpoint endpoint(boost::asio::ip::address::from_string("127.0.0.1"),0);
             Node n( Address(generateRandomAddress()), endpoint);
             BOOST_REQUIRE_EQUAL(endpoint,n.getEndpoint());
-                );
+         );
     }
 }
 

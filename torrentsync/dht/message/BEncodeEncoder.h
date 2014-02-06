@@ -55,28 +55,10 @@ class BEncodeEncoder
         endList();
     }
 
-    inline void startList()
-    {
-        result << "l";
-    }
-
-    inline void endList()
-    {
-        result << "e";
-    }
-
-    inline void startDictionary()
-    {
-        result << "d";
-    }
-
-    inline void endDictionary()
-    {
-        lastKey.clear();
-        result << "e";
-    }
-
-
+    inline void startList() { result << "l"; }
+    inline void endList() { result << "e"; }
+    inline void startDictionary() { result << "d"; }
+    inline void endDictionary() { lastKey.clear(); result << "e"; }
     inline std::string value() const { return result.str(); }
 
 private:

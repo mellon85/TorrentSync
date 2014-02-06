@@ -37,6 +37,7 @@ BOOST_AUTO_TEST_CASE(constructor)
     BOOST_REQUIRE(bucket.getUpperBound() == highbound);
     BOOST_REQUIRE_EQUAL(bucket.size(),0);
     BOOST_REQUIRE_EQUAL(bucket.maxSize(),8);
+    bucket.clear();
 }
 
 BOOST_AUTO_TEST_CASE(outside)

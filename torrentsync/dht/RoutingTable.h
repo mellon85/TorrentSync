@@ -23,9 +23,9 @@ public:
     RoutingTable( const udp::endpoint& endpoint );
     ~RoutingTable();
 
-    inline const udp::endpoint& getEndpoint() const;
+    const udp::endpoint& getEndpoint() const;
 
-    inline boost::asio::io_service& getIO_service();
+    boost::asio::io_service& getIO_service();
 
 protected:
     
@@ -74,15 +74,6 @@ void RoutingTable::load( Archive &ar, const unsigned int version)
     // 2. perform normal startup operation and let the bucket refreshing do it's job
 }
 
-boost::asio::io_service& RoutingTable::getIO_service()
-{
-    return io_service;
-}
-
-const udp::endpoint& RoutingTable::getEndpoint() const
-{
-    return endpoint;
-}
 
 }; // dht
 }; // torrentsync

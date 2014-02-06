@@ -31,8 +31,8 @@ class hexconverter
 public:
     typedef typename boost::uint_t<N>::fast value_type;
     value_type value;
-	inline value_type operator()() { return value; }
-    inline friend std::istream& operator>>( std::istream& in, hexconverter<N>& out )
+	value_type operator()() { return value; }
+    friend std::istream& operator>>( std::istream& in, hexconverter<N>& out )
     {
         in >> std::hex >> out.value;
 	return in;

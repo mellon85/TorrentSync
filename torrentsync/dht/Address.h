@@ -20,14 +20,7 @@ public:
     ~Address() {};
 
     // distance operator
-    inline Distance operator^( const Address& addr ) const
-    {
-        Distance ret;
-        ret.p1 = p1 ^ addr.p1;
-        ret.p2 = p2 ^ addr.p2;
-        ret.p3 = p3 ^ addr.p3;
-        return ret;
-    }
+    inline Distance operator^( const Address& addr ) const;
 
     inline void setGood();
     inline bool isGood() const;
@@ -40,7 +33,7 @@ public:
     static const size_t allowed_unanswered_queries;
 
 protected:
-    inline Address() {};
+    Address() {};
 
     //! the last time the node was set as good
     time_t last_time_good;
@@ -50,7 +43,6 @@ protected:
 };
 
 typedef boost::shared_ptr<Address> AddressSPtr;
-
 
 void Address::setGood() 
 {
@@ -75,6 +67,16 @@ const time_t& Address::getLastTimeGood() const
 {
     return last_time_good;
 }
+
+Distance Address::operator^( const Address& addr ) const
+{
+    Distance ret;
+    ret.p1 = p1 ^ addr.p1;
+    ret.p2 = p2 ^ addr.p2;
+    ret.p3 = p3 ^ addr.p3;
+    return ret;
+}
+
 
 }; // dht
 }; // torrentsync

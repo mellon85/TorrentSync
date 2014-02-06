@@ -88,7 +88,7 @@ public:
     bool add(
         const boost::shared_ptr<Address> addr);
 
-    void remove(
+    bool remove(
         const Address& addr);
 
     const boost::optional<AddressSPtr> find(
@@ -96,8 +96,8 @@ public:
 
     void removeBad();
 
-    inline size_t size()                      const { return addressCount;}
-    inline size_t maxSize()                   const { return MaxSizeT;   }
+    inline size_t size()    const;
+    inline size_t maxSize() const;
 
     void clear();
 
@@ -106,8 +106,8 @@ public:
     bool inBounds(
             const AddressData& addr ) const;
 
-    inline const AddressData& getLowerBound() const { return low;  }
-    inline const AddressData& getUpperBound() const { return high; }
+    inline const AddressData& getLowerBound() const { return low;  };
+    inline const AddressData& getUpperBound() const { return high; };
 
     inline const_iterator begin()  const { return cbegin(); }
     inline const_iterator end()    const { return cend(); }
@@ -143,6 +143,18 @@ template <size_t MaxSizeT>
 AddressBucket<MaxSizeT>::~AddressBucket()
 {
     clear();
+}
+
+template <size_t MaxSizeT>
+size_t AddressBucket<MaxSizeT>::size() const
+{
+    return addressCount;
+}
+
+template <size_t MaxSizeT>
+size_t AddressBucket<MaxSizeT>::maxSize() const
+{
+    return MaxSizeT;
 }
 
 template <size_t MaxSizeT>
@@ -221,7 +233,7 @@ bool AddressBucket<MaxSizeT>::inBounds(
 }
 
 template <size_t MaxSizeT>
-void AddressBucket<MaxSizeT>::remove(
+bool AddressBucket<MaxSizeT>::remove(
     const Address& addr)
 {
     bool found = false;
@@ -250,8 +262,7 @@ void AddressBucket<MaxSizeT>::remove(
         found = true;
     }
 
-    if (!found)
-        throw std::invalid_argument("Address not in this bucket");
+    return found;
 }
 
 template <size_t MaxSizeT>
@@ -263,7 +274,7 @@ std::ostream& operator<<( std::ostream& out, const AddressBucket<MaxSizeT>& elem
 template <size_t MaxSizeT>
 std::ostream& AddressBucket<MaxSizeT>::string( std::ostream& out ) const
 {
-    out << low << ' ' << high << std::endl;
+    out << low.string() << ' ' << high.string() << std::endl;
     for( const_iterator it = cbegin(); it != cend(); ++it )
     {
         assert(it->get());
