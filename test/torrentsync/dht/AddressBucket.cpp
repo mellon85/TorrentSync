@@ -148,7 +148,8 @@ BOOST_AUTO_TEST_CASE(add_remove)
             BOOST_REQUIRE(a.get() > 0);
 
 
-            BOOST_REQUIRE_NO_THROW(bucket.remove(*a));
+            BOOST_REQUIRE_NO_THROW(
+                    BOOST_REQUIRE(bucket.remove(*a)));
             BOOST_REQUIRE_EQUAL( bucket.size(), start_size-1);
 
             BOOST_FOREACH( const boost::shared_ptr<Address>& va, addresses)

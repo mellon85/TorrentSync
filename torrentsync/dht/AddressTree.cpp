@@ -50,7 +50,7 @@ bool AddressTree::addAddress( AddressSPtr address )
 
         // unsplittable, ignore it
         if (!maybe_split_buckets)
-            return false;
+            return isAdded;
 
         BucketSPtrPair& split_buckets = *maybe_split_buckets;
 
@@ -67,14 +67,11 @@ bool AddressTree::addAddress( AddressSPtr address )
             split_buckets.second->add(address);
         }
     }
-    else
-    {
-        return false;
-    }
-    return true;
+
+    return isAdded;
 }
 
-bool AddressTree::removeAddress( AddressSPtr address )
+void AddressTree::removeAddress( AddressSPtr address )
 {
     if (!address.get())
         throw std::invalid_argument("Address is not set");
@@ -87,7 +84,7 @@ bool AddressTree::removeAddress( AddressSPtr address )
     BucketContainer::key_type bucket = *bucket_it;
     assert(bucket->inBounds(address));
 
-    return bucket->remove(*address);
+    bucket->remove(*address);
 }
 
 size_t AddressTree::size() const

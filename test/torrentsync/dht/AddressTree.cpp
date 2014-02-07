@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE(removeAddress_removeSerial)
     }
 }
 
-BOOST_AUTO_TEST_CASE(removeAddress_removeRandom)
+BOOST_AUTO_TEST_CASE(removeAddress_removeRandomOrder)
 {
     for( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
@@ -361,6 +361,57 @@ BOOST_AUTO_TEST_CASE(removeAddress_removeRandom)
             v.erase(v.begin()+idx);
         }
 
+        BOOST_REQUIRE_EQUAL(size(),0);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(removeAddress_addAndRemove)
+{
+    std::vector<AddressSPtr> v;
+
+    for( int i = 0; i < TEST_LOOP_COUNT; ++i )
+    {
+        std::vector<AddressSPtr> v;
+        v += AddressSPtr(new Address(generateRandomAddress("00"))),
+             AddressSPtr(new Address(generateRandomAddress("01"))),
+             AddressSPtr(new Address(generateRandomAddress("02"))),
+             AddressSPtr(new Address(generateRandomAddress("03"))),
+             AddressSPtr(new Address(generateRandomAddress("f0"))),
+             AddressSPtr(new Address(generateRandomAddress("f1"))),
+             AddressSPtr(new Address(generateRandomAddress("f2"))),
+             AddressSPtr(new Address(generateRandomAddress("f3"))),
+             AddressSPtr(new Address(generateRandomAddress("f4"))),
+             AddressSPtr(new Address(generateRandomAddress("f5"))),
+             AddressSPtr(new Address(generateRandomAddress("f6")));
+
+        BOOST_FOREACH( AddressSPtr& a, v)
+        {
+            BOOST_REQUIRE_NO_THROW(addAddress(a));
+        }
+        BOOST_REQUIRE_EQUAL(size(),v.size());
+
+        AddressSPtr a(new Address(generateRandomAddress("04")));
+        AddressSPtr b(new Address(generateRandomAddress("05")));
+
+        const int numberToRemove = 2;
+        for( int j = 0; j < numberToRemove; ++j )
+        {
+            const int idx = rand()%v.size();
+            BOOST_REQUIRE_NO_THROW(removeAddress(v[idx]));
+            v.erase(v.begin()+idx);
+        }
+        BOOST_REQUIRE_EQUAL(size(),v.size());
+        BOOST_REQUIRE_NO_THROW(addAddress(a));
+        BOOST_REQUIRE_NO_THROW(addAddress(b));
+        BOOST_REQUIRE_EQUAL(size(),v.size()+numberToRemove);
+
+        BOOST_FOREACH( AddressSPtr& a, v )
+        {
+            BOOST_REQUIRE_NO_THROW(removeAddress(a));
+        }
+        BOOST_REQUIRE_EQUAL(size(),numberToRemove);
+        BOOST_REQUIRE_NO_THROW(removeAddress(a));
+        BOOST_REQUIRE_NO_THROW(removeAddress(b));
         BOOST_REQUIRE_EQUAL(size(),0);
     }
 }

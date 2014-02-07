@@ -35,7 +35,7 @@ public:
     bool addAddress( AddressSPtr address );
 
     //! Removes an address
-    bool removeAddress( AddressSPtr address );
+    void removeAddress( AddressSPtr address );
 
     //! Returns the number of addresses stored in the container
     //! @return number of address.
@@ -80,6 +80,6 @@ private:
     //! address used as the center of the tree
     const AddressData nodeAddress;
 };
- 
+
 }; // dht
 }; // torrentsync
