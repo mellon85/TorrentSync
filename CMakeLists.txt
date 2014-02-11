@@ -90,11 +90,6 @@ set_target_properties(
 # Turtle configuration
 include_directories("${TURTLE_PATH}/include")
 
-# unit tests
-#set_source_files_properties(${SOURCES_UT}
-#    PROPERTIES
-#    COMPILE_FLAGS "-ftest-coverage")
-
 add_executable(unittest
     test/main.cpp ${SOURCES_UT})
 
@@ -104,12 +99,14 @@ add_test(NAME unit_test
 
 # add linking
 target_link_libraries(TorrentSyncExecutable
+    TorrentSync
     ${COMMON_BOOST_LIBS}
     ${COMMON_LIBS}
-    TorrentSync)
+    )
 target_link_libraries(unittest
+    TorrentSync
     ${COMMON_BOOST_LIBS}
     ${COMMON_LIBS}
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
-    TorrentSync)
+    )
 
