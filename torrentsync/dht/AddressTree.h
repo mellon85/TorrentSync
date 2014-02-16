@@ -3,10 +3,10 @@
 #include <torrentsync/dht/Address.h>
 #include <torrentsync/dht/AddressBucket.h>
 #include <torrentsync/dht/DHTConstants.h>
+#include <torrentsync/common/Lock.h>
  
 #include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
-#include <boost/thread/shared_mutex.hpp>
  
 #include <set>
  
@@ -53,11 +53,6 @@ public:
 
 protected:
 
-    typedef boost::shared_mutex Mutex;
-    typedef boost::unique_lock<Mutex> WriteLock;
-    typedef boost::shared_lock<Mutex> ReadLock;
-    typedef boost::upgrade_lock<Mutex> UpgradableLock;
-    typedef boost::upgrade_to_unique_lock<Mutex> UpgradedWriteLock;
     mutable Mutex mutex; // RW mutex
 
     //! splits, if possible, a bucket in 2 splitting the contents

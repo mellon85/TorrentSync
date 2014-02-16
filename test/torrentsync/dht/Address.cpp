@@ -34,6 +34,9 @@ BOOST_AUTO_TEST_CASE(distance_0)
 
     const Distance dist = *addr1 ^ *addr2;
     BOOST_REQUIRE_EQUAL(dist.string(),"0000000000000000000000000000000000000000");
+
+    delete addr1;
+    delete addr2;
 }
 
 BOOST_AUTO_TEST_CASE(distance_some_static)
@@ -53,6 +56,9 @@ BOOST_AUTO_TEST_CASE(distance_some_static)
     BOOST_REQUIRE_EQUAL(dist.string(),"0000000000000000000110000000000000000000");
     BOOST_REQUIRE(boost::iequals(data1,addr1->string()));
     BOOST_REQUIRE(boost::iequals(data2,addr2->string()));
+
+    delete addr1;
+    delete addr2;
 }
 
 BOOST_AUTO_TEST_CASE(distance_random)
@@ -91,6 +97,10 @@ BOOST_AUTO_TEST_CASE(distance_random)
 
         BOOST_REQUIRE_EQUAL(dist1.string(),addr1->string());
         BOOST_REQUIRE_EQUAL(dist2.string(),addr2->string());
+
+        delete addr1;
+        delete addr2;
+        delete addr3;
     }
 }
 

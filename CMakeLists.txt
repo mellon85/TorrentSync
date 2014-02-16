@@ -35,6 +35,9 @@ endif()
 include_directories(${PROJECT_SOURCE_DIR})
 
 set(SOURCES
+    torrentsync/utils/log/Log.cpp
+    torrentsync/utils/log/Logger.cpp
+    torrentsync/utils/log/LogStream.cpp
     torrentsync/dht/AddressData.cpp
     torrentsync/dht/Address.cpp 
     torrentsync/dht/RoutingTable.cpp
@@ -44,6 +47,7 @@ set(SOURCES
     torrentsync/dht/AddressTree.cpp
     torrentsync/dht/message/BEncodeDecoder.cpp)
 set(SOURCES_UT
+    test/torrentsync/utils/log/Log.cpp
     test/torrentsync/dht/AddressData.cpp
     test/torrentsync/dht/Address.cpp
     test/torrentsync/dht/Node.cpp
@@ -66,6 +70,8 @@ find_package(Boost
     serialization
     thread
     system
+    date_time
+    regex
     unit_test_framework)
 
 if (NOT ${Boost_FOUND})
@@ -75,7 +81,9 @@ endif()
 set(COMMON_BOOST_LIBS
     ${Boost_SERIALIZATION_LIBRARIES}
     ${Boost_THREAD_LIBRARIES}
-    ${Boost_SYSTEM_LIBRARIES})
+    ${Boost_SYSTEM_LIBRARIES}
+    ${Boost_DATE_TIME_LIBRARIES}
+    ${Boost_REGEX_LIBRARIES})
 include_directories(${Boost_INCLUDE_DIRS})
 
 # main executable
