@@ -213,5 +213,28 @@ BOOST_AUTO_TEST_CASE(splitInHalf_ok)
     BOOST_REQUIRE_EQUAL(bounds_high->second.string(),"c000000000000000000000000000000000000000");
 }
 
+BOOST_AUTO_TEST_CASE(bytestring_parsing)
+{
+    const std::string data = "1122334455667788aabbccddeeffgghhAABBCCDD";
+    BOOST_REQUIRE_NO_THROW(parseByteString(data));
+    BOOST_REQUIRE(boost::iequals(byteString(),data));
+}
+
+BOOST_AUTO_TEST_CASE(bytestring_parsing_special)
+{
+    const std::string data = "1122334455667788\tabb\ncdde\0ffgghhAABBCCDD";
+    BOOST_REQUIRE_NO_THROW(parseByteString(data));
+    BOOST_REQUIRE(boost::iequals(byteString(),data));
+}
+
+BOOST_AUTO_TEST_CASE(bytestring_errors)
+{
+    const std::string data = "112334455667788\tabb\ncdde\0ffgghhAABBCCDD";
+    BOOST_REQUIRE_THROW(parseByteString(data), std::illegal_argument);
+
+    const std::string data2 = "1122334455667788\tabb\ncdde\0ffgghhAABBCCDD1234567890";
+    BOOST_REQUIRE_THROW(parseByteString(data2), std::illegal_argument);
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 
