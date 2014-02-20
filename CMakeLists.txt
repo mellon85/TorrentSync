@@ -45,7 +45,8 @@ set(SOURCES
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Ping.cpp
     torrentsync/dht/AddressTree.cpp
-    torrentsync/dht/message/BEncodeDecoder.cpp)
+    torrentsync/dht/message/BEncodeDecoder.cpp
+    torrentsync/utils/RandomGenerator.cpp)
 set(SOURCES_UT
     test/torrentsync/utils/log/Log.cpp
     test/torrentsync/dht/AddressData.cpp
