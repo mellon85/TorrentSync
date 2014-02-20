@@ -4,7 +4,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <ostream>
 
-#include <torrentsync/common/Lock.h>
+#include <torrentsync/utils/Lock.h>
 
 
 namespace torrentsync

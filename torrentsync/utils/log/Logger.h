@@ -6,7 +6,7 @@
 #include <boost/utility.hpp>
 #include <boost/scoped_ptr.hpp>
 
-#define LOG(LEVEL, MSG) torrentsync::utils::log::Logger::getInstance().log(LEVEL) << MSG << \
+#define LOG(LEVEL, MSG) torrentsync::utils::log::Logger::getInstance().log(torrentsync::utils::log::LEVEL) << MSG << \
     torrentsync::utils::log::logend;
 
 namespace torrentsync

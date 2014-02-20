@@ -3,7 +3,7 @@
 #include <torrentsync/dht/Address.h>
 #include <torrentsync/dht/AddressBucket.h>
 #include <torrentsync/dht/DHTConstants.h>
-#include <torrentsync/common/Lock.h>
+#include <torrentsync/utils/Lock.h>
  
 #include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>

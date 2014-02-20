@@ -1,4 +1,5 @@
 #include <torrentsync/utils/log/Logger.h>
+#include <torrentsync/utils/Lock.h>
 
 namespace torrentsync
 {
@@ -19,6 +20,8 @@ Logger::Logger()
 
 Logger& Logger::getInstance()
 {
+    static Mutex mutex;
+    WriteLock lock(mutex);
     if (!_logger.get())
     {
         _logger.reset(new Logger());
