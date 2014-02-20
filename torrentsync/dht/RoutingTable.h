@@ -37,6 +37,9 @@ protected:
 
 private:
 
+    //! Address table
+    AddressTree table;
+
     //! list of address to populate the table with
     std::list<Address> initial_addresses;
 
