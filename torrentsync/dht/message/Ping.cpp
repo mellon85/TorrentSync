@@ -1,3 +1,5 @@
+#include <torrentsync/dht/message/BEncodeEncoder.h>
+#include <torrentsync/dht/AddressData.h>
 #include <torrentsync/dht/message/Ping.h>
 
 namespace torrentsync
@@ -7,25 +9,27 @@ namespace dht
 namespace message
 {
 
-const std::string Ping::name = "ping";
-
 Ping::Ping()
-    : Message( Query )
 {
 }
 
 const std::string&
 Ping::getMessage( 
-        const std::string transactionID,
-        const std::string source,
-        const std::string destination,
-        std::string& output) const
+        const std::string& transactionID,
+        const AddressData& source,
+        std::string& output)
 {
-    // start part of the message
-    Message::getMessage(transactionID,source,destination,output);
-
-    // TODO add arguments
-    
+    BEncodeEncoder enc;
+    enc.startDictionary();
+    enc.addElement(Field::Arguments);
+    enc.startDictionary();
+    enc.addDictionaryElement(Field::NodeID,source.string());
+    enc.endDictionary();
+    enc.addDictionaryElement(Field::QueryType,Messages::Ping); 
+    enc.addDictionaryElement(Field::TransactionID,transactionID);
+    enc.addDictionaryElement(Field::Type,Type::Query); 
+    enc.endDictionary();
+    output = enc.value();
     return output;
 }
 

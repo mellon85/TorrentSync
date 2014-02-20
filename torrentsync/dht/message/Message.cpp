@@ -7,22 +7,43 @@ namespace dht
 namespace message
 {
 
-Message::Message(
-    const MessageType type)
-    : type(type)
+namespace Type
+{
+    const char Query     = 'q';
+    const char Response  = 'r';
+    const char Error     = 'e';
+};
+
+namespace Field
+{
+    const char TransactionID = 't';
+    const char Type          = 'y';
+    const char QueryType     = 'q';
+    const char ResponseType  = 'r';
+    const char ErrorType     = 'e';
+    const char Arguments     = 'a';
+
+    const std::string NodeID = "id";
+};
+
+
+namespace Messages
+{
+    const std::string Ping   = "ping";
+};
+
+Message::Message()
 {
 }
 
-const std::string&
-Message::getMessage(
-    const std::string transactionID,
-    const std::string source,
-    const std::string destination,
-    std::string& output ) const
+const std::string& Message::getMessageType() const
 {
-    // TODO add arguments
-    
-    return output;
+    return Messages::Ping;
+}
+
+const char Message::getType() const
+{
+    return Type::Query;
 }
 
 } /* message */
