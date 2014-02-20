@@ -34,9 +34,11 @@ public:
     inline bool operator>=( const AddressData& addr ) const;
 
     const std::string string() const;
+    const std::string byteString() const;
 
     //! may throw std::invalid_argument
     void parse( const std::string& str );
+    static AddressData parseByteString( const std::string& str );
 
     static const AddressData minValue;
     static const AddressData maxValue;
@@ -46,6 +48,7 @@ public:
 
     static MaybeBounds splitInHalf(const AddressData& low, const AddressData& high);
 
+    static const AddressData getRandom();
 protected:
     inline AddressData() {};
 

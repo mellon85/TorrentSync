@@ -8,8 +8,11 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/integer_traits.hpp>
 #include <boost/integer.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/mersenne_twister.hpp>
 
 #include <torrentsync/dht/AddressData.h>
+#include <torrentsync/utils/RandomGenerator.h>
 
 namespace
 {
@@ -50,9 +53,44 @@ namespace dht
 
 const uint32_t AddressData::ADDRESS_STRING_LENGTH = 40;
 
-AddressData::AddressData(const std::string& str)
+AddressData::AddressData( const std::string& str )
 {
-	parse(str);
+    parse(str);
+}
+
+AddressData AddressData::parseByteString( const std::string& str )
+{
+    if (str.size() != 20)
+    {
+        std::string msg = "Invalid argument: "; msg += str;
+        throw std::invalid_argument(msg);
+    }
+
+    assert(str.size() == 20);
+
+    AddressData data;
+    data.p1 = 0;
+    data.p2 = 0;
+    data.p3 = 0;
+
+    for ( int i = 7; i >= 0; ++i )
+    {
+        data.p1 <<= 8;
+        data.p1 |= str[i];
+    }
+
+    for ( int i = 15; i >= 8; ++i )
+    {
+        data.p2 <<= 8;
+        data.p2 |= str[i];
+    }
+
+    for ( int i = 19; i >= 16; ++i )
+    {
+        data.p3 <<= 8;
+        data.p3 |= str[i];
+    }
+    return data;
 }
 
 void AddressData::parse( const std::string& str )
@@ -139,6 +177,54 @@ MaybeBounds AddressData::splitInHalf(
     half_high.p3 &= mask.p3 | new_bit.p3;
 
     return MaybeBounds(Bounds(half_low,half_high));
+}
+
+const AddressData AddressData::getRandom()
+{
+    AddressData data;
+    using namespace torrentsync::utils;
+
+    data.p1 = RandomGenerator::getInstance().get();
+    data.p1 <<= 32;
+    data.p1 |= RandomGenerator::getInstance().get();
+
+    data.p2 = RandomGenerator::getInstance().get();
+    data.p2 <<= 32;
+    data.p2 |= RandomGenerator::getInstance().get();
+
+    data.p3 = RandomGenerator::getInstance().get();
+
+    return data;
+}
+
+const std::string AddressData::byteString() const
+{
+    std::stringstream str;
+
+    str << static_cast<char>(p1 & 0xFF);
+    str << static_cast<char>((p1 >> 8) & 0xFF);
+    str << static_cast<char>((p1 >> 16) & 0xFF);
+    str << static_cast<char>((p1 >> 24) & 0xFF);
+    str << static_cast<char>((p1 >> 32) & 0xFF);
+    str << static_cast<char>((p1 >> 40) & 0xFF);
+    str << static_cast<char>((p1 >> 48) & 0xFF);
+    str << static_cast<char>((p1 >> 56) & 0xFF);
+
+    str << static_cast<char>(p2 & 0xFF);
+    str << static_cast<char>((p2 >> 8) & 0xFF);
+    str << static_cast<char>((p2 >> 16) & 0xFF);
+    str << static_cast<char>((p2 >> 24) & 0xFF);
+    str << static_cast<char>((p2 >> 32) & 0xFF);
+    str << static_cast<char>((p2 >> 40) & 0xFF);
+    str << static_cast<char>((p2 >> 48) & 0xFF);
+    str << static_cast<char>((p2 >> 56) & 0xFF);
+
+    str << static_cast<char>(p3 & 0xFF);
+    str << static_cast<char>((p3 >> 8) & 0xFF);
+    str << static_cast<char>((p3 >> 16) & 0xFF);
+    str << static_cast<char>((p3 >> 24) & 0xFF);
+
+    return str.str();
 }
 
 }; // dht
