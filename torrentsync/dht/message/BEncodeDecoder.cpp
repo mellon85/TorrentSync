@@ -102,7 +102,8 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                         BOOST_FOREACH( const structureStackE& path, structureStack )
                         {
                             buffer += path.first;
-                            buffer += '/';
+                            if (buffer.size() > 0)
+                                buffer += '/';
                         }
 
                         buffer += key;
@@ -119,7 +120,8 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                     BOOST_FOREACH( const structureStackE& path, structureStack )
                     {
                         buffer += path.first;
-                        buffer += '/';
+                        if (buffer.size() > 0)
+                            buffer += '/';
                     }
 
                     buffer += boost::lexical_cast<std::string>(listCounter);

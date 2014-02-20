@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(parse_oneElementDictionary)
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
     const std::map<std::string,std::string>& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),1);
-    TEST_FIELD("/a","b");
+    TEST_FIELD("a","b");
 }
 
 BOOST_AUTO_TEST_CASE(parse_emptyList)
@@ -63,8 +63,8 @@ BOOST_AUTO_TEST_CASE(parse_dictionary)
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
     const std::map<std::string,std::string>& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),2);
-    TEST_FIELD("/a","bb");
-    TEST_FIELD("/yy","plpl");    
+    TEST_FIELD("a","bb");
+    TEST_FIELD("yy","plpl");    
 }
 
 BOOST_AUTO_TEST_CASE(parse_list)
@@ -76,10 +76,10 @@ BOOST_AUTO_TEST_CASE(parse_list)
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
     const std::map<std::string,std::string>& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),4);
-    TEST_FIELD("/0","a");
-    TEST_FIELD("/1","bb");
-    TEST_FIELD("/2","yy");
-    TEST_FIELD("/3","plpl");
+    TEST_FIELD("0","a");
+    TEST_FIELD("1","bb");
+    TEST_FIELD("2","yy");
+    TEST_FIELD("3","plpl");
 }
 
 BOOST_AUTO_TEST_CASE(parse_dictionaryWithList)
@@ -92,11 +92,11 @@ BOOST_AUTO_TEST_CASE(parse_dictionaryWithList)
     const std::map<std::string,std::string>& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),5);
 
-    TEST_FIELD("/a","bb");
-    TEST_FIELD("/yy","plpl");
-    TEST_FIELD("/q/0","a");
-    TEST_FIELD("/q/1","b");
-    TEST_FIELD("/q/2","c");
+    TEST_FIELD("a","bb");
+    TEST_FIELD("yy","plpl");
+    TEST_FIELD("q/0","a");
+    TEST_FIELD("q/1","b");
+    TEST_FIELD("q/2","c");
 }
 
 BOOST_AUTO_TEST_CASE(parse_dictionaryWithDictionary)
@@ -109,10 +109,10 @@ BOOST_AUTO_TEST_CASE(parse_dictionaryWithDictionary)
     const std::map<std::string,std::string>& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),4);
 
-    TEST_FIELD("/a","bb");
-    TEST_FIELD("/yy","plpl");
-    TEST_FIELD("/q/a","b");
-    TEST_FIELD("/q/c","abab");
+    TEST_FIELD("a","bb");
+    TEST_FIELD("yy","plpl");
+    TEST_FIELD("q/a","b");
+    TEST_FIELD("q/c","abab");
 }
 
 BOOST_AUTO_TEST_CASE(parse_dictionaryWithDictionary_inTheMiddle)
@@ -125,11 +125,11 @@ BOOST_AUTO_TEST_CASE(parse_dictionaryWithDictionary_inTheMiddle)
     const std::map<std::string,std::string>& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),5);
 
-    TEST_FIELD("/a","bb");
-    TEST_FIELD("/yy","plpl");
-    TEST_FIELD("/q/a","b");
-    TEST_FIELD("/q/c","abab");
-    TEST_FIELD("/r","c");
+    TEST_FIELD("a","bb");
+    TEST_FIELD("yy","plpl");
+    TEST_FIELD("q/a","b");
+    TEST_FIELD("q/c","abab");
+    TEST_FIELD("r","c");
 }
 
 BOOST_AUTO_TEST_CASE(parse_listWithList)
@@ -142,11 +142,11 @@ BOOST_AUTO_TEST_CASE(parse_listWithList)
     const std::map<std::string,std::string>& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),5);
 
-    TEST_FIELD("/0","a");
-    TEST_FIELD("/1","aa");
-    TEST_FIELD("/2","q");
-    TEST_FIELD("/3/0","b");
-    TEST_FIELD("/3/1","ce");
+    TEST_FIELD("0","a");
+    TEST_FIELD("1","aa");
+    TEST_FIELD("2","q");
+    TEST_FIELD("3/0","b");
+    TEST_FIELD("3/1","ce");
 }
 
 BOOST_AUTO_TEST_CASE(parse_error)
