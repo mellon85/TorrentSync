@@ -215,25 +215,22 @@ BOOST_AUTO_TEST_CASE(splitInHalf_ok)
 
 BOOST_AUTO_TEST_CASE(bytestring_parsing)
 {
-    const std::string data = "1122334455667788aabbccddeeffgghhAABBCCDD";
-    BOOST_REQUIRE_NO_THROW(parseByteString(data));
-    BOOST_REQUIRE(boost::iequals(byteString(),data));
+    const char data[20] = {'1','2','3','4','5','6','7','8','a','b','c','d','e','f','g','h','A','B','C','D'};
+    AddressData d(parseByteString(data));
+    char out[20];
+    d.byteString(out);
+    for( int i = 0; i < 20; ++i )
+        BOOST_REQUIRE_EQUAL(out[i],data[i]);
 }
 
 BOOST_AUTO_TEST_CASE(bytestring_parsing_special)
 {
-    const std::string data = "1122334455667788\tabb\ncdde\0ffgghhAABBCCDD";
-    BOOST_REQUIRE_NO_THROW(parseByteString(data));
-    BOOST_REQUIRE(boost::iequals(byteString(),data));
-}
-
-BOOST_AUTO_TEST_CASE(bytestring_errors)
-{
-    const std::string data = "112334455667788\tabb\ncdde\0ffgghhAABBCCDD";
-    BOOST_REQUIRE_THROW(parseByteString(data), std::illegal_argument);
-
-    const std::string data2 = "1122334455667788\tabb\ncdde\0ffgghhAABBCCDD1234567890";
-    BOOST_REQUIRE_THROW(parseByteString(data2), std::illegal_argument);
+    const char data[20] = {'1','2','3','\n','5','6','7','8','a','\0','c','d','e','f','g','h','\0','B','C','D'};
+    AddressData d(parseByteString(data));
+    char out[20];
+    d.byteString(out);
+    for( int i = 0; i < 20; ++i )
+        BOOST_REQUIRE_EQUAL(out[i],data[i]);
 }
 
 BOOST_AUTO_TEST_SUITE_END();

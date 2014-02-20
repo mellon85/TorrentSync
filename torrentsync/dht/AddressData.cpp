@@ -58,40 +58,6 @@ AddressData::AddressData( const std::string& str )
     parse(str);
 }
 
-AddressData AddressData::parseByteString( const std::string& str )
-{
-    if (str.size() != 20)
-    {
-        std::string msg = "Invalid argument: "; msg += str;
-        throw std::invalid_argument(msg);
-    }
-
-    assert(str.size() == 20);
-
-    AddressData data;
-    data.p1 = 0;
-    data.p2 = 0;
-    data.p3 = 0;
-
-    for ( int i = 7; i >= 0; ++i )
-    {
-        data.p1 <<= 8;
-        data.p1 |= str[i];
-    }
-
-    for ( int i = 15; i >= 8; ++i )
-    {
-        data.p2 <<= 8;
-        data.p2 |= str[i];
-    }
-
-    for ( int i = 19; i >= 16; ++i )
-    {
-        data.p3 <<= 8;
-        data.p3 |= str[i];
-    }
-    return data;
-}
 
 void AddressData::parse( const std::string& str )
 {
@@ -197,34 +163,55 @@ const AddressData AddressData::getRandom()
     return data;
 }
 
-const std::string AddressData::byteString() const
+AddressData AddressData::parseByteString(const char (&data)[20])
 {
-    std::stringstream str;
+    AddressData addr;
+    addr.p1 = 0;
+    addr.p2 = 0;
+    addr.p3 = 0;
 
-    str << static_cast<char>(p1 & 0xFF);
-    str << static_cast<char>((p1 >> 8) & 0xFF);
-    str << static_cast<char>((p1 >> 16) & 0xFF);
-    str << static_cast<char>((p1 >> 24) & 0xFF);
-    str << static_cast<char>((p1 >> 32) & 0xFF);
-    str << static_cast<char>((p1 >> 40) & 0xFF);
-    str << static_cast<char>((p1 >> 48) & 0xFF);
-    str << static_cast<char>((p1 >> 56) & 0xFF);
+    for ( int i = 0; i <= 7; ++i )
+    {
+        addr.p1 <<= 8;
+        addr.p1 |= data[i];
+    }
 
-    str << static_cast<char>(p2 & 0xFF);
-    str << static_cast<char>((p2 >> 8) & 0xFF);
-    str << static_cast<char>((p2 >> 16) & 0xFF);
-    str << static_cast<char>((p2 >> 24) & 0xFF);
-    str << static_cast<char>((p2 >> 32) & 0xFF);
-    str << static_cast<char>((p2 >> 40) & 0xFF);
-    str << static_cast<char>((p2 >> 48) & 0xFF);
-    str << static_cast<char>((p2 >> 56) & 0xFF);
+    for ( int i = 8; i <= 15; ++i )
+    {
+        addr.p2 <<= 8;
+        addr.p2 |= data[i];
+    }
 
-    str << static_cast<char>(p3 & 0xFF);
-    str << static_cast<char>((p3 >> 8) & 0xFF);
-    str << static_cast<char>((p3 >> 16) & 0xFF);
-    str << static_cast<char>((p3 >> 24) & 0xFF);
+    for ( int i = 16; i <= 19; ++i )
+    {
+        addr.p3 <<= 8;
+        addr.p3 |= data[i];
+    }
+    return addr;
+}
 
-    return str.str();
+const void AddressData::byteString( char (&data)[20] ) const
+{
+    data[0]  = p1 >> 56 & 0xFF; 
+    data[1]  = p1 >> 48 & 0xFF;
+    data[2]  = p1 >> 40 & 0xFF;
+    data[3]  = p1 >> 32 & 0xFF;
+    data[4]  = p1 >> 24 & 0xFF;
+    data[5]  = p1 >> 16 & 0xFF;
+    data[6]  = p1 >>  8 & 0xFF;
+    data[7]  = p1 >>  0 & 0xFF;
+    data[8]  = p2 >> 56 & 0xFF;
+    data[9]  = p2 >> 48 & 0xFF;
+    data[10] = p2 >> 40 & 0xFF;
+    data[11] = p2 >> 32 & 0xFF;
+    data[12] = p2 >> 24 & 0xFF;
+    data[13] = p2 >> 16 & 0xFF;
+    data[14] = p2 >>  8 & 0xFF;
+    data[15] = p2 >>  0 & 0xFF;
+    data[16] = p3 >> 24 & 0xFF;
+    data[17] = p3 >> 16 & 0xFF;
+    data[18] = p3 >>  8 & 0xFF;
+    data[19] = p3 >>  0 & 0xFF;
 }
 
 }; // dht

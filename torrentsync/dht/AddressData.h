@@ -34,11 +34,11 @@ public:
     inline bool operator>=( const AddressData& addr ) const;
 
     const std::string string() const;
-    const std::string byteString() const;
+    const void byteString( char (&data)[20] ) const;
 
     //! may throw std::invalid_argument
     void parse( const std::string& str );
-    static AddressData parseByteString( const std::string& str );
+    static AddressData parseByteString( const char (&data)[20] );
 
     static const AddressData minValue;
     static const AddressData maxValue;

@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(addAddress_someRandom)
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::vector<AddressSPtr> addresses;
-        const size_t count = rand()%(rand()%4096);
+        const size_t count = (rand()+1)%((rand()+1)%4096);
         for( size_t j = 0; j < count; j++ )
         {
             bool bad = false;
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE(removeAddress_removeRandomOrder)
 
         while ( ! v.empty() )
         {
-            const int idx = rand()%v.size();
+            const int idx = (rand()+1)%v.size();
             BOOST_REQUIRE_NO_THROW(removeAddress(v[idx]));
             v.erase(v.begin()+idx);
         }
@@ -396,7 +396,7 @@ BOOST_AUTO_TEST_CASE(removeAddress_addAndRemove)
         const int numberToRemove = 2;
         for( int j = 0; j < numberToRemove; ++j )
         {
-            const int idx = rand()%v.size();
+            const int idx = (rand()+1)%v.size();
             BOOST_REQUIRE_NO_THROW(removeAddress(v[idx]));
             v.erase(v.begin()+idx);
         }
