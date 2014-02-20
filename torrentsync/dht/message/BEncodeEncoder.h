@@ -11,6 +11,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <torrentsync/utils/Buffer.h>
+
 namespace torrentsync
 {
 namespace dht
@@ -25,11 +27,12 @@ class BEncodeEncoder
 
     BEncodeEncoder() {}
 
-    template <class T>
-    void addElement( const T v );
+    void addElement(
+        const torrentsync::utils::Buffer& v );
 
-    template <class A, class B>
-    void addDictionaryElement( const A k, const B v );
+    void addDictionaryElement(
+        const torrentsync::utils::Buffer& k,
+        const torrentsync::utils::Buffer& v );
 
     template <class T>
     void addList( const T begin, const T end )
@@ -50,41 +53,14 @@ class BEncodeEncoder
     inline std::string value() const { return result.str(); }
 
 private:
-    std::string lastKey;
+    torrentsync::utils::Buffer lastKey;
     std::stringstream result;
 
-    void addDictionaryElementImpl( const std::string& k, const std::string& v );
-    void addElementImpl( const std::string& v );
 };
 
-namespace {
-template <class T> inline std::string make_string( T v )
-{
-    return std::string(v);
-}
-template <> inline std::string make_string( char v )
-{
-    std::string s; s.append(1,v);
-    return s;
-}
-template <> inline std::string make_string( std::string& v )
-{
-    return v;
-}
-};
-
-template <class T>
-inline void BEncodeEncoder::addElement( const T v ) {
-    addElementImpl(make_string(v));
-}
-
-template <class A, class B>
-inline void BEncodeEncoder::addDictionaryElement( const A k, const B v )
-{
-    addDictionaryElementImpl(make_string(k), make_string(v));
-}
-
-void BEncodeEncoder::addDictionaryElementImpl( const std::string& k, const std::string& v )
+void BEncodeEncoder::addDictionaryElement(
+    const torrentsync::utils::Buffer& k,
+    const torrentsync::utils::Buffer& v )
 {
     // test key correctness with lexicographical_compare in an assert
     if (!lastKey.empty() && std::lexicographical_compare(k.begin(),k.end(),lastKey.begin(),lastKey.end()))
@@ -95,11 +71,12 @@ void BEncodeEncoder::addDictionaryElementImpl( const std::string& k, const std::
     lastKey = k;
 }
 
-void BEncodeEncoder::addElementImpl( const std::string& v )
+void BEncodeEncoder::addElement( const torrentsync::utils::Buffer& v )
 {
-    result << v.length();
+    assert(!v.empty());
+    result << v.size();
     result << ':';
-    result << v;
+    result.write(v.get(),v.size());
 }
 
 } // torrentsync

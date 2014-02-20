@@ -55,6 +55,7 @@ set(SOURCES_UT
     test/torrentsync/dht/RoutingTable.cpp
     test/torrentsync/dht/AddressBucket.cpp
     test/torrentsync/dht/AddressTree.cpp
+    test/torrentsync/dht/message/Ping.cpp
     test/torrentsync/dht/message/BEncodeEncoder.cpp
     test/torrentsync/dht/message/BEncodeDecoder.cpp)
 

@@ -8,12 +8,16 @@
 #include <vector>
 #include <exception>
 
+#include <torrentsync/utils/Buffer.h>
+
 namespace torrentsync
 {
 namespace dht
 {
 namespace message
 {
+
+typedef std::map<std::string,torrentsync::utils::Buffer> DataMap;
 
 class BEncodeException : public std::exception
 {
@@ -46,15 +50,16 @@ public:
     //! @param stream stream parser
     void parseMessage( std::istream &stream );
 
-    const std::map<std::string,std::string>& getData() const { return data; }
+    const DataMap& getData() const { return data; }
 
 private:
     std::string readElement( std::istream& stream );
+    torrentsync::utils::Buffer readValue( std::istream& stream );
 
     typedef std::pair<std::string,bool> structureStackE;
     std::vector<structureStackE> structureStack;
 
-    std::map<std::string,std::string> data;
+    DataMap data;
 
     int listCounter;
 

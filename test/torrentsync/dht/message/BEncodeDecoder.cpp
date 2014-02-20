@@ -13,7 +13,8 @@ using namespace torrentsync::dht::message;
 
 #define TEST_FIELD(key,value) { \
     BOOST_REQUIRE(map.find(key) != map.end()); \
-    BOOST_REQUIRE_EQUAL(map.find(key)->second,value);}
+    BOOST_REQUIRE(map.find(key)->second == \
+        torrentsync::utils::Buffer(value));}
 
 BOOST_AUTO_TEST_CASE(constructor_destructor)
 {
@@ -27,7 +28,7 @@ BOOST_AUTO_TEST_CASE(parse_emptyDictionary)
     BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
-    const std::map<std::string,std::string>& map = decoder.getData();
+    const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),0);
 }
 
@@ -38,7 +39,7 @@ BOOST_AUTO_TEST_CASE(parse_oneElementDictionary)
     BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
-    const std::map<std::string,std::string>& map = decoder.getData();
+    const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),1);
     TEST_FIELD("a","b");
 }
@@ -50,7 +51,7 @@ BOOST_AUTO_TEST_CASE(parse_emptyList)
     BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
-    const std::map<std::string,std::string>& map = decoder.getData();
+    const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),0);
 }
 
@@ -61,10 +62,10 @@ BOOST_AUTO_TEST_CASE(parse_dictionary)
     BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
-    const std::map<std::string,std::string>& map = decoder.getData();
+    const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),2);
     TEST_FIELD("a","bb");
-    TEST_FIELD("yy","plpl");    
+    TEST_FIELD("yy","plpl");
 }
 
 BOOST_AUTO_TEST_CASE(parse_list)
@@ -74,7 +75,7 @@ BOOST_AUTO_TEST_CASE(parse_list)
     BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
-    const std::map<std::string,std::string>& map = decoder.getData();
+    const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),4);
     TEST_FIELD("0","a");
     TEST_FIELD("1","bb");
@@ -89,7 +90,7 @@ BOOST_AUTO_TEST_CASE(parse_dictionaryWithList)
     BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
-    const std::map<std::string,std::string>& map = decoder.getData();
+    const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),5);
 
     TEST_FIELD("a","bb");
@@ -106,7 +107,7 @@ BOOST_AUTO_TEST_CASE(parse_dictionaryWithDictionary)
     BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
-    const std::map<std::string,std::string>& map = decoder.getData();
+    const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),4);
 
     TEST_FIELD("a","bb");
@@ -122,7 +123,7 @@ BOOST_AUTO_TEST_CASE(parse_dictionaryWithDictionary_inTheMiddle)
     BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
-    const std::map<std::string,std::string>& map = decoder.getData();
+    const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),5);
 
     TEST_FIELD("a","bb");
@@ -139,7 +140,7 @@ BOOST_AUTO_TEST_CASE(parse_listWithList)
     BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
-    const std::map<std::string,std::string>& map = decoder.getData();
+    const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),5);
 
     TEST_FIELD("0","a");
@@ -175,4 +176,5 @@ BOOST_AUTO_TEST_CASE(parse_error3)
 
     BOOST_REQUIRE_THROW(decoder.parseMessage(str),BEncodeException);
 }
+
 BOOST_AUTO_TEST_SUITE_END();

@@ -190,28 +190,32 @@ AddressData AddressData::parseByteString(const char (&data)[20])
     return addr;
 }
 
-const void AddressData::byteString( char (&data)[20] ) const
+torrentsync::utils::Buffer AddressData::byteString() const
 {
-    data[0]  = p1 >> 56 & 0xFF; 
-    data[1]  = p1 >> 48 & 0xFF;
-    data[2]  = p1 >> 40 & 0xFF;
-    data[3]  = p1 >> 32 & 0xFF;
-    data[4]  = p1 >> 24 & 0xFF;
-    data[5]  = p1 >> 16 & 0xFF;
-    data[6]  = p1 >>  8 & 0xFF;
-    data[7]  = p1 >>  0 & 0xFF;
-    data[8]  = p2 >> 56 & 0xFF;
-    data[9]  = p2 >> 48 & 0xFF;
-    data[10] = p2 >> 40 & 0xFF;
-    data[11] = p2 >> 32 & 0xFF;
-    data[12] = p2 >> 24 & 0xFF;
-    data[13] = p2 >> 16 & 0xFF;
-    data[14] = p2 >>  8 & 0xFF;
-    data[15] = p2 >>  0 & 0xFF;
-    data[16] = p3 >> 24 & 0xFF;
-    data[17] = p3 >> 16 & 0xFF;
-    data[18] = p3 >>  8 & 0xFF;
-    data[19] = p3 >>  0 & 0xFF;
+    torrentsync::utils::Buffer buff(20);
+    
+    buff.get()[0]  = p1 >> 56 & 0xFF; 
+    buff.get()[1]  = p1 >> 48 & 0xFF;
+    buff.get()[2]  = p1 >> 40 & 0xFF;
+    buff.get()[3]  = p1 >> 32 & 0xFF;
+    buff.get()[4]  = p1 >> 24 & 0xFF;
+    buff.get()[5]  = p1 >> 16 & 0xFF;
+    buff.get()[6]  = p1 >>  8 & 0xFF;
+    buff.get()[7]  = p1 >>  0 & 0xFF;
+    buff.get()[8]  = p2 >> 56 & 0xFF;
+    buff.get()[9]  = p2 >> 48 & 0xFF;
+    buff.get()[10] = p2 >> 40 & 0xFF;
+    buff.get()[11] = p2 >> 32 & 0xFF;
+    buff.get()[12] = p2 >> 24 & 0xFF;
+    buff.get()[13] = p2 >> 16 & 0xFF;
+    buff.get()[14] = p2 >>  8 & 0xFF;
+    buff.get()[15] = p2 >>  0 & 0xFF;
+    buff.get()[16] = p3 >> 24 & 0xFF;
+    buff.get()[17] = p3 >> 16 & 0xFF;
+    buff.get()[18] = p3 >>  8 & 0xFF;
+    buff.get()[19] = p3 >>  0 & 0xFF;
+
+    return buff;
 }
 
 }; // dht

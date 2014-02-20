@@ -86,7 +86,8 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
 
                 if (structureStack.back().second == DICTIONARY)
                 {
-                    std::string key, value;
+                    std::string key;
+                    torrentsync::utils::Buffer value;
                     key = readElement(stream);
 
                     // peek if it's a 'l' or a 'd' (substructure)
@@ -97,7 +98,7 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                         last_token = key; // structure itself
                         break;
                     default:
-                        value = readElement(stream);
+                        value = readValue(stream);
 
                         BOOST_FOREACH( const structureStackE& path, structureStack )
                         {
@@ -114,8 +115,8 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                 else
                 {
                     assert(structureStack.back().second == LIST);
-                    std::string value;
-                    value = readElement(stream);
+                    torrentsync::utils::Buffer value;
+                    value = readValue(stream);
 
                     BOOST_FOREACH( const structureStackE& path, structureStack )
                     {
@@ -161,6 +162,32 @@ std::string BEncodeDecoder::readElement( std::istream& stream )
     }
 }
 
+torrentsync::utils::Buffer BEncodeDecoder::readValue( std::istream& stream )
+{
+    
+    int length;
+
+    stream >> length;
+    const char separator = stream.get();
+
+    torrentsync::utils::Buffer buff(length);
+
+    if (!stream.good())
+        throw BEncodeException("Error in stream while reading an element");
+
+    if (separator != ':')
+    {
+        std::stringstream msg;
+        msg << "Malformed message - expecting separator : but found " << separator;
+        throw BEncodeException(msg.str());
+    }
+
+    {
+        assert(buff.get());
+        stream.read(buff.get(),length);
+        return buff;
+    }
+}
 } // torrentsync
 } // dht
 } // message

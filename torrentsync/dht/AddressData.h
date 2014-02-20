@@ -7,6 +7,8 @@
 #endif
 #include <string>
 
+#include <torrentsync/utils/Buffer.h>
+
 #include <boost/optional.hpp>
 
 namespace torrentsync
@@ -34,7 +36,7 @@ public:
     inline bool operator>=( const AddressData& addr ) const;
 
     const std::string string() const;
-    const void byteString( char (&data)[20] ) const;
+    torrentsync::utils::Buffer byteString() const;
 
     //! may throw std::invalid_argument
     void parse( const std::string& str );

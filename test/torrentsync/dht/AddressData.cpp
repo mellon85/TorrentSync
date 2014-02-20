@@ -217,20 +217,18 @@ BOOST_AUTO_TEST_CASE(bytestring_parsing)
 {
     const char data[20] = {'1','2','3','4','5','6','7','8','a','b','c','d','e','f','g','h','A','B','C','D'};
     AddressData d(parseByteString(data));
-    char out[20];
-    d.byteString(out);
+    torrentsync::utils::Buffer b = d.byteString();
     for( int i = 0; i < 20; ++i )
-        BOOST_REQUIRE_EQUAL(out[i],data[i]);
+        BOOST_REQUIRE_EQUAL(b.get()[i],data[i]);
 }
 
 BOOST_AUTO_TEST_CASE(bytestring_parsing_special)
 {
     const char data[20] = {'1','2','3','\n','5','6','7','8','a','\0','c','d','e','f','g','h','\0','B','C','D'};
     AddressData d(parseByteString(data));
-    char out[20];
-    d.byteString(out);
+    torrentsync::utils::Buffer b = d.byteString();
     for( int i = 0; i < 20; ++i )
-        BOOST_REQUIRE_EQUAL(out[i],data[i]);
+        BOOST_REQUIRE_EQUAL(b.get()[i],data[i]);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
