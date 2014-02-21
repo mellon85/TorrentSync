@@ -7,6 +7,7 @@
 #include <boost/asio/ip/udp.hpp>
 
 #include <torrentsync/dht/AddressTree.h>
+#include <torrentsync/utils/Lock.h>
 
 #include <list>
 
@@ -20,14 +21,22 @@ using boost::asio::ip::udp;
 class RoutingTable : public boost::noncopyable
 {
 public:
-    RoutingTable( const udp::endpoint& endpoint );
+    //! Constructor
+    //! @param endpoint the port and address to bind
+    RoutingTable(
+        const udp::endpoint& endpoint );
+
     ~RoutingTable();
 
-    const udp::endpoint& getEndpoint() const;
+    const udp::endpoint getEndpoint() const;
 
     boost::asio::io_service& getIO_service();
 
 protected:
+
+    //! Initalizes the tables by trying to contact the initial addresses stored
+    //! from previous runs. It will try sending ping requests to these nodes.
+    void initializeTable();
     
     //! Performs a table cleanup, usually called by a timer from boost::asio
     //! - removes bad addresses,
@@ -36,9 +45,12 @@ protected:
     void cleanupTable();
 
 private:
+    
+    //! Internal mutex to synchronize the various threads
+    Mutex mutex;
 
     //! Address table
-    AddressTree table;
+    AddressTree _table;
 
     //! list of address to populate the table with
     std::list<Address> initial_addresses;
@@ -58,8 +70,8 @@ private:
     //! IO service of for the routing table
     boost::asio::io_service io_service;
 
-    //! Address of the udp endpoint of the routing table
-    udp::endpoint endpoint;
+    //! Socket 
+    udp::socket _socket;
 };
 
 template <class Archive>
