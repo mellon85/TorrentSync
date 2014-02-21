@@ -49,6 +49,7 @@ set(SOURCES
     torrentsync/utils/RandomGenerator.cpp)
 set(SOURCES_UT
     test/torrentsync/utils/log/Log.cpp
+    test/torrentsync/utils/Buffer.cpp
     test/torrentsync/dht/AddressData.cpp
     test/torrentsync/dht/Address.cpp
     test/torrentsync/dht/Node.cpp
