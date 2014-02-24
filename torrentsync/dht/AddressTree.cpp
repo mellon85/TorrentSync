@@ -8,17 +8,6 @@ namespace torrentsync
 namespace dht
 {
 
-#ifndef HAS_Cxx11
-namespace
-{
-template <class T>
-size_t size_op( const size_t init,const T& t)
-{
-    return init+t->size();
-}
-};
-#endif
-
 AddressTree::AddressTree(
         const AddressData nodeAddress) : nodeAddress(nodeAddress)
 {
@@ -90,19 +79,9 @@ void AddressTree::removeAddress( AddressSPtr address )
 size_t AddressTree::size() const
 {
     ReadLock rlock(mutex);
-#ifndef HAS_Cxx11
-    size_t ret = 0;
-    for ( BucketContainer::iterator it = buckets.begin();
-            it != buckets.end(); ++it)
-    {
-        ret += (*it)->size();
-    }
-    return ret;
-#else
     return std::accumulate(buckets.begin(), buckets.end(), static_cast<size_t>(0),
         [](const size_t init,const BucketContainer::key_type& t) -> size_t
             { return init+t->size(); });
-#endif
 }
 
 BucketContainer::const_iterator

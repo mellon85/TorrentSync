@@ -3,10 +3,6 @@
 
 #include <boost/integer_traits.hpp>
 
-#ifndef HAS_Cxx11
-#include <boost/typeof/typeof.hpp>
-#endif
-
 namespace torrentsync
 {
 namespace dht

@@ -2,11 +2,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#ifdef HAS_Cxx11
 #include <cstdint>
-#else
-#include <stdint.h>
-#endif
 
 namespace torrentsync
 {

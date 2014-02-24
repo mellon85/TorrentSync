@@ -7,17 +7,18 @@ SET(CMAKE_BUILD_TYPE Debug)
 
 enable_testing()
 
-# message(STATUS "${CMAKE_BUILD_TYPE}")
-# message(STATUS "${CMAKE_CXX_COMPILER_ID}")
-
 if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
-    check_cxx_compiler_flag(-std=gnu++11 HAS_Cxx11)
-    if (HAS_Cxx11)
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_Cxx11 -std=gnu++11")
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -DHAS_Cxx11 -std=gnu++11")
+    
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
+                            OUTPUT_VARIABLE GCC_VERSION)
+    if (GCC_VERSION VERSION_LESS 4.7 )
+        message(FATAL_ERROR "gcc must be version >= 4.7")
     endif()
+
+
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -Wall -std=gnu++11")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 
     # check for code coverage unit test
     if (COVERAGE)
@@ -29,7 +30,6 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
         set(CMAKE_SHARED_LINKER_FLAGS
             "${CMAKE_SHARED_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
     endif()
-
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR})

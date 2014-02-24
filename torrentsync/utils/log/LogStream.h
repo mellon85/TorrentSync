@@ -28,9 +28,9 @@ public:
 
 private:
 
-    Level _level;
-
     std::vector<Sink> & _sinks;
+
+    Level _level;
 
     void flush();
 

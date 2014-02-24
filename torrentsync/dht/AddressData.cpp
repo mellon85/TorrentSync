@@ -16,17 +16,6 @@
 
 namespace
 {
-#if !defined(HAS_Cxx11)
-bool isxdigit(const std::string& str)
-{
-    BOOST_FOREACH( const char c, str )
-    {
-        if (!std::isxdigit(c))
-            return false;
-    }
-    return true;
-}
-#endif
 
 template <size_t N>
 class hexconverter
@@ -62,11 +51,7 @@ AddressData::AddressData( const std::string& str )
 void AddressData::parse( const std::string& str )
 {
     if (str.length() != 40 ||
-#ifdef HAS_Cxx11
             !std::all_of(str.begin(),str.end(), ::isxdigit))
-#else
-            !isxdigit(str))
-#endif
     {
         std::string msg = "Invalid argument: "; msg += str;
         throw std::invalid_argument(msg);

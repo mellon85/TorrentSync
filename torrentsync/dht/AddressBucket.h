@@ -13,64 +13,6 @@ namespace torrentsync
 namespace dht
 {
 
-namespace
-{
-
-class AddressSharedPtrEquality
-{
-public:
-    AddressSharedPtrEquality( const AddressData& i ) : i(i) {}
-
-    bool operator()(
-            const boost::shared_ptr<Address>& a) const
-    {
-        assert(a.get());
-        return *a == i;
-    }
-
-private:
-    const AddressData& i; 
-};
-
-class AddressSharedPtrOrder
-{
-public:
-    bool operator()(
-            const boost::shared_ptr<Address>& a,
-            const boost::shared_ptr<Address>& b) const
-    {
-        assert(a.get());
-        assert(b.get());
-        return *a < *b;
-    }
-};
-
-
-class isBadPredicate
-{
-public:
-    bool operator()( const boost::shared_ptr<Address>& addr ) const
-    {
-        assert(addr.get());
-        return addr->isBad();
-    }
-};
-
-#ifndef HAS_Cxx11
-class resetSPtr
-{
-public:
-    void operator()( boost::shared_ptr<Address>& addr ) const
-    {
-        assert(addr.get());
-        addr.reset();
-    }
-};
-#endif
-
-
-};
-
 template <size_t MaxSizeT>
 class AddressBucket : public boost::noncopyable
 {
@@ -161,11 +103,7 @@ template <size_t MaxSizeT>
 void AddressBucket<MaxSizeT>::clear()
 {
     std::for_each( begin(), end(), 
-#ifdef HAS_Cxx11            
             [](boost::shared_ptr<Address>& t) { assert(t.get()); t.reset();});
-#else
-            resetSPtr());
-#endif
     addressCount = 0;
 }
 
@@ -204,13 +142,9 @@ template <size_t MaxSizeT>
 void AddressBucket<MaxSizeT>::removeBad()
 {
     const iterator it = std::remove_if( begin(), end(),
-#ifdef HAS_Cxx11
             [](const boost::shared_ptr<Address>& addr) -> bool {
                 assert(addr.get());
                 return addr->isBad(); }
-#else
-            isBadPredicate()
-#endif
             );
     addressCount = it-begin();
 }
@@ -288,13 +222,9 @@ const boost::optional<AddressSPtr> AddressBucket<MaxSizeT>::find(
     const AddressData& addr) const
 {
     const_iterator it = std::find_if( begin(), end(), 
-#ifdef HAS_Cxx11
             [addr](const boost::shared_ptr<Address>& bucket_addr) -> bool {
                 assert(bucket_addr.get());
                 return static_cast<AddressData&>(*bucket_addr) == addr; }
-#else
-                 AddressSharedPtrEquality(addr)
-#endif
             );
 
     boost::optional<AddressSPtr> ret;

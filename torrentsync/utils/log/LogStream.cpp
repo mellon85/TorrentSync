@@ -62,6 +62,7 @@ template <> LogStream& LogStream::operator<< < logend_t> ( const logend_t& t )
         _buffer.reset();
         flush();
     }
+    return *this;
 }
 
 } // log

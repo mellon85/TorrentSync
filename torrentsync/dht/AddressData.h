@@ -1,10 +1,6 @@
 #pragma once
 
-#ifdef HAS_Cxx11
 #include <cstdint>
-#else
-#include <stdint.h>
-#endif
 #include <string>
 
 #include <torrentsync/utils/Buffer.h>
