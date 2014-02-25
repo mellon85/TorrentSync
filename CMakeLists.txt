@@ -13,12 +13,12 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
     execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
                             OUTPUT_VARIABLE GCC_VERSION)
     if (GCC_VERSION VERSION_LESS 4.7 )
-        message(FATAL_ERROR "gcc must be version >= 4.7")
+        message(FATAL_ERROR "gcc must be version >= 4.7 but found ${GCC_VERSION}")
     endif()
 
 
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -Wall -std=gnu++11")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+    set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -std=c++11")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
     # check for code coverage unit test
     if (COVERAGE)
