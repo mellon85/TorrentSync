@@ -18,10 +18,13 @@ BOOST_AUTO_TEST_CASE(initialize_and_destroy)
     BOOST_REQUIRE_EQUAL(buff1.size(),0);
     BOOST_REQUIRE(!buff2.empty());
     BOOST_REQUIRE_EQUAL(buff2.size(),10);
+    BOOST_REQUIRE_EQUAL(buff2.get()[buff2.size()],0);
     BOOST_REQUIRE(!buff3.empty());
     BOOST_REQUIRE_EQUAL(buff3.size(),6);
+    BOOST_REQUIRE_EQUAL(buff3.get()[buff3.size()],0);
     BOOST_REQUIRE(!buff4.empty());
     BOOST_REQUIRE_EQUAL(buff4.size(),2);
+    BOOST_REQUIRE_EQUAL(buff4.get()[buff4.size()],0);
 }
 
 BOOST_AUTO_TEST_CASE(resize)

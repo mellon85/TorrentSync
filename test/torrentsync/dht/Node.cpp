@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <torrentsync/dht/Node.h>
+#include <torrentsync/dht/AddressData.h>
 #include <test/torrentsync/dht/CommonAddressTest.h>
 
 BOOST_AUTO_TEST_SUITE(torrentsync_dht_Node);

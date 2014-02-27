@@ -10,6 +10,8 @@ namespace utils
 
 //! Generic buffer class.
 //! Useful to bring around chunks of binary data.
+//! It will always allocate n+1 bytes of data to hold a \0 as a delimiter to
+//! simplify it's usage as a string container.
 class Buffer
 {
 public:
@@ -61,7 +63,8 @@ public:
     //! resizes the buffer keeping as much data as possible
     inline void resize( const size_t size )
     {
-        value_type* ptr = new value_type[size];
+        value_type* ptr = new value_type[size+1];
+        ptr[size] = 0; // terminate
         if( _data.get() )
             std::memcpy(
                 static_cast<void*>(ptr),

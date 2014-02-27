@@ -31,10 +31,6 @@ namespace Messages
     const std::string Ping   = "ping";
 };
 
-Message::Message()
-{
-}
-
 const std::string& Message::getMessageType() const
 {
     assert(false);

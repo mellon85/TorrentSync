@@ -17,8 +17,8 @@ using namespace boost::assign;
 
 BOOST_AUTO_TEST_CASE(constructor)
 {
-    AddressData lowbound("0000000000000000000000000000000000000000");
-    AddressData highbound("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData lowbound = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData highbound = AddressData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
     AddressBucket<8> bucket(lowbound,highbound);
 
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -42,8 +42,8 @@ BOOST_AUTO_TEST_CASE(constructor)
 
 BOOST_AUTO_TEST_CASE(outside)
 {
-    AddressData lowbound("0000000000000000000000000000000000000000");
-    AddressData highbound("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData lowbound  = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData highbound = AddressData::parse("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
     AddressBucket<8> bucket(lowbound,highbound);
 
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE(outside)
 
 BOOST_AUTO_TEST_CASE(inside)
 {
-    AddressData lowbound("0000000000000000000000000000000000000000");
-    AddressData highbound("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData lowbound  = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData highbound = AddressData::parse("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF");
     AddressBucket<2> bucket(lowbound,highbound);
     
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -90,10 +90,10 @@ BOOST_AUTO_TEST_CASE(inside)
 
 BOOST_AUTO_TEST_CASE(bucket_ordering)
 {
-    AddressData a1("0000000000000000000000000000000000000000");
-    AddressData a2("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF");
-    AddressData a3("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
-    AddressData a2_1("0000020034010000000000000000000000000000");
+    AddressData a1   = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData a2   = AddressData::parse("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData a3   = AddressData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData a2_1 = AddressData::parse("0000020034010000000000000000000000000000");
     
     BOOST_REQUIRE(a1 <= a2);
     BOOST_REQUIRE(a2 <= a3);
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(bucket_ordering)
 
 BOOST_AUTO_TEST_CASE(add_remove)
 {
-    AddressData bot("0000000000000000000000000000000000000000");
-    AddressData top("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData bot = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData top = AddressData::parse("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
@@ -174,8 +174,8 @@ public:
 
 BOOST_AUTO_TEST_CASE(removeBad)
 {
-    AddressData bot("0000000000000000000000000000000000000000");
-    AddressData top("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData bot = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData top = AddressData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
@@ -218,8 +218,8 @@ BOOST_AUTO_TEST_CASE(removeBad)
 
 BOOST_AUTO_TEST_CASE(removeBad_2)
 {
-    AddressData bot("0000000000000000000000000000000000000000");
-    AddressData top("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData bot = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData top = AddressData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
@@ -263,8 +263,8 @@ BOOST_AUTO_TEST_CASE(removeBad_2)
 
 BOOST_AUTO_TEST_CASE(addIsSorted)
 {
-    AddressData bot("0000000000000000000000000000000000000000");
-    AddressData top("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData bot = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData top = AddressData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     std::vector<Address> addresses;
     addresses += 
@@ -295,8 +295,8 @@ BOOST_AUTO_TEST_CASE(addIsSorted)
 
 BOOST_AUTO_TEST_CASE(addIsSortedRandom)
 {
-    AddressData bot("0000000000000000000000000000000000000000");
-    AddressData top("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData bot = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData top = AddressData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     for( int loop = 0; loop < TEST_LOOP_COUNT; ++loop )
     {
@@ -325,8 +325,8 @@ BOOST_AUTO_TEST_CASE(addIsSortedRandom)
 
 BOOST_AUTO_TEST_CASE(add_and_find)
 {
-    AddressData bot("0000000000000000000000000000000000000000");
-    AddressData top("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData bot = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData top = AddressData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     std::vector<Address> addresses;
     addresses += Address("0000000000000000000000000000000000000001"),
@@ -363,8 +363,8 @@ BOOST_AUTO_TEST_CASE(add_and_find)
 
 BOOST_AUTO_TEST_CASE(addRandom_and_find)
 {
-    AddressData bot("0000000000000000000000000000000000000000");
-    AddressData top("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData bot = AddressData::parse("0000000000000000000000000000000000000000");
+    AddressData top = AddressData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     for( int loop = 0; loop < TEST_LOOP_COUNT; ++loop )
     {

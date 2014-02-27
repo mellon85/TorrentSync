@@ -21,7 +21,12 @@ typedef boost::optional<Bounds> MaybeBounds;
 class AddressData
 {
 public:
-    AddressData(const std::string&);
+    //! constructor expects to receive a buffer with the binary data to parse
+    AddressData(const torrentsync::utils::Buffer&);
+
+    static inline AddressData parse( const std::string& str );
+    static inline AddressData parse( const char * const  str );
+
     inline ~AddressData() {};
 	
     inline bool operator==( const AddressData& addr ) const;
@@ -35,7 +40,6 @@ public:
     torrentsync::utils::Buffer byteString() const;
 
     //! may throw std::invalid_argument
-    void parse( const std::string& str );
     static AddressData parseByteString( const char (&data)[20] );
 
     static const AddressData minValue;
@@ -49,6 +53,8 @@ public:
     static const AddressData getRandom();
 protected:
     inline AddressData() {};
+
+    void parseImplementation( const std::string& str );
 
     // not using std::bitset for lack of comparing operators
     // but complicates splitInHalf
@@ -102,6 +108,19 @@ inline bool AddressData::operator>=( const AddressData& addr ) const
 }
 
 
+inline AddressData AddressData::parse( const std::string& str )
+{
+    AddressData data;
+    data.parseImplementation(str);
+    return data;
+}
+
+inline AddressData AddressData::parse( const char * const str )
+{
+    AddressData data;
+    data.parseImplementation(str);
+    return data;
+}
 
 template <class Stream>
 Stream& operator<<( Stream& out, const AddressData& data )

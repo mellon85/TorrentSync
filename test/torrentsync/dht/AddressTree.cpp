@@ -12,7 +12,8 @@ namespace
 class AddressTreeFixture : public torrentsync::dht::AddressTree
 {
 public:
-    AddressTreeFixture() : AddressTree(generateRandomAddress()) {}
+    AddressTreeFixture() : AddressTree(
+        torrentsync::dht::AddressData::parse(generateRandomAddress())) {}
 };
 };
 
@@ -283,7 +284,7 @@ BOOST_AUTO_TEST_CASE(addAddress_and_find)
         for ( int j = 0; j < TEST_LOOP_COUNT; ++j )
         {
             boost::optional<AddressSPtr> b = getAddress(
-                   AddressData(generateRandomAddress("b")));
+                   AddressData::parse(generateRandomAddress("b")));
             BOOST_CHECK(!b);
         }
 

@@ -5,6 +5,11 @@
 
 namespace torrentsync
 {
+namespace utils
+{
+class Buffer;
+}; // utils
+
 namespace dht
 {
 
@@ -23,6 +28,10 @@ public:
             const std::string& transactionID,
             const torrentsync::dht::AddressData& source,
             std::string& output);
+
+    torrentsync::utils::Buffer getID();
+
+    torrentsync::utils::Buffer getToken();
 
 };
 

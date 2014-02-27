@@ -42,13 +42,26 @@ namespace dht
 
 const uint32_t AddressData::ADDRESS_STRING_LENGTH = 40;
 
-AddressData::AddressData( const std::string& str )
+AddressData::AddressData(const torrentsync::utils::Buffer& buff)
 {
-    parse(str);
+    if ( buff.size() != 20 ) 
+    {
+        throw std::invalid_argument("AddressData expects 20 byte as address");
+    }
+    
+    
+    const uint32_t * const data = reinterpret_cast<const uint32_t*>(buff.get());
+    
+    p1 = data[0];
+    p1 <<= 32;
+    p1 |= data[1];
+    p2 =  data[2];
+    p2 <<= 32;
+    p2 |= data[3];
+    p3 =  data[4];
 }
 
-
-void AddressData::parse( const std::string& str )
+void AddressData::parseImplementation( const std::string& str )
 {
     if (str.length() != 40 ||
             !std::all_of(str.begin(),str.end(), ::isxdigit))
@@ -76,9 +89,9 @@ const std::string AddressData::string() const
 }
 
 const AddressData AddressData::minValue =
-    AddressData("0000000000000000000000000000000000000000");
+    AddressData::parse("0000000000000000000000000000000000000000");
 const AddressData AddressData::maxValue =
-    AddressData("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    AddressData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
 MaybeBounds AddressData::splitInHalf(
     const AddressData& low,

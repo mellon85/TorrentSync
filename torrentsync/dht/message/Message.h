@@ -49,21 +49,17 @@ class Message
 public:
 
     //! parse a generic message and returns an instance of it
-    boost::shared_ptr<Message> parseMessage( std::istream& );
+    static boost::shared_ptr<Message> parseMessage( std::istream& );
 
     //! Returns the message type. In this way you can cast to the correct
     //! object.
     //! @return a member of the Messages namespace
-    const std::string& getMessageType() const;
+    virtual const std::string& getMessageType() const =0;
 
     //! returns the type of the message
     //! @return a member of Type namespace
-    const std::string getType() const;
+    virtual const std::string getType() const =0;
 
-protected:
-
-    Message();
-    virtual ~Message() {}
 };
 
 } /* message */
