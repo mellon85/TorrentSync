@@ -3,8 +3,7 @@
 #include <boost/serialization/version.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/ip/udp.hpp>
+#include <boost/asio.hpp>
 
 #include <torrentsync/dht/AddressTree.h>
 #include <torrentsync/utils/Lock.h>
@@ -26,34 +25,46 @@ public:
     RoutingTable(
         const udp::endpoint& endpoint );
 
-    ~RoutingTable();
+    virtual ~RoutingTable();
 
     const udp::endpoint getEndpoint() const;
 
     boost::asio::io_service& getIO_service();
 
 protected:
+    typedef boost::shared_ptr<boost::asio::deadline_timer> shared_timer;
 
     //! Initalizes the tables by trying to contact the initial addresses stored
     //! from previous runs. It will try sending ping requests to these nodes.
-    void initializeTable();
+    void initializeTable( shared_timer timer = shared_timer());
     
     //! Performs a table cleanup, usually called by a timer from boost::asio
     //! - removes bad addresses,
     //! - starts bucket refresh,
     //! - sends ping to aging nodes.
-    void cleanupTable();
+    //! - look for close nodes.
+    void tableMaintenance();
+
+    //! TODO
+    virtual void sendMessage();
+
+    //! TODO
+    virtual void recvMessage();
+
+    virtual void initializeNetwork(
+        const udp::endpoint& endpoint );
+    
+    //! list of address to populate the table with
+    std::list<Address> _initial_addresses;
 
 private:
-    
+
+
     //! Internal mutex to synchronize the various threads
     Mutex mutex;
 
     //! Address table
     AddressTree _table;
-
-    //! list of address to populate the table with
-    std::list<Address> initial_addresses;
 
     //! Serialization friend class
     friend class boost::serialization::access;
@@ -72,6 +83,7 @@ private:
 
     //! Socket 
     udp::socket _socket;
+
 };
 
 template <class Archive>

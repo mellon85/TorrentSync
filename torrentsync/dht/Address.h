@@ -11,19 +11,28 @@ namespace torrentsync
 namespace dht
 {
 
+//! A DHT address with the associated statistics and informations
 class Address : public AddressData
 {
 public:
+    //! Builds an address from an hexadecimal stringh
     Address( const std::string& );
+
+    //! Copy constructor
     Address( const Address& addr );
 
-    ~Address() {};
+    inline ~Address() {};
 
     // distance operator
     inline Distance operator^( const Address& addr ) const;
 
+    //! marks the address as good/fresh
     inline void setGood();
+
+    //! Is the address good/fresh?
+    //! @return true if good/fresh
     inline bool isGood() const;
+
     inline bool isQuestionable() const;
     inline bool isBad()          const;
     inline const time_t& getLastTimeGood() const;

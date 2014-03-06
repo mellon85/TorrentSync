@@ -10,10 +10,10 @@ namespace log
 {
 
 static const std::string levels[] = {
-    "ERROR",
-    "WARN",
+    "DEBUG",
     "INFO",
-    "DEBUG" };
+    "WARN",
+    "ERROR" };
 
 const std::string& levelToString( const Level level )
 {
