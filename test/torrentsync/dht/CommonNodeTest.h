@@ -4,7 +4,7 @@
 
 #define TEST_LOOP_COUNT 100
 
-inline std::string generateRandomAddress( const std::string& prefix = std::string())
+static inline std::string generateRandomNode( const std::string& prefix = std::string())
 {
     std::string data;
     data.reserve(40);
@@ -26,4 +26,14 @@ inline std::string generateRandomAddress( const std::string& prefix = std::strin
         }
     }
     return data;
+}
+
+static inline torrentsync::utils::Buffer putInBuffer( const char data[20]) 
+{
+    torrentsync::utils::Buffer b(20);
+    for( int i = 0; i < 20; ++i )
+    {
+        b.get()[i] = data[i];
+    }
+    return b;
 }

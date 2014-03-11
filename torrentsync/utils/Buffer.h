@@ -18,6 +18,12 @@ public:
     //! the type used to keep the data
     typedef char value_type;
 
+    //! const iterator type
+    typedef char const * const_iterator;
+
+    //! iterator type
+    typedef char * iterator;
+
     //! Constructor to initialize the data from an address and the length of
     //! the data itself
     Buffer( const char* str, const size_t size ) {
@@ -88,10 +94,16 @@ public:
     inline void clear() { _data.reset(); _size = 0; }
 
     //! iterator to buffer's start
-    inline const char* begin() const { return _data.get(); }
+    inline iterator begin() { return _data.get(); }
+
+    //! iterator to buffer's end;
+    inline iterator end()   { return _data.get()+_size; }
+
+    //! iterator to buffer's start
+    inline const_iterator cbegin() const { return _data.get(); }
 
     //! iterator to buffer's end
-    inline const char* end()   const { return _data.get()+_size; }
+    inline const_iterator cend()   const { return _data.get()+_size; }
 
     //! returns true if the buffer is empty
     inline bool empty()        const { return _size == 0; }

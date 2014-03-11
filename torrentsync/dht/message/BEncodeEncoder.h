@@ -63,7 +63,7 @@ void BEncodeEncoder::addDictionaryElement(
     const torrentsync::utils::Buffer& v )
 {
     // test key correctness with lexicographical_compare in an assert
-    if (!lastKey.empty() && std::lexicographical_compare(k.begin(),k.end(),lastKey.begin(),lastKey.end()))
+    if (!lastKey.empty() && std::lexicographical_compare(k.cbegin(),k.cend(),lastKey.cbegin(),lastKey.cend()))
         throw std::logic_error("Violating lexicographic order constraint in dictionary");
 
     addElement(k);

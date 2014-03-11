@@ -1,22 +1,22 @@
 #pragma once
 
-#include <torrentsync/dht/AddressData.h>
+#include <torrentsync/dht/NodeData.h>
 
 namespace torrentsync
 {
 namespace dht
 {
 
-class Address;
+class Node;
 
-class Distance : public AddressData
+class Distance : public NodeData
 {
 public:
     Distance() {};
     ~Distance() {};
     
 private:
-    friend class torrentsync::dht::Address;
+    friend class torrentsync::dht::Node;
     
 };
 

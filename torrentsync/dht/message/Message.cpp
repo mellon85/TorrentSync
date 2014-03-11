@@ -23,7 +23,7 @@ namespace Field
     const std::string ErrorType     = "e";
     const std::string Arguments     = "a";
 
-    const std::string NodeID = "id";
+    const std::string PeerID = "id";
 };
 
 namespace Messages

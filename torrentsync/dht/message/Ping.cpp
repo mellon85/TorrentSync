@@ -1,5 +1,5 @@
 #include <torrentsync/dht/message/BEncodeEncoder.h>
-#include <torrentsync/dht/AddressData.h>
+#include <torrentsync/dht/NodeData.h>
 #include <torrentsync/dht/message/Ping.h>
 #include <torrentsync/utils/Buffer.h>
 
@@ -17,14 +17,14 @@ Ping::Ping()
 const std::string&
 Ping::getMessage( 
         const std::string& transactionID,
-        const AddressData& source,
+        const NodeData& source,
         std::string& output)
 {
     BEncodeEncoder enc;
     enc.startDictionary();
     enc.addElement(Field::Arguments);
     enc.startDictionary();
-    enc.addDictionaryElement(Field::NodeID,source.byteString());
+    enc.addDictionaryElement(Field::PeerID,source.write());
     enc.endDictionary();
     enc.addDictionaryElement(Field::QueryType,Messages::Ping); 
     enc.addDictionaryElement(Field::TransactionID,transactionID);

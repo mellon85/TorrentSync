@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <torrentsync/dht/message/Ping.h>
-#include <torrentsync/dht/AddressData.h>
+#include <torrentsync/dht/NodeData.h>
+#include <test/torrentsync/dht/CommonNodeTest.h>
 
 BOOST_AUTO_TEST_SUITE(torrentsync_dht_message_Ping);
 
@@ -20,7 +21,9 @@ BOOST_AUTO_TEST_CASE(generation_1)
     std::string transaction = "aa";
     const char bytestring[20] = 
         {71,71,71,71,71,71,71,71,72,72,72,72,72,72,72,72,73,73,73,73};
-    AddressData data(AddressData::parseByteString(bytestring));
+    torrentsync::utils::Buffer b = putInBuffer(bytestring);
+    NodeData data;
+    data.read(b.cbegin(),b.cend());
 
     BOOST_REQUIRE_NO_THROW(
     ret = Ping::getMessage(

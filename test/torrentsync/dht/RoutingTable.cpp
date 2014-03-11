@@ -5,7 +5,7 @@
 #include <turtle/mock.hpp>
 
 #include <torrentsync/dht/RoutingTable.h>
-#include <test/torrentsync/dht/CommonAddressTest.h>
+#include <test/torrentsync/dht/CommonNodeTest.h>
 #include <torrentsync/utils/log/Logger.h>
 
 using namespace torrentsync::dht;
@@ -32,9 +32,9 @@ BOOST_AUTO_TEST_CASE(constructor)
 
 BOOST_AUTO_TEST_CASE(initializing_addresses)
 {
-    _initial_addresses.push_back(torrentsync::dht::Address(generateRandomAddress()));
-    _initial_addresses.push_back(torrentsync::dht::Address(generateRandomAddress()));
-    _initial_addresses.push_back(torrentsync::dht::Address(generateRandomAddress()));
+    _initial_addresses.push_back(torrentsync::dht::Node(generateRandomNode()));
+    _initial_addresses.push_back(torrentsync::dht::Node(generateRandomNode()));
+    _initial_addresses.push_back(torrentsync::dht::Node(generateRandomNode()));
 
     BOOST_REQUIRE_EQUAL( 3, _initial_addresses.size() );
     initializeTable();

@@ -1,4 +1,4 @@
-#include <torrentsync/dht/AddressTree.h>
+#include <torrentsync/dht/NodeTree.h>
 
 #include <exception>
 #include <numeric>
@@ -8,20 +8,20 @@ namespace torrentsync
 namespace dht
 {
 
-AddressTree::AddressTree(
-        const AddressData nodeAddress) : nodeAddress(nodeAddress)
+NodeTree::NodeTree(
+        const NodeData nodeNode) : nodeNode(nodeNode)
 {
     clear();
 }
 
-AddressTree::~AddressTree()
+NodeTree::~NodeTree()
 {
 }
 
-bool AddressTree::addAddress( AddressSPtr address )
+bool NodeTree::addNode( NodeSPtr address )
 {
     if (!address.get())
-        throw std::invalid_argument("Address is not set");
+        throw std::invalid_argument("Node is not set");
 
     UpgradableLock rlock(mutex);
 
@@ -32,7 +32,7 @@ bool AddressTree::addAddress( AddressSPtr address )
     assert(bucket->inBounds(address));
 
     const bool isAdded = bucket->add(address);
-    if ( !isAdded && bucket->inBounds(nodeAddress) )
+    if ( !isAdded && bucket->inBounds(nodeNode) )
     {
         UpgradedWriteLock wlock(rlock);
         MaybeBuckets maybe_split_buckets = split(bucket_it);
@@ -60,10 +60,10 @@ bool AddressTree::addAddress( AddressSPtr address )
     return isAdded;
 }
 
-void AddressTree::removeAddress( AddressSPtr address )
+void NodeTree::removeNode( NodeSPtr address )
 {
     if (!address.get())
-        throw std::invalid_argument("Address is not set");
+        throw std::invalid_argument("Node is not set");
 
     UpgradableLock rlock(mutex);
 
@@ -76,7 +76,7 @@ void AddressTree::removeAddress( AddressSPtr address )
     bucket->remove(*address);
 }
 
-size_t AddressTree::size() const
+size_t NodeTree::size() const
 {
     ReadLock rlock(mutex);
     return std::accumulate(buckets.begin(), buckets.end(), static_cast<size_t>(0),
@@ -85,7 +85,7 @@ size_t AddressTree::size() const
 }
 
 BucketContainer::const_iterator
-AddressTree::findBucket( const AddressData& addr ) const
+NodeTree::findBucket( const NodeData& addr ) const
 {
     const BucketContainer::key_type key(new Bucket(addr,addr));
 
@@ -109,13 +109,13 @@ AddressTree::findBucket( const AddressData& addr ) const
 }
 
 MaybeBuckets
-AddressTree::split( BucketContainer::const_iterator bucket_it )
+NodeTree::split( BucketContainer::const_iterator bucket_it )
 {
     assert(bucket_it != buckets.end());
     assert(bucket_it->get());
     BucketSPtr bucket = *bucket_it;
 
-    MaybeBounds bounds = AddressData::splitInHalf(
+    MaybeBounds bounds = NodeData::splitInHalf(
             bucket->getLowerBound(), bucket->getUpperBound());
 
     if (!bounds)
@@ -147,19 +147,19 @@ AddressTree::split( BucketContainer::const_iterator bucket_it )
     return MaybeBuckets(BucketSPtrPair(lower_bucket,upper_bucket));
 }
 
-void AddressTree::clear()
+void NodeTree::clear()
 {
     WriteLock lock(mutex);
     buckets.clear();
 
     // initialize first bucket
     boost::shared_ptr<Bucket> bucket(
-            new Bucket( AddressData::minValue, AddressData::maxValue));
+            new Bucket( NodeData::minValue, NodeData::maxValue));
     buckets.insert(bucket);
 }
 
-const boost::optional<AddressSPtr> AddressTree::getAddress(
-    const AddressData& data ) const
+const boost::optional<NodeSPtr> NodeTree::getNode(
+    const NodeData& data ) const
 {
     return (*findBucket(data))->find(data);
 }

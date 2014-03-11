@@ -11,8 +11,10 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
-#include <torrentsync/dht/AddressData.h>
+#include <torrentsync/dht/NodeData.h>
 #include <torrentsync/utils/RandomGenerator.h>
+#include <torrentsync/utils/Buffer.h>
+#include <torrentsync/utils/log/Logger.h>
 
 namespace
 {
@@ -40,15 +42,17 @@ namespace torrentsync
 namespace dht
 {
 
-const uint32_t AddressData::ADDRESS_STRING_LENGTH = 40;
+const uint32_t NodeData::ADDRESS_STRING_LENGTH = 40;
+const size_t NodeData::addressDataLength = 20;
 
-AddressData::AddressData(const torrentsync::utils::Buffer& buff)
+NodeData::NodeData(const torrentsync::utils::Buffer& buff)
 {
-    if ( buff.size() != 20 ) 
+    if ( buff.size() != addressDataLength) 
     {
-        throw std::invalid_argument("AddressData expects 20 byte as address");
+        std::stringstream msg;
+        msg << "NodeData expects " << addressDataLength << " byte as address";
+        throw std::invalid_argument(msg.str());
     }
-    
     
     const uint32_t * const data = reinterpret_cast<const uint32_t*>(buff.get());
     
@@ -61,7 +65,11 @@ AddressData::AddressData(const torrentsync::utils::Buffer& buff)
     p3 =  data[4];
 }
 
-void AddressData::parseImplementation( const std::string& str )
+NodeData::~NodeData()
+{
+}
+
+void NodeData::parseString( const std::string& str )
 {
     if (str.length() != 40 ||
             !std::all_of(str.begin(),str.end(), ::isxdigit))
@@ -75,7 +83,7 @@ void AddressData::parseImplementation( const std::string& str )
 	p3 = boost::lexical_cast<uint32hex>(str.substr(32))();
 }
 
-const std::string AddressData::string() const
+const std::string NodeData::string() const
 {
     std::string ret;
     ret.reserve(40);
@@ -88,20 +96,20 @@ const std::string AddressData::string() const
     return ret;
 }
 
-const AddressData AddressData::minValue =
-    AddressData::parse("0000000000000000000000000000000000000000");
-const AddressData AddressData::maxValue =
-    AddressData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+const NodeData NodeData::minValue =
+    NodeData::parse("0000000000000000000000000000000000000000");
+const NodeData NodeData::maxValue =
+    NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
-MaybeBounds AddressData::splitInHalf(
-    const AddressData& low,
-    const AddressData& high)
+MaybeBounds NodeData::splitInHalf(
+    const NodeData& low,
+    const NodeData& high)
 {
-    AddressData half_low,half_high;
+    NodeData half_low,half_high;
 
     // a masks 1..10....0 where the 1s are the root of the tree mask
     // low & mask == high & mask
-    AddressData mask;
+    NodeData mask;
     mask.p1 = ~(low.p1 ^ high.p1);
     mask.p2 = ~(low.p2 ^ high.p2);
     mask.p3 = ~(low.p3 ^ high.p3);
@@ -111,7 +119,7 @@ MaybeBounds AddressData::splitInHalf(
         return MaybeBounds();
 
     // create the mask to set/unset the new bit to add to next addresses
-    AddressData new_bit = mask;
+    NodeData new_bit = mask;
     const bool p2_first_bit = new_bit.p2 & 1;
     const bool p1_first_bit = new_bit.p1 & 1;
     new_bit.p1 >>= 1;
@@ -143,9 +151,9 @@ MaybeBounds AddressData::splitInHalf(
     return MaybeBounds(Bounds(half_low,half_high));
 }
 
-const AddressData AddressData::getRandom()
+const NodeData NodeData::getRandom()
 {
-    AddressData data;
+    NodeData data;
     using namespace torrentsync::utils;
 
     data.p1 = RandomGenerator::getInstance().get();
@@ -161,36 +169,42 @@ const AddressData AddressData::getRandom()
     return data;
 }
 
-AddressData AddressData::parseByteString(const char (&data)[20])
+void NodeData::read(
+    torrentsync::utils::Buffer::const_iterator begin,
+    const torrentsync::utils::Buffer::const_iterator end  )
 {
-    AddressData addr;
-    addr.p1 = 0;
-    addr.p2 = 0;
-    addr.p3 = 0;
+    if ( end < begin || (static_cast<size_t>((end-begin)) < addressDataLength) )
+    {
+        LOG(ERROR,"NodeData - parseNode: not enough data to parse. Expected " << addressDataLength << ", found: " << (end-begin) );
+        throw std::invalid_argument("Wrong amount of data to parse");
+    }
+
+    p1 = 0;
+    p2 = 0;
+    p3 = 0;
 
     for ( int i = 0; i <= 7; ++i )
     {
-        addr.p1 <<= 8;
-        addr.p1 |= data[i];
+        p1 <<= 8;
+        p1 |= *(begin++);
     }
 
     for ( int i = 8; i <= 15; ++i )
     {
-        addr.p2 <<= 8;
-        addr.p2 |= data[i];
+        p2 <<= 8;
+        p2 |= *(begin++);
     }
 
     for ( int i = 16; i <= 19; ++i )
     {
-        addr.p3 <<= 8;
-        addr.p3 |= data[i];
+        p3 <<= 8;
+        p3 |= *(begin++);
     }
-    return addr;
 }
 
-torrentsync::utils::Buffer AddressData::byteString() const
+torrentsync::utils::Buffer NodeData::write() const
 {
-    torrentsync::utils::Buffer buff(20);
+    torrentsync::utils::Buffer buff(addressDataLength);
     
     buff.get()[0]  = p1 >> 56 & 0xFF; 
     buff.get()[1]  = p1 >> 48 & 0xFF;

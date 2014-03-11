@@ -13,7 +13,7 @@ class Buffer;
 namespace dht
 {
 
-class AddressData;
+class NodeData;
 
 namespace message
 {
@@ -26,7 +26,7 @@ public:
 
     static const std::string& getMessage( 
             const std::string& transactionID,
-            const torrentsync::dht::AddressData& source,
+            const torrentsync::dht::NodeData& source,
             std::string& output);
 
     torrentsync::utils::Buffer getID();

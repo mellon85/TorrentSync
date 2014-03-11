@@ -17,11 +17,11 @@ namespace dht
 
 RoutingTable::RoutingTable(
     const udp::endpoint& endpoint)
-    : _table(AddressData::getRandom()),
+    : _table(NodeData::getRandom()),
       _socket(io_service)
 {
-    LOG(INFO, "RoutingTable * Node Address: " << _table.getNodeAddress());
-    LOG(INFO, "RoutingTable * Bind Address: " << endpoint);
+    LOG(INFO, "RoutingTable * Peer Node: " << _table.getPeerNode());
+    LOG(INFO, "RoutingTable * Bind Node: " << endpoint);
     initializeNetwork(endpoint);
 }
 
@@ -57,7 +57,7 @@ void RoutingTable::initializeTable( shared_timer timer )
     timer->async_wait(
         [this,timer] (const boost::system::error_code& e) {
                 assert(!_initial_addresses.empty());
-                Address addr(_initial_addresses.front()); // get head
+                Node addr(_initial_addresses.front()); // get head
                 LOG(DEBUG, "RoutingTable: initializing ping with " << addr);
                 _initial_addresses.pop_front();           // delete head
 

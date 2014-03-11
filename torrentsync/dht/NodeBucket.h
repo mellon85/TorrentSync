@@ -1,7 +1,7 @@
 #pragma once
 
-#include <torrentsync/dht/AddressData.h>
-#include <torrentsync/dht/Address.h>
+#include <torrentsync/dht/NodeData.h>
+#include <torrentsync/dht/Node.h>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
@@ -14,27 +14,27 @@ namespace dht
 {
 
 template <size_t MaxSizeT>
-class AddressBucket : public boost::noncopyable
+class NodeBucket : public boost::noncopyable
 {
 public:
-    AddressBucket(
-            const AddressData& low,
-            const AddressData& high );
+    NodeBucket(
+            const NodeData& low,
+            const NodeData& high );
 
-    ~AddressBucket();
+    ~NodeBucket();
 
-    typedef boost::array<boost::shared_ptr<Address>, MaxSizeT > AddressList;
-    typedef typename boost::array<boost::shared_ptr<Address>, MaxSizeT >::const_iterator const_iterator;
-    typedef typename boost::array<boost::shared_ptr<Address>, MaxSizeT >::iterator iterator;
+    typedef boost::array<boost::shared_ptr<Node>, MaxSizeT > NodeList;
+    typedef typename boost::array<boost::shared_ptr<Node>, MaxSizeT >::const_iterator const_iterator;
+    typedef typename boost::array<boost::shared_ptr<Node>, MaxSizeT >::iterator iterator;
 
     bool add(
-        const boost::shared_ptr<Address> addr);
+        const boost::shared_ptr<Node> addr);
 
     bool remove(
-        const Address& addr);
+        const Node& addr);
 
-    const boost::optional<AddressSPtr> find(
-        const AddressData& addr) const;
+    const boost::optional<NodeSPtr> find(
+        const NodeData& addr) const;
 
     void removeBad();
 
@@ -44,12 +44,12 @@ public:
     void clear();
 
     bool inBounds(
-            const boost::shared_ptr<Address> addr ) const;
+            const boost::shared_ptr<Node> addr ) const;
     bool inBounds(
-            const AddressData& addr ) const;
+            const NodeData& addr ) const;
 
-    inline const AddressData& getLowerBound() const { return low;  };
-    inline const AddressData& getUpperBound() const { return high; };
+    inline const NodeData& getLowerBound() const { return low;  };
+    inline const NodeData& getUpperBound() const { return high; };
 
     inline const_iterator begin()  const { return cbegin(); }
     inline const_iterator end()    const { return cend(); }
@@ -64,54 +64,54 @@ private:
     inline iterator begin()       { return _elements.begin(); }
     inline iterator end()         { return _elements.begin()+addressCount; }
 
-    AddressData low;
-    AddressData high;
+    NodeData low;
+    NodeData high;
 
     size_t addressCount;
 
-    mutable AddressList _elements;
+    mutable NodeList _elements;
 };
 
 template <size_t MaxSizeT>
-AddressBucket<MaxSizeT>::AddressBucket(
-            const AddressData& low,
-            const AddressData& high ) :
+NodeBucket<MaxSizeT>::NodeBucket(
+            const NodeData& low,
+            const NodeData& high ) :
     low(low), high(high),
     addressCount(0)
 {
 }
 
 template <size_t MaxSizeT>
-AddressBucket<MaxSizeT>::~AddressBucket()
+NodeBucket<MaxSizeT>::~NodeBucket()
 {
     clear();
 }
 
 template <size_t MaxSizeT>
-size_t AddressBucket<MaxSizeT>::size() const
+size_t NodeBucket<MaxSizeT>::size() const
 {
     return addressCount;
 }
 
 template <size_t MaxSizeT>
-size_t AddressBucket<MaxSizeT>::maxSize() const
+size_t NodeBucket<MaxSizeT>::maxSize() const
 {
     return MaxSizeT;
 }
 
 template <size_t MaxSizeT>
-void AddressBucket<MaxSizeT>::clear()
+void NodeBucket<MaxSizeT>::clear()
 {
     std::for_each( begin(), end(), 
-            [](boost::shared_ptr<Address>& t) { assert(t.get()); t.reset();});
+            [](boost::shared_ptr<Node>& t) { assert(t.get()); t.reset();});
     addressCount = 0;
 }
 
 template <size_t MaxSizeT>
-bool AddressBucket<MaxSizeT>::add( const boost::shared_ptr<Address> addr )
+bool NodeBucket<MaxSizeT>::add( const boost::shared_ptr<Node> addr )
 {
     if (!addr.get())
-        throw std::invalid_argument("Address is NULL");
+        throw std::invalid_argument("Node is NULL");
 
     if (*addr > high || *addr < low)
     {
@@ -128,7 +128,7 @@ bool AddressBucket<MaxSizeT>::add( const boost::shared_ptr<Address> addr )
     {
         // find first greater than the current address
         iterator it = std::find_if( begin(), end(),
-            bind1st(std::less<boost::shared_ptr<Address> >(),addr) );
+            bind1st(std::less<boost::shared_ptr<Node> >(),addr) );
         std::copy_backward(it,end(),end()+1);
         *it = addr;
         ++addressCount;
@@ -139,10 +139,10 @@ bool AddressBucket<MaxSizeT>::add( const boost::shared_ptr<Address> addr )
 }
 
 template <size_t MaxSizeT>
-void AddressBucket<MaxSizeT>::removeBad()
+void NodeBucket<MaxSizeT>::removeBad()
 {
     const iterator it = std::remove_if( begin(), end(),
-            [](const boost::shared_ptr<Address>& addr) -> bool {
+            [](const boost::shared_ptr<Node>& addr) -> bool {
                 assert(addr.get());
                 return addr->isBad(); }
             );
@@ -150,30 +150,30 @@ void AddressBucket<MaxSizeT>::removeBad()
 }
 
 template <size_t MaxSizeT>
-bool AddressBucket<MaxSizeT>::inBounds(
-        const boost::shared_ptr<Address> addr ) const
+bool NodeBucket<MaxSizeT>::inBounds(
+        const boost::shared_ptr<Node> addr ) const
 {
     if (!addr.get())
-        throw std::invalid_argument("Address is NULL");
+        throw std::invalid_argument("Node is NULL");
         
     return inBounds(*addr);
 }
 
 template <size_t MaxSizeT>
-bool AddressBucket<MaxSizeT>::inBounds(
-        const AddressData& addr ) const
+bool NodeBucket<MaxSizeT>::inBounds(
+        const NodeData& addr ) const
 {
     return low <= addr && addr <= high;
 }
 
 template <size_t MaxSizeT>
-bool AddressBucket<MaxSizeT>::remove(
-    const Address& addr)
+bool NodeBucket<MaxSizeT>::remove(
+    const Node& addr)
 {
     bool found = false;
     for ( size_t it = 0; it < addressCount; ++it)
     {
-        const boost::shared_ptr<Address>& v = _elements[it];
+        const boost::shared_ptr<Node>& v = _elements[it];
         assert(v.get());
 
         if (addr != *v)
@@ -181,7 +181,7 @@ bool AddressBucket<MaxSizeT>::remove(
 
         if (it+1 == addressCount) 
         {
-            _elements[it] = boost::shared_ptr<Address>();
+            _elements[it] = boost::shared_ptr<Node>();
             --addressCount;
         }
         else
@@ -191,7 +191,7 @@ bool AddressBucket<MaxSizeT>::remove(
                 _elements[it] = _elements[in];
             }
             --addressCount;
-            _elements[addressCount] = boost::shared_ptr<Address>();
+            _elements[addressCount] = boost::shared_ptr<Node>();
         }
         found = true;
     }
@@ -200,13 +200,13 @@ bool AddressBucket<MaxSizeT>::remove(
 }
 
 template <size_t MaxSizeT>
-std::ostream& operator<<( std::ostream& out, const AddressBucket<MaxSizeT>& element )
+std::ostream& operator<<( std::ostream& out, const NodeBucket<MaxSizeT>& element )
 {
     return element.string(out);
 }
 
 template <size_t MaxSizeT>
-std::ostream& AddressBucket<MaxSizeT>::string( std::ostream& out ) const
+std::ostream& NodeBucket<MaxSizeT>::string( std::ostream& out ) const
 {
     out << low.string() << ' ' << high.string() << std::endl;
     for( const_iterator it = cbegin(); it != cend(); ++it )
@@ -218,16 +218,16 @@ std::ostream& AddressBucket<MaxSizeT>::string( std::ostream& out ) const
 }
 
 template <size_t MaxSizeT>
-const boost::optional<AddressSPtr> AddressBucket<MaxSizeT>::find(
-    const AddressData& addr) const
+const boost::optional<NodeSPtr> NodeBucket<MaxSizeT>::find(
+    const NodeData& addr) const
 {
     const_iterator it = std::find_if( begin(), end(), 
-            [addr](const boost::shared_ptr<Address>& bucket_addr) -> bool {
+            [addr](const boost::shared_ptr<Node>& bucket_addr) -> bool {
                 assert(bucket_addr.get());
-                return static_cast<AddressData&>(*bucket_addr) == addr; }
+                return static_cast<NodeData&>(*bucket_addr) == addr; }
             );
 
-    boost::optional<AddressSPtr> ret;
+    boost::optional<NodeSPtr> ret;
     if ( it != end() )
     {
         ret = *it;
@@ -241,11 +241,11 @@ const boost::optional<AddressSPtr> AddressBucket<MaxSizeT>::find(
 namespace std
 {
 template <size_t Size>
-struct less<torrentsync::dht::AddressBucket<Size> >
+struct less<torrentsync::dht::NodeBucket<Size> >
 {
       bool operator()
-          (const torrentsync::dht::AddressBucket<Size>& x
-          , const torrentsync::dht::AddressBucket<Size>& y) const
+          (const torrentsync::dht::NodeBucket<Size>& x
+          , const torrentsync::dht::NodeBucket<Size>& y) const
       {return x.getUpperBound() < y.getLowerBound();}
 };
 }; // std

@@ -5,7 +5,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>
 
-#include <torrentsync/dht/AddressTree.h>
+#include <torrentsync/dht/NodeTree.h>
 #include <torrentsync/utils/Lock.h>
 
 #include <list>
@@ -55,7 +55,7 @@ protected:
         const udp::endpoint& endpoint );
     
     //! list of address to populate the table with
-    std::list<Address> _initial_addresses;
+    std::list<Node> _initial_addresses;
 
 private:
 
@@ -63,8 +63,8 @@ private:
     //! Internal mutex to synchronize the various threads
     Mutex mutex;
 
-    //! Address table
-    AddressTree _table;
+    //! Node table
+    NodeTree _table;
 
     //! Serialization friend class
     friend class boost::serialization::access;

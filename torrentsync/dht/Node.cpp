@@ -1,22 +1,28 @@
+
 #include <torrentsync/dht/Node.h>
+
+#include <boost/integer_traits.hpp>
 
 namespace torrentsync
 {
 namespace dht
 {
 
-Node::Node(
-    const Address&       address,
-    const udp::endpoint& endpoint )
-        : Address(address)
-        , endpoint(endpoint)
+const time_t Node::good_interval              = 15 * 60;  // 15 minutes
+const size_t Node::allowed_unanswered_queries = 10;
+
+Node::Node(const std::string& str)
 {
-    
+    parseString(str);
+    setGood();
 }
 
-Node::~Node()
+Node::Node( const Node& addr )
 {
+    *this = addr;
+    setGood();
 }
 
-} /* dht */
-} /* torrentsync */
+}; // dht
+}; // torrentsync
+

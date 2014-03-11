@@ -27,7 +27,7 @@ namespace Field
     extern const std::string ErrorType;
     extern const std::string Arguments;
 
-    extern const std::string NodeID;
+    extern const std::string PeerID;
 };
 
 namespace Messages
@@ -38,7 +38,7 @@ namespace Messages
 typedef enum
 {
     Ping,
-    FindNode,
+    FindPeer,
     GetPeers,
     Announce,
 } Name;
