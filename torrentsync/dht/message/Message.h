@@ -36,14 +36,6 @@ namespace Messages
     extern const std::string Ping;
 };
 
-typedef enum
-{
-    Ping,
-    FindPeer,
-    GetPeers,
-    Announce,
-} Name;
-
 class MalformedMessageException : public std::runtime_error
 {
 public:

@@ -38,13 +38,7 @@ BOOST_AUTO_TEST_CASE(initializing_addresses)
 
     BOOST_REQUIRE_EQUAL( 3, _initial_addresses.size() );
     initializeTable();
-    getIO_service().run_one();
-    BOOST_REQUIRE_EQUAL( 3, _initial_addresses.size() );
-    getIO_service().run_one();
-    BOOST_REQUIRE_EQUAL( 2, _initial_addresses.size() );
-    getIO_service().run_one();
-    BOOST_REQUIRE_EQUAL( 1, _initial_addresses.size() );
-    getIO_service().run_one();
+    getIO_service().run();
     BOOST_REQUIRE_EQUAL( 0, _initial_addresses.size() );
 }
 
