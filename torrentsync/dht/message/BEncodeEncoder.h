@@ -1,7 +1,3 @@
-/*
- * BEncodedEncoder.h
- */
-
 #pragma once
 
 #include <algorithm>
@@ -25,7 +21,7 @@ class BEncodeEncoder
 {
     public:
 
-    BEncodeEncoder() {}
+    BEncodeEncoder() : used_bytes(0), result(1024) {}
 
     void addElement(
         const torrentsync::utils::Buffer& v );
@@ -46,16 +42,28 @@ class BEncodeEncoder
         endList();
     }
 
-    inline void startList() { result << "l"; }
-    inline void endList() { result << "e"; }
-    inline void startDictionary() { result << "d"; }
-    inline void endDictionary() { lastKey.clear(); result << "e"; }
-    inline std::string value() const { return result.str(); }
+    inline void startList() { checkAndExpand(1); result[used_bytes++] = 'l'; }
+    inline void endList() { checkAndExpand(1); result[used_bytes++] = 'e'; }
+    inline void startDictionary() { checkAndExpand(1); result[used_bytes++] = 'd'; }
+    inline void endDictionary() { lastKey.clear(); checkAndExpand(1); result[used_bytes++] = 'e'; }
+
+    inline torrentsync::utils::Buffer value() const { result.resize(used_bytes); return result; } // copy to a buffer and pass it back..
 
 private:
-    torrentsync::utils::Buffer lastKey;
-    std::stringstream result;
 
+    size_t used_bytes;
+    
+    inline void checkAndExpand( const size_t add )
+    {
+        if( used_bytes+add > result.size() )
+        {
+            result.resize(((result.size()/1024)+1 *1024));
+        }
+    }
+
+    mutable torrentsync::utils::Buffer result;
+
+    torrentsync::utils::Buffer lastKey;
 };
 
 void BEncodeEncoder::addDictionaryElement(
@@ -74,9 +82,18 @@ void BEncodeEncoder::addDictionaryElement(
 void BEncodeEncoder::addElement( const torrentsync::utils::Buffer& v )
 {
     assert(!v.empty());
-    result << v.size();
-    result << ':';
-    result.write(v.get(),v.size());
+
+    char length_as_string[16];
+    const size_t len = snprintf(length_as_string,64,"%lu",v.size());
+    assert(len > 0); // can't put more than 16 digits of data..
+
+    checkAndExpand(len+1+1+v.size());
+
+    result.copy(used_bytes, static_cast<const char*>(length_as_string),len);
+    used_bytes += len;
+    result[used_bytes++] = ':';
+    result.copy(used_bytes,v.get(),v.size());
+    used_bytes += v.size();
 }
 
 } // torrentsync

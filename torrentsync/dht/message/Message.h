@@ -3,6 +3,7 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <torrentsync/dht/message/BEncodeDecoder.h>
 
 namespace torrentsync
 {
@@ -43,26 +44,42 @@ typedef enum
     Announce,
 } Name;
 
-//! Abstract class representing every message
-class Message
+class MalformedMessageException : public std::runtime_error
 {
 public:
+    MalformedMessageException( const std::string& what ) : std::runtime_error(what) {}
+};
 
-    //! parse a generic message and returns an instance of it
-    static boost::shared_ptr<Message> parseMessage( std::istream& );
+//! Abstract class representing every message
+class Message : protected torrentsync::dht::message::BEncodeDecoder
+{
+public:
+    virtual ~Message() {}
+
+    //! Parse a generic message and returns an instance of it.
+    //! This method must be used to parse messages.
+    //! @param istream the input stream to read from
+    //! @return a shared pointer with the message
+    //! @throw BEncodeDecoderException in case an error is encountered while
+    //! parsing
+    static boost::shared_ptr<Message> parseMessage( std::istream& istream );
 
     //! Returns the message type. In this way you can cast to the correct
     //! object.
     //! @return a member of the Messages namespace
-    virtual const std::string& getMessageType() const =0;
+    //! @throw MalformedMessageException in case the field is not available (it's mandatory)
+    virtual const std::string getMessageType() const;
 
     //! returns the type of the message
     //! @return a member of Type namespace
-    virtual const std::string getType() const =0;
+    //! @throw MalformedMessageException in case the field is not available (it's mandatory)
+    virtual const std::string getType() const;
+
+protected:
+    inline Message() {}
 
 };
 
 } /* message */
 } /* dht */
 } /* torrentsync */
-

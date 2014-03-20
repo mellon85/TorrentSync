@@ -38,7 +38,8 @@ BOOST_AUTO_TEST_CASE(bep005_ping_example_q)
     c.addDictionaryElement("y","q");
     c.endDictionary();
 
-    BOOST_REQUIRE_EQUAL(c.value(),"d1:ad2:id20:abcdefghij0123456789e1:q4:ping1:t2:aa1:y1:qe");
+    BOOST_REQUIRE(c.value()
+        ==  "d1:ad2:id20:abcdefghij0123456789e1:q4:ping1:t2:aa1:y1:qe");
 }
 
 BOOST_AUTO_TEST_CASE(bep005_ping_example_r)
@@ -54,7 +55,7 @@ BOOST_AUTO_TEST_CASE(bep005_ping_example_r)
     c.addDictionaryElement("y","r");
     c.endDictionary();
 
-    BOOST_REQUIRE_EQUAL(c.value(),"d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re");
+    BOOST_REQUIRE(c.value() == "d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re");
 }
 
 BOOST_AUTO_TEST_CASE(bep005_find_node_example_q)
@@ -72,7 +73,7 @@ BOOST_AUTO_TEST_CASE(bep005_find_node_example_q)
     c.addDictionaryElement("y","q");
     c.endDictionary();
 
-    BOOST_REQUIRE_EQUAL(c.value(),"d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe");
+    BOOST_REQUIRE(c.value() == "d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe");
 }
 
 BOOST_AUTO_TEST_CASE(bep005_find_node_example_r)
@@ -89,7 +90,7 @@ BOOST_AUTO_TEST_CASE(bep005_find_node_example_r)
     c.addDictionaryElement("y","r");
     c.endDictionary();
 
-    BOOST_REQUIRE_EQUAL(c.value(),"d1:rd2:id20:0123456789abcdefghij5:nodes9:def456...e1:t2:aa1:y1:re");
+    BOOST_REQUIRE(c.value() == "d1:rd2:id20:0123456789abcdefghij5:nodes9:def456...e1:t2:aa1:y1:re");
 }
 
 BOOST_AUTO_TEST_SUITE_END();

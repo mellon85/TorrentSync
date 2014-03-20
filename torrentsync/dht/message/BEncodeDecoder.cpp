@@ -14,9 +14,11 @@ namespace message
 void BEncodeDecoder::parseMessage( std::istream& stream )
 {
     bool parseEnded = false;
-    listCounter = 0;
+    size_t listCounter = 0;
     data.clear();
     structureStack.clear();
+    structureStack.reserve(2); // should be enough for every KRPC
+    std::string last_token;
 
     while ( !stream.eof() && !parseEnded )
     {
@@ -122,7 +124,13 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
     }
 
     if (!parseEnded)
+    {
         throw BEncodeException("Message could not be parsed correctly");
+    }
+    else
+    {
+        structureStack.clear(); // release remaining used memory
+    }
 }
 
 std::string BEncodeDecoder::readElement( std::istream& stream )
@@ -177,6 +185,21 @@ torrentsync::utils::Buffer BEncodeDecoder::readValue( std::istream& stream )
         return buff;
     }
 }
+
+boost::optional<torrentsync::utils::Buffer> BEncodeDecoder::find(
+    const std::string& key) const
+{
+    boost::optional<torrentsync::utils::Buffer> ret;
+
+    DataMap::const_iterator it = data.find(key); 
+    if ( it != data.end() )
+    {
+        ret = it->second;
+    }
+
+    return ret;
+}
+
 } // torrentsync
 } // dht
 } // message

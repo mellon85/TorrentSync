@@ -1,12 +1,14 @@
 #pragma once
 
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include <exception>
+#include <stdexcept>
+
+#include <boost/optional.hpp>
 
 #include <torrentsync/utils/Buffer.h>
 
@@ -17,22 +19,12 @@ namespace dht
 namespace message
 {
 
-typedef std::map<std::string,torrentsync::utils::Buffer> DataMap;
+typedef std::unordered_map<std::string,torrentsync::utils::Buffer> DataMap;
 
-class BEncodeException : public std::exception
+class BEncodeException : public std::runtime_error
 {
 public:
-    BEncodeException( const std::string& reason ) throw ();
-    BEncodeException( const char* reason ) throw ();
-
-    virtual ~BEncodeException() throw () {}
-
-    virtual const char* what() const throw()
-    {
-        return reason.c_str();
-    }
-
-    const std::string reason;
+    BEncodeException( const std::string& reason ) : std::runtime_error(reason) {}
 };
 
 //! Decoder for a BEncode message decoder
@@ -50,7 +42,10 @@ public:
     //! @param stream stream parser
     void parseMessage( std::istream &stream );
 
-    const DataMap& getData() const { return data; }
+    const DataMap& getData() const noexcept { return data; }
+
+    boost::optional<
+        torrentsync::utils::Buffer> find( const std::string& key ) const;
 
 private:
     std::string readElement( std::istream& stream );
@@ -61,20 +56,12 @@ private:
 
     DataMap data;
 
-    int listCounter;
-
-    std::string last_token;
-
     enum {
         DICTIONARY = false,
         LIST = true
     };
 
 };
-
-
-BEncodeException::BEncodeException( const std::string& str ) throw () : reason(str) {}
-BEncodeException::BEncodeException( const char* str ) throw () : reason(str) {}
 
 } // torrentsync
 } // dht

@@ -43,7 +43,7 @@ void RoutingTable::initializeTable( shared_timer timer )
 {
     if (_initial_addresses.empty())
     {
-        LOG(INFO, "RoutingTable: table initialization from older address terminated");
+        LOG(INFO, "RoutingTable: table initialization from previously known addresses terminated");
         return;
     }
 
@@ -56,10 +56,16 @@ void RoutingTable::initializeTable( shared_timer timer )
     LOG(DEBUG, "RoutingTable: Register initializeTable timer");
     timer->async_wait(
         [this,timer] (const boost::system::error_code& e) {
+                if ( e.value() != 0 )
+                {
+                    LOG(ERROR, "Error in RoutingTable initializeTable timer: " << e.message());
+                }
                 assert(!_initial_addresses.empty());
                 Node addr(_initial_addresses.front()); // get head
                 LOG(DEBUG, "RoutingTable: initializing ping with " << addr);
                 _initial_addresses.pop_front();           // delete head
+                
+                //! TODO torrentsync::dht::message::Ping.getMessage()
 
                 //! TODO send find_node to get our node
                 // give the 8 nodes priority over others. once we start having

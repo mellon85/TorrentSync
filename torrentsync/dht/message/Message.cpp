@@ -31,16 +31,29 @@ namespace Messages
     const std::string Ping   = "ping";
 };
 
-const std::string& Message::getMessageType() const
+boost::shared_ptr<Message> Message::parseMessage( std::istream& istream )
 {
-    assert(false);
-    return Messages::Ping;
+    boost::shared_ptr<Message> message( new Message() );
+    (static_cast<BEncodeDecoder*>(message.get()))->parseMessage(istream);
+    return message;
+}
+
+const std::string Message::getMessageType() const
+{
+    std::string type = getType();
+    auto msgType = find( type == Type::Query ? Field::QueryType : Field::ResponseType );
+    if (!msgType)
+        throw MalformedMessageException("Couldn't find message name");
+    return msgType->get();
 }
 
 const std::string Message::getType() const
 {
-    assert(false);
-    return Type::Query;
+    boost::optional<torrentsync::utils::Buffer> type;
+    type = find( Field::Type );
+    if (!type)
+        throw MalformedMessageException("Couldn't find message type");
+    return type->get();
 }
 
 } /* message */

@@ -1,15 +1,11 @@
 #pragma once
 
 #include <torrentsync/dht/message/Message.h>
+#include <torrentsync/utils/Buffer.h>
 
 
 namespace torrentsync
 {
-namespace utils
-{
-class Buffer;
-}; // utils
-
 namespace dht
 {
 
@@ -22,12 +18,12 @@ namespace message
 class Ping : public Message
 {
 public:
-    Ping();
 
-    static const std::string& getMessage( 
-            const std::string& transactionID,
-            const torrentsync::dht::NodeData& source,
-            std::string& output);
+    virtual ~Ping() {}
+
+    static const torrentsync::utils::Buffer getMessage( 
+        const torrentsync::utils::Buffer& transactionID,
+        const torrentsync::dht::NodeData& source);
 
     torrentsync::utils::Buffer getID();
 

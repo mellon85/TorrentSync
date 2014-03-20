@@ -10,15 +10,10 @@ namespace dht
 namespace message
 {
 
-Ping::Ping()
-{
-}
-
-const std::string&
+const torrentsync::utils::Buffer
 Ping::getMessage( 
-        const std::string& transactionID,
-        const NodeData& source,
-        std::string& output)
+    const torrentsync::utils::Buffer& transactionID,
+    const torrentsync::dht::NodeData& source)
 {
     BEncodeEncoder enc;
     enc.startDictionary();
@@ -30,8 +25,26 @@ Ping::getMessage(
     enc.addDictionaryElement(Field::TransactionID,transactionID);
     enc.addDictionaryElement(Field::Type,Type::Query); 
     enc.endDictionary();
-    output = enc.value();
-    return output;
+    return enc.value();
+}
+
+torrentsync::utils::Buffer Ping::getID()
+{
+    static const std::string path = Field::Arguments + "/" + Field::PeerID;
+    boost::optional<torrentsync::utils::Buffer> id;
+    id = find(path);
+    if (!id)
+        throw MalformedMessageException("Couldn't find node id");
+    return *id;
+}
+
+torrentsync::utils::Buffer Ping::getToken()
+{
+    boost::optional<torrentsync::utils::Buffer> token;
+    token = find( Field::TransactionID );
+    if (!token)
+        throw MalformedMessageException("Couldn't find token");
+    return *token;
 }
 
 } /* message */
