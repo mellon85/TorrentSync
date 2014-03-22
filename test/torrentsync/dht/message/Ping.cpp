@@ -39,11 +39,34 @@ BOOST_AUTO_TEST_CASE(parse)
     BOOST_REQUIRE_EQUAL(m->getType(), Type::Query);
     BOOST_REQUIRE_EQUAL(m->getMessageType(), Messages::Ping);
 
-    //! TODO function in message should return me the correct type
-    auto p = reinterpret_cast<torrentsync::dht::message::Ping*>(m.get());
+    auto p = dynamic_cast<torrentsync::dht::message::Ping*>(m.get());
     BOOST_REQUIRE(p);
 
     BOOST_REQUIRE(p->getID() == "GGGGGGGGHHHHHHHHIIII");
+    BOOST_REQUIRE(p->getToken() == "aa");
+}
+
+BOOST_AUTO_TEST_CASE(parseBinary)
+{
+    torrentsync::utils::Buffer b("d1:ad2:id20:GGGGGGGGHHHHHHHHIIIIe1:q4:ping1:t2:aa1:y1:qe");
+    b[15] = '\t';
+    b[18] = '\0';
+    std::stringstream s;
+    s.write(b.get(),b.size());
+
+    auto m = torrentsync::dht::message::Message::parseMessage(s);
+    BOOST_REQUIRE(!!m);
+    BOOST_REQUIRE_EQUAL(m->getType(), Type::Query);
+    BOOST_REQUIRE_EQUAL(m->getMessageType(), Messages::Ping);
+
+    auto p = dynamic_cast<torrentsync::dht::message::Ping*>(m.get());
+    BOOST_REQUIRE(p);
+
+    torrentsync::utils::Buffer id("GGGGGGGGHHHHHHHHIIII");
+    id[3] = '\t';
+    id[6] = '\0';
+
+    BOOST_REQUIRE(p->getID() == id);
     BOOST_REQUIRE(p->getToken() == "aa");
 }
 

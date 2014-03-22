@@ -18,6 +18,7 @@ namespace message
 class Ping : public Message
 {
 public:
+    Ping(const DataMap& dataMap) : Message(dataMap) {}
 
     virtual ~Ping() {}
 

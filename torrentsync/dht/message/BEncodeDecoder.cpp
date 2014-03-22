@@ -186,20 +186,6 @@ torrentsync::utils::Buffer BEncodeDecoder::readValue( std::istream& stream )
     }
 }
 
-boost::optional<torrentsync::utils::Buffer> BEncodeDecoder::find(
-    const std::string& key) const
-{
-    boost::optional<torrentsync::utils::Buffer> ret;
-
-    DataMap::const_iterator it = data.find(key); 
-    if ( it != data.end() )
-    {
-        ret = it->second;
-    }
-
-    return ret;
-}
-
 } // torrentsync
 } // dht
 } // message

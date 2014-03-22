@@ -42,8 +42,10 @@ public:
     MalformedMessageException( const std::string& what ) : std::runtime_error(what) {}
 };
 
+class Ping;
+
 //! Abstract class representing every message
-class Message : protected torrentsync::dht::message::BEncodeDecoder
+class Message
 {
 public:
     virtual ~Message() {}
@@ -70,6 +72,13 @@ public:
 protected:
     inline Message() {}
 
+    inline Message(const DataMap& data) : data(data) {}
+
+    DataMap data;
+
+    static boost::optional<torrentsync::utils::Buffer> find(
+        const std::string& key,
+        const DataMap& data);
 };
 
 } /* message */

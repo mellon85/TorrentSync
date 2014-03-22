@@ -32,7 +32,7 @@ torrentsync::utils::Buffer Ping::getID()
 {
     static const std::string path = Field::Arguments + "/" + Field::PeerID;
     boost::optional<torrentsync::utils::Buffer> id;
-    id = find(path);
+    id = find(path,data);
     if (!id)
         throw MalformedMessageException("Couldn't find node id");
     return *id;
@@ -41,7 +41,7 @@ torrentsync::utils::Buffer Ping::getID()
 torrentsync::utils::Buffer Ping::getToken()
 {
     boost::optional<torrentsync::utils::Buffer> token;
-    token = find( Field::TransactionID );
+    token = find( Field::TransactionID, data );
     if (!token)
         throw MalformedMessageException("Couldn't find token");
     return *token;
