@@ -70,4 +70,31 @@ BOOST_AUTO_TEST_CASE(parseBinary)
     BOOST_REQUIRE(p->getToken() == "aa");
 }
 
+BOOST_AUTO_TEST_CASE(parseRandom)
+{
+    for ( size_t i = 0; i < TEST_LOOP_COUNT; ++i )
+    {
+        //! set address to 0s and then copy something inside
+        torrentsync::utils::Buffer b("d1:ad2:id20:00000000000000000000e1:q4:ping1:t2:aa1:y1:qe");
+
+        auto addr = torrentsync::dht::NodeData::getRandom();
+        auto ab = addr.write();
+        b.copy(12,ab.get(),ab.size());
+
+        std::stringstream s;
+        s.write(b.get(),b.size());
+
+        auto m = torrentsync::dht::message::Message::parseMessage(s);
+        BOOST_REQUIRE(!!m);
+        BOOST_REQUIRE_EQUAL(m->getType(), Type::Query);
+        BOOST_REQUIRE_EQUAL(m->getMessageType(), Messages::Ping);
+
+        auto p = dynamic_cast<torrentsync::dht::message::Ping*>(m.get());
+        BOOST_REQUIRE(p);
+
+        BOOST_REQUIRE(p->getID() == ab);
+        BOOST_REQUIRE(p->getToken() == "aa");
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
