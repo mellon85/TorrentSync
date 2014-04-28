@@ -8,7 +8,6 @@ SET(CMAKE_BUILD_TYPE Debug)
 enable_testing()
 
 if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
-
     
     execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
                             OUTPUT_VARIABLE GCC_VERSION)
@@ -30,6 +29,9 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
         set(CMAKE_SHARED_LINKER_FLAGS
             "${CMAKE_SHARED_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
     endif()
+elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
+    set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -std=c++11")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR})

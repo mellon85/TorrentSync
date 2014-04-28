@@ -15,7 +15,7 @@ namespace log
 {
 
 class logend_t {};
-extern const logend_t logend;
+extern logend_t logend;
 
 class LogStream
 {

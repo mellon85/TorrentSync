@@ -18,7 +18,6 @@ public:
     MockRoutingTable( const udp::endpoint e ) : RoutingTable(e) {}
     MockRoutingTable() : MockRoutingTable(udp::endpoint(udp::v4(),0)) {}
 
-protected:
     MOCK_METHOD(initializeNetwork, 1);
 };
 

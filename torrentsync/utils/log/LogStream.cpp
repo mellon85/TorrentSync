@@ -11,7 +11,7 @@ namespace utils
 namespace log
 {
 
-const logend_t logend;
+logend_t logend;
 
 LogStream::LogStream(
     std::vector<Sink>& sinks,

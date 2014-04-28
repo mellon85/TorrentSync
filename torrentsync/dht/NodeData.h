@@ -135,12 +135,7 @@ inline NodeData NodeData::parse( const std::string& str )
     return data;
 }
 
-template <class Stream>
-Stream& operator<<( Stream& out, const NodeData& data )
-{
-    out << data.string();
-    return out;
-}
+std::ostream& operator<<( std::ostream& out, const NodeData& data );
 
 }; // dht
 }; // torrentsync

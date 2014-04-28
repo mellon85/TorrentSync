@@ -230,5 +230,11 @@ torrentsync::utils::Buffer NodeData::write() const
     return buff;
 }
 
+std::ostream& operator<<( std::ostream& out, const NodeData& data )
+{
+    out << data.string();
+    return out;
+}
+
 }; // dht
 }; // torrentsync
