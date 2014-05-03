@@ -70,8 +70,10 @@ public:
     virtual const std::string getType() const;
 
 protected:
+    //! inline constructor
     inline Message() {}
 
+    //! Copy constructor
     inline Message(const DataMap& data) : data(data) {}
 
     DataMap data;

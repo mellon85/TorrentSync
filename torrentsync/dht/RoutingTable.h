@@ -6,6 +6,7 @@
 #include <boost/asio.hpp>
 
 #include <torrentsync/dht/NodeTree.h>
+#include <torrentsync/dht/Peer.h>
 #include <torrentsync/utils/Lock.h>
 
 #include <list>
@@ -55,10 +56,9 @@ protected:
         const udp::endpoint& endpoint );
     
     //! list of address to populate the table with
-    std::list<Node> _initial_addresses;
+    std::list<Peer> _initial_addresses;
 
 private:
-
 
     //! Internal mutex to synchronize the various threads
     Mutex mutex;

@@ -1,5 +1,6 @@
 #include <torrentsync/utils/log/Logger.h>
 #include <torrentsync/dht/RoutingTable.h>
+#include <torrentsync/dht/message/Ping.h>
 
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
@@ -57,15 +58,20 @@ void RoutingTable::initializeTable( shared_timer timer )
     timer->async_wait(
         [this,timer] (const boost::system::error_code& e) {
                 if ( e.value() != 0 )
-                {
                     LOG(ERROR, "Error in RoutingTable initializeTable timer: " << e.message());
-                }
+
                 assert(!_initial_addresses.empty());
                 Node addr(_initial_addresses.front()); // get head
                 LOG(DEBUG, "RoutingTable: initializing ping with " << addr);
-                _initial_addresses.pop_front();           // delete head
-                
-                //! TODO torrentsync::dht::message::Ping.getMessage()
+                _initial_addresses.pop_front();        // delete head
+
+                //! create and send the message
+                torrentsync::utils::Buffer msg =
+                    torrentsync::dht::message::Ping::getMessage(
+                        torrentsync::utils::Buffer("aab"),
+                        _table.getPeerNode());
+
+                //! send the message
 
                 //! TODO send find_node to get our node
                 // give the 8 nodes priority over others. once we start having

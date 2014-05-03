@@ -49,6 +49,7 @@ public:
     //! Constructor to initialize the buffer from a c string
     BufferImpl( const char* str ) {
         clear();
+
         const int size = strlen(str);
         resize(size);
         std::memcpy(
