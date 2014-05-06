@@ -101,6 +101,15 @@ void RoutingTable::initializeNetwork(
     _socket.bind(endpoint);
 }
 
+void RoutingTable::registerCallback(
+    const std::function<void (const torrentsync::dht::message::Message&)>& func,
+    const std::string& type,
+    const boost::optional<torrentsync::dht::Peer>& source, 
+    const boost::optional<torrentsync::utils::Buffer>& transactionID)
+{
+    throw std::runtime_error("Not Implemented Yet");
+}
+
 void RoutingTable::sendMessage()
 {
     throw std::runtime_error("Not Implemented Yet");

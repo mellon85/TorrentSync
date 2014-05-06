@@ -4,6 +4,7 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>
+#include <boost/optional.hpp>
 
 #include <torrentsync/dht/NodeTree.h>
 #include <torrentsync/dht/Peer.h>
@@ -60,8 +61,22 @@ protected:
 
 private:
 
+    //! Registers a callback to be called when we receive a message.
+    //! It will be executed only once and before any other processing.
+    //! The callback will be removed in any case if it is not used in less than 60 seconds.
+    //! @param func is the function to call
+    //! @param type mandatory parameter specifying the type of the message to signal.
+    //!             must be from dht::messages::Messages.
+    //! @param source optional parameter specifing if the message is awaited from a specific Peer
+    //! @param transactionID optional parameter specifing if the message is awaited from a specific Peer
+    void registerCallback(
+        const std::function<void (const torrentsync::dht::message::Message&)>& func,
+        const std::string& type,
+        const boost::optional<torrentsync::dht::Peer>& source, 
+        const boost::optional<torrentsync::utils::Buffer>& transactionID);
+
     //! Internal mutex to synchronize the various threads
-    Mutex mutex;
+    mutable Mutex mutex;
 
     //! Node table
     NodeTree _table;
