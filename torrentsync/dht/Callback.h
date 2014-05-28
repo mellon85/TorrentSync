@@ -54,7 +54,7 @@ public:
         const filterPeer& source,
         const filterTransactionID& transactionID);
 
-    //! Returns the function to call
+    //! Calls the callback function
     const bool call( const torrentsync::dht::message::Message& m ) const  { return _func(m); }
 
     //! verifies if the callback is too old.

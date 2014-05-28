@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(addNode_someRandom)
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::vector<NodeSPtr> addresses;
-        const size_t count = (rand()+1)%((rand()+1)%4096);
+        const size_t count = (rand()+1)%((rand()%4096)+1);
         for( size_t j = 0; j < count; j++ )
         {
             bool bad = false;

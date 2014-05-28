@@ -20,5 +20,17 @@ BOOST_AUTO_TEST_CASE(constructor_destructor)
     BOOST_REQUIRE_EQUAL(false,call.isOld());
 }
 
+BOOST_AUTO_TEST_CASE(match)
+{
+    const std::string type = "q";
+
+    Callback call(Callback::callback(),
+        type,
+        Callback::filterPeer(),
+        Callback::filterTransactionID());
+
+    BOOST_REQUIRE_EQUAL(false,call.isOld());
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 
