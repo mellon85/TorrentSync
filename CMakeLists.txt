@@ -37,30 +37,34 @@ endif()
 include_directories(${PROJECT_SOURCE_DIR})
 
 set(SOURCES
-    torrentsync/utils/log/Log.cpp
-    torrentsync/utils/log/Logger.cpp
-    torrentsync/utils/log/LogStream.cpp
-    torrentsync/dht/NodeData.cpp
+    torrentsync/dht/Callback.cpp
     torrentsync/dht/Node.cpp 
-    torrentsync/dht/RoutingTable.cpp
+    torrentsync/dht/NodeData.cpp
+    torrentsync/dht/NodeTree.cpp
     torrentsync/dht/Peer.cpp
+    torrentsync/dht/RoutingTable.cpp
+    torrentsync/dht/message/BEncodeDecoder.cpp
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Ping.cpp
-    torrentsync/dht/NodeTree.cpp
-    torrentsync/dht/message/BEncodeDecoder.cpp
-    torrentsync/utils/RandomGenerator.cpp)
+    torrentsync/utils/RandomGenerator.cpp
+    torrentsync/utils/log/Log.cpp
+    torrentsync/utils/log/LogStream.cpp
+    torrentsync/utils/log/Logger.cpp
+)
 set(SOURCES_UT
-    test/torrentsync/utils/log/Log.cpp
-    test/torrentsync/utils/Buffer.cpp
-    test/torrentsync/dht/NodeData.cpp
+    test/torrentsync/dht/Callback.cpp
     test/torrentsync/dht/Node.cpp
+    test/torrentsync/dht/NodeBucket.cpp
+    test/torrentsync/dht/NodeData.cpp
+    test/torrentsync/dht/NodeTree.cpp
     test/torrentsync/dht/Peer.cpp
     test/torrentsync/dht/RoutingTable.cpp
-    test/torrentsync/dht/NodeBucket.cpp
-    test/torrentsync/dht/NodeTree.cpp
-    test/torrentsync/dht/message/Ping.cpp
+    test/torrentsync/dht/message/BEncodeDecoder.cpp
     test/torrentsync/dht/message/BEncodeEncoder.cpp
-    test/torrentsync/dht/message/BEncodeDecoder.cpp)
+    test/torrentsync/dht/message/Ping.cpp
+    test/torrentsync/utils/Buffer.cpp
+    test/torrentsync/utils/log/Log.cpp
+)
 
 # threads
 find_package(Threads)

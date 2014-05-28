@@ -6,6 +6,7 @@
 #include <boost/asio.hpp>
 #include <boost/optional.hpp>
 
+#include <torrentsync/dht/Callback.h>
 #include <torrentsync/dht/NodeTree.h>
 #include <torrentsync/dht/Peer.h>
 #include <torrentsync/utils/Lock.h>
@@ -53,6 +54,10 @@ protected:
     //! TODO
     virtual void recvMessage();
 
+    //! Initializes network sockets binding to the specific endpoint.
+    //! May throw exceptions for error
+    //! @param endpoint to bind to
+    //! @throws boost::system::system_error throw in case of error
     virtual void initializeNetwork(
         const udp::endpoint& endpoint );
     
@@ -99,6 +104,8 @@ private:
     //! Socket 
     udp::socket _socket;
 
+    //! Callbacks list
+    std::list< Callback > _callbacks;
 };
 
 template <class Archive>
@@ -115,7 +122,6 @@ void RoutingTable::load( Archive &ar, const unsigned int version)
     // 1. ping all known and insert them in the routing table with the normal procedure
     // 2. perform normal startup operation and let the bucket refreshing do it's job
 }
-
 
 }; // dht
 }; // torrentsync
