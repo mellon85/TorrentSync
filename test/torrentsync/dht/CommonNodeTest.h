@@ -8,8 +8,8 @@ static inline std::string generateRandomNode( const std::string& prefix = std::s
 {
     std::string data;
     data.reserve(40);
-	data.append(prefix);
-	assert(prefix.length() < 40);
+    data.append(prefix);
+    assert(prefix.length() < 40);
     for( int j = prefix.length(); j < 40; ++j )
     {
         switch (rand()%3)
