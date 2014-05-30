@@ -37,15 +37,6 @@ public:
             static_cast<const void*>(str),size);
     }
 
-/*
-    BufferImpl( BufferImpl<value_type_t>&& move )
-    {
-        _data = move._data;
-        _size = move._size;
-        move._data.reset();
-    }
-*/
-
     //! Constructor to initialize the buffer from a c string
     BufferImpl( const char* str ) {
         clear();

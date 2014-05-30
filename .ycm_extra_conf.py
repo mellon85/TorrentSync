@@ -42,7 +42,9 @@ flags = [
 '-Wno-variadic-macros',
 '-std=c++11',
 '-I.',
-'-Iturtle/include'
+'-Iturtle/include',
+'-I/usr/include',
+'-I/usr/include/c++',
 ]
 
 

@@ -1,7 +1,7 @@
 #include <torrentsync/dht/Callback.h>
+#include <torrentsync/dht/message/Message.h>
 
 #include <ctime>
-
 
 namespace torrentsync
 {
@@ -13,9 +13,11 @@ const size_t Callback::TIME_LIMIT = 3*60;
 Callback::Callback(
     const callback& function,
     const std::string& type,
-    const filterPeer& source,
+    const std::string& messageType,
+    const filterNode& source,
     const filterTransactionID& transactionID ) :
-        _func(function), _type(type), _source(source), _transactionID(transactionID),
+        _func(function), _type(type), _messageType(messageType),
+        _source(source), _transactionID(transactionID),
         _creation_time(time(NULL))
 {
 }
@@ -27,7 +29,16 @@ bool Callback::isOld() const
 
 bool Callback::verifyConstraints( const torrentsync::dht::message::Message& message ) const
 {
-    return false;
+    if ((message.getType() != _type) || (message.getMessageType() != _messageType))
+        return false;
+
+    //if ( !!_transactionID && (*_transactionID) == message.)
+    //    return false;
+
+    if ( !!_source && (*_source) == message.getID())
+        return false;
+
+    return true;
 }
 
 } // dht

@@ -4,6 +4,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <torrentsync/dht/message/BEncodeDecoder.h>
+#include <torrentsync/dht/NodeData.h>
 
 namespace torrentsync
 {
@@ -34,6 +35,7 @@ namespace Field
 namespace Messages
 {
     extern const std::string Ping;
+    extern const std::string FindNode;
 };
 
 class MalformedMessageException : public std::runtime_error
@@ -69,6 +71,12 @@ public:
     //! @throw MalformedMessageException in case the field is not available (it's mandatory)
     virtual const std::string getType() const;
 
+    //! returns the node address of the remote node. Must be implemented
+    //! by every subclass
+    //! @return a NodeData instance
+    //! @throw MalformedMessageException in case the data is not available (it's mandatory)
+    virtual torrentsync::utils::Buffer getID() const =0;
+
 protected:
     //! inline constructor
     inline Message() {}
@@ -76,8 +84,10 @@ protected:
     //! Copy constructor
     inline Message(const DataMap& data) : data(data) {}
 
+    //! Map containing all the data for the message
     DataMap data;
 
+    //! returns an optional buffer from the data map if found.
     static boost::optional<torrentsync::utils::Buffer> find(
         const std::string& key,
         const DataMap& data);

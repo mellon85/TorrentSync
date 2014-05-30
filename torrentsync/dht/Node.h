@@ -15,7 +15,7 @@ namespace dht
 class Node : public NodeData
 {
 public:
-    //! Builds an address from an hexadecimal stringh
+    //! Builds an address from an hexadecimal string
     Node( const std::string& );
 
     //! Copy constructor

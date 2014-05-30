@@ -1,7 +1,7 @@
 #pragma once
 
 #include <torrentsync/utils/Buffer.h>
-#include <torrentsync/dht/Peer.h>
+#include <torrentsync/dht/NodeData.h>
 
 #include <functional>
 
@@ -17,7 +17,6 @@ namespace message
 class Message;
 }
 
-
 /*  Callback constains a function to call when a message has arrived matching
  *  specific constraints.  In this way we can easily write asynchronous code on
  *  the server side to process either single query-reply DHT messages, and also
@@ -27,7 +26,7 @@ class Message;
  *  to a more generic place in case it's needed by other parts of the
  *  applications.
  *
- * */
+ **/
 
 class Callback
 {
@@ -38,24 +37,26 @@ public:
     //! type of the callback
     typedef std::function<bool (const torrentsync::dht::message::Message&)> callback;
 
-    //! type of the peer filter 
-    typedef boost::optional<torrentsync::dht::Peer> filterPeer;
+    //! type of the node filter 
+    typedef boost::optional<torrentsync::utils::Buffer> filterNode;
 
     //! type of the trasaction filter 
     typedef boost::optional<torrentsync::utils::Buffer> filterTransactionID;
 
     //! Constructor
     //! @param function         Callback do call
+    //! @param messageType      Filter by message type 
     //! @param source           Filter by the source address
     //! @param transactionID    Filter by transaction ID
     Callback(
         const callback& function,
         const std::string& type,
-        const filterPeer& source,
+        const std::string& messageType,
+        const filterNode& source,
         const filterTransactionID& transactionID);
 
     //! Calls the callback function
-    const bool call( const torrentsync::dht::message::Message& m ) const  { return _func(m); }
+    bool call( const torrentsync::dht::message::Message& m ) const  { return _func(m); }
 
     //! verifies if the callback is too old.
     //! @returns true if the callback is more than TIME_LIMIT seconds old.
@@ -69,11 +70,14 @@ private:
     //! callback function to call
     callback _func;
 
-    //! filter condition for string type (mandatory)
-    std::string _type;
+    //! filter condition for type (mandatory)
+    const std::string _type;
+
+    //! filter condition for message type (mandatory)
+    const std::string& _messageType;
 
     //! filter condition for source address
-    boost::optional<torrentsync::dht::Peer> _source;
+    boost::optional<torrentsync::utils::Buffer> _source;
 
     //! filter condition for transaction it
     boost::optional<torrentsync::utils::Buffer> _transactionID;

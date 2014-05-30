@@ -1,6 +1,7 @@
 #include <torrentsync/utils/log/Logger.h>
 #include <torrentsync/dht/RoutingTable.h>
 #include <torrentsync/dht/message/Ping.h>
+#include <vector>
 
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>

@@ -33,12 +33,11 @@ public:
 
     //! returns the message's ID
     //! @return ID
-    torrentsync::utils::Buffer getID();
+    virtual torrentsync::utils::Buffer getID() const;
 
     //! returns message's Token
     //! @return Token
-    torrentsync::utils::Buffer getToken();
-
+    torrentsync::utils::Buffer getToken() const;
 };
 
 } /* message */

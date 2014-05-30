@@ -66,7 +66,7 @@ protected:
         const NodeData& address ) const; 
 
     //! return sthe counts of the buckets
-    const size_t getBucketsCount() const { return buckets.size(); }
+    size_t getBucketsCount() const { return buckets.size(); }
 
 private:
     //! bucket container

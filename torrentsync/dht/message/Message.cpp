@@ -29,7 +29,8 @@ namespace Field
 
 namespace Messages
 {
-    const std::string Ping   = "ping";
+    const std::string Ping     = "ping";
+    const std::string FindNode = "find_node";
 };
 
 boost::shared_ptr<Message> Message::parseMessage( std::istream& istream )
