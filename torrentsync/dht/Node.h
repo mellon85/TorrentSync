@@ -49,6 +49,8 @@ protected:
 
     //! Number of the last unanswered queries
     size_t last_unanswered_queries;
+
+    //! @TODO callbacks go here with boost slot
 };
 
 typedef boost::shared_ptr<Node> NodeSPtr;

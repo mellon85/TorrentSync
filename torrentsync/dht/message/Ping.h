@@ -31,13 +31,11 @@ public:
         const torrentsync::utils::Buffer& transactionID,
         const torrentsync::dht::NodeData& source);
 
-    //! returns the message's ID
-    //! @return ID
+    //! @see Message::getID
     virtual torrentsync::utils::Buffer getID() const;
 
-    //! returns message's Token
-    //! @return Token
-    torrentsync::utils::Buffer getToken() const;
+    //! @see Message::getTransactionID
+    virtual torrentsync::utils::Buffer getTransactionID() const;
 };
 
 } /* message */

@@ -36,7 +36,7 @@ boost::asio::io_service& RoutingTable::getIO_service()
     return io_service;
 }
 
-const udp::endpoint RoutingTable::getEndpoint() const
+udp::endpoint RoutingTable::getEndpoint() const
 {
     return _socket.local_endpoint();
 }
@@ -103,11 +103,16 @@ void RoutingTable::initializeNetwork(
 }
 
 void RoutingTable::registerCallback(
-    const std::function<void (const torrentsync::dht::message::Message&)>& func,
+    const Callback::callback& func,
     const std::string& type,
-    const boost::optional<torrentsync::dht::Peer>& source, 
+    const std::string& messageType,
+    const torrentsync::dht::NodeData& source, 
     const boost::optional<torrentsync::utils::Buffer>& transactionID)
 {
+    _callbacks.insert(
+        std::make_pair(
+            source,
+            Callback(func,type,messageType,source,transactionID)));
     throw std::runtime_error("Not Implemented Yet");
 }
 

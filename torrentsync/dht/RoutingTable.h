@@ -11,7 +11,10 @@
 #include <torrentsync/dht/Peer.h>
 #include <torrentsync/utils/Lock.h>
 
+#include <exception>
+#include <map>
 #include <list>
+#include <utility>
 
 namespace torrentsync
 {
@@ -30,7 +33,7 @@ public:
 
     virtual ~RoutingTable();
 
-    const udp::endpoint getEndpoint() const;
+    udp::endpoint getEndpoint() const;
 
     boost::asio::io_service& getIO_service();
 
@@ -75,9 +78,10 @@ private:
     //! @param source optional parameter specifing if the message is awaited from a specific Peer
     //! @param transactionID optional parameter specifing if the message is awaited from a specific Peer
     void registerCallback(
-        const std::function<void (const torrentsync::dht::message::Message&)>& func,
+        const Callback::callback& func,
         const std::string& type,
-        const boost::optional<torrentsync::dht::Peer>& source, 
+        const std::string& messageType,
+        const torrentsync::dht::NodeData& source, 
         const boost::optional<torrentsync::utils::Buffer>& transactionID);
 
     //! Internal mutex to synchronize the various threads
@@ -95,6 +99,9 @@ private:
     template <class Archive>
     void save( Archive &ar, const unsigned int version) const;
 
+    //! Loading serialize structure
+    //! @throws std::invalid_argument in case the file is not readable,
+    //!         damaged of an unsupported version.
     template <class Archive>
     void load( Archive &ar, const unsigned int version);
 
@@ -104,19 +111,33 @@ private:
     //! Socket 
     udp::socket _socket;
 
-    //! Callbacks list
-    std::list< Callback > _callbacks;
+    //! Callbacks container
+    std::multimap<
+        torrentsync::dht::NodeData,
+        torrentsync::dht::Callback> _callbacks;
 };
 
 template <class Archive>
 void RoutingTable::save( Archive &ar, const unsigned int version) const
 {
-    // TODO
+    if (version > 0)
+    {
+        ar << _table.size();
+        throw std::runtime_error("Unimplemented yet");
+        // TODO
+    }
 }
 
 template <class Archive>
 void RoutingTable::load( Archive &ar, const unsigned int version)
 {
+    if (version > 0 )
+    {
+        throw std::invalid_argument("Unsupported file version");
+    }
+    size_t nodes_count;
+    ar >> nodes_count;
+    throw std::runtime_error("Unimplemented yet");
     // TODO 
     // refresh all the nodes
     // 1. ping all known and insert them in the routing table with the normal procedure

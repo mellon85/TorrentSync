@@ -14,7 +14,7 @@ Callback::Callback(
     const callback& function,
     const std::string& type,
     const std::string& messageType,
-    const filterNode& source,
+    const torrentsync::dht::NodeData& source,
     const filterTransactionID& transactionID ) :
         _func(function), _type(type), _messageType(messageType),
         _source(source), _transactionID(transactionID),
@@ -32,13 +32,18 @@ bool Callback::verifyConstraints( const torrentsync::dht::message::Message& mess
     if ((message.getType() != _type) || (message.getMessageType() != _messageType))
         return false;
 
-    //if ( !!_transactionID && (*_transactionID) == message.)
-    //    return false;
+    if ( !!_transactionID && (*_transactionID) == message.getTransactionID())
+        return false;
 
-    if ( !!_source && (*_source) == message.getID())
+    if ( _source == message.getID())
         return false;
 
     return true;
+}
+
+void Callback::call( const torrentsync::dht::message::Message& m ) const
+{
+    _func(m);
 }
 
 } // dht

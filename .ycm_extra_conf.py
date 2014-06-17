@@ -40,11 +40,11 @@ flags = [
 '-Werror',
 '-Wno-long-long',
 '-Wno-variadic-macros',
+'-x','c++',
 '-std=c++11',
 '-I.',
 '-Iturtle/include',
 '-I/usr/include',
-'-I/usr/include/c++',
 ]
 
 

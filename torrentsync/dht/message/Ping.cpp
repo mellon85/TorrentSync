@@ -38,7 +38,7 @@ torrentsync::utils::Buffer Ping::getID() const
     return *id;
 }
 
-torrentsync::utils::Buffer Ping::getToken() const
+torrentsync::utils::Buffer Ping::getTransactionID() const
 {
     boost::optional<torrentsync::utils::Buffer> token;
     token = find( Field::TransactionID, data );

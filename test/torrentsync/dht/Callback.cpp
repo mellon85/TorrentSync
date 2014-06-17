@@ -6,9 +6,6 @@
 #include <torrentsync/dht/Node.h>
 #include <test/torrentsync/dht/CommonNodeTest.h>
 
-#pragma message "Incomplete test suite. still failing."
-
-/*
 BOOST_AUTO_TEST_SUITE(torrentsync_dht_Callback);
 
 using namespace torrentsync::dht;
@@ -39,7 +36,7 @@ BOOST_AUTO_TEST_CASE(match_type_fail)
             return true;},
         torrentsync::dht::message::Type::Response,
         torrentsync::dht::message::Messages::Ping,
-        Callback::filterNode(),
+        buff,
         Callback::filterTransactionID());
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
@@ -60,7 +57,7 @@ BOOST_AUTO_TEST_CASE(match_type_success)
               return true;},
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
-        Callback::filterNode(),
+        buff,
         Callback::filterTransactionID());
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
@@ -82,7 +79,7 @@ BOOST_AUTO_TEST_CASE(match_messagetype_fail)
             return true;},
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::FindNode,
-        Callback::filterNode(),
+        buff,
         Callback::filterTransactionID());
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
@@ -104,7 +101,7 @@ BOOST_AUTO_TEST_CASE(match_node_success)
             return true;},
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
-        Callback::filterNode(buff),
+        buff,
         Callback::filterTransactionID());
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
@@ -128,7 +125,7 @@ BOOST_AUTO_TEST_CASE(match_node_failure)
             return true;},
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
-        Callback::filterNode(buff2),
+        buff2,
         Callback::filterTransactionID());
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
@@ -148,7 +145,7 @@ BOOST_AUTO_TEST_CASE(match_transaction_success)
             return true;},
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
-        Callback::filterNode(),
+        buff,
         Callback::filterTransactionID(transaction));
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
@@ -169,7 +166,7 @@ BOOST_AUTO_TEST_CASE(match_transaction_failure)
             return true;},
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
-        Callback::filterNode(),
+        buff,
         Callback::filterTransactionID(transaction2));
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
@@ -180,5 +177,3 @@ BOOST_AUTO_TEST_CASE(match_transaction_failure)
 
 
 BOOST_AUTO_TEST_SUITE_END();
-
-*/

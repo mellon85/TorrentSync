@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(parse)
     BOOST_REQUIRE(p);
 
     BOOST_REQUIRE(p->getID() == "GGGGGGGGHHHHHHHHIIII");
-    BOOST_REQUIRE(p->getToken() == "aa");
+    BOOST_REQUIRE(p->getTransactionID() == "aa");
 }
 
 BOOST_AUTO_TEST_CASE(parseBinary)
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(parseBinary)
     id[6] = '\0';
 
     BOOST_REQUIRE(p->getID() == id);
-    BOOST_REQUIRE(p->getToken() == "aa");
+    BOOST_REQUIRE(p->getTransactionID() == "aa");
 }
 
 BOOST_AUTO_TEST_CASE(parseRandom)
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(parseRandom)
         BOOST_REQUIRE(p);
 
         BOOST_REQUIRE(p->getID() == ab);
-        BOOST_REQUIRE(p->getToken() == "aa");
+        BOOST_REQUIRE(p->getTransactionID() == "aa");
     }
 }
 

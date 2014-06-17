@@ -35,10 +35,7 @@ public:
     static const size_t TIME_LIMIT;
 
     //! type of the callback
-    typedef std::function<bool (const torrentsync::dht::message::Message&)> callback;
-
-    //! type of the node filter 
-    typedef boost::optional<torrentsync::utils::Buffer> filterNode;
+    typedef std::function<void (const torrentsync::dht::message::Message&)> callback;
 
     //! type of the trasaction filter 
     typedef boost::optional<torrentsync::utils::Buffer> filterTransactionID;
@@ -52,11 +49,11 @@ public:
         const callback& function,
         const std::string& type,
         const std::string& messageType,
-        const filterNode& source,
+        const torrentsync::dht::NodeData& source,
         const filterTransactionID& transactionID);
 
     //! Calls the callback function
-    bool call( const torrentsync::dht::message::Message& m ) const  { return _func(m); }
+    void call( const torrentsync::dht::message::Message& m ) const;
 
     //! verifies if the callback is too old.
     //! @returns true if the callback is more than TIME_LIMIT seconds old.
@@ -77,7 +74,7 @@ private:
     const std::string& _messageType;
 
     //! filter condition for source address
-    boost::optional<torrentsync::utils::Buffer> _source;
+    torrentsync::dht::NodeData _source;
 
     //! filter condition for transaction it
     boost::optional<torrentsync::utils::Buffer> _transactionID;

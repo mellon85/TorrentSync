@@ -77,6 +77,11 @@ public:
     //! @throw MalformedMessageException in case the data is not available (it's mandatory)
     virtual torrentsync::utils::Buffer getID() const =0;
 
+    //! Returns a buffer containing the transaction ID of the message.
+    //! Must be reimplemented in every subclass
+    //! @return transaction id
+    virtual torrentsync::utils::Buffer getTransactionID() const =0;
+
 protected:
     //! inline constructor
     inline Message() {}
