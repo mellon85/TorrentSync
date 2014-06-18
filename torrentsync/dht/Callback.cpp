@@ -32,10 +32,10 @@ bool Callback::verifyConstraints( const torrentsync::dht::message::Message& mess
     if ((message.getType() != _type) || (message.getMessageType() != _messageType))
         return false;
 
-    if ( !!_transactionID && (*_transactionID) == message.getTransactionID())
+    if ( _source != message.getID())
         return false;
-
-    if ( _source == message.getID())
+    
+    if ( !!_transactionID && !( (*_transactionID) == message.getTransactionID()))
         return false;
 
     return true;

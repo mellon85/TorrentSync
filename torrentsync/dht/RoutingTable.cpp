@@ -116,6 +116,25 @@ void RoutingTable::registerCallback(
     throw std::runtime_error("Not Implemented Yet");
 }
 
+boost::optional<Callback> RoutingTable::getCallback(
+    const message::Message& message)
+{
+    auto its = _callbacks.equal_range(message.getID());
+
+    boost::optional<Callback> ret;
+    for( auto it = its.first; it != its.second; ++it )
+    {
+        if (it->second.verifyConstraints(message))
+        {
+            ret = it->second;
+            _callbacks.erase(it);
+            break;
+        }
+    }
+
+    return ret;
+}
+
 void RoutingTable::sendMessage()
 {
     throw std::runtime_error("Not Implemented Yet");

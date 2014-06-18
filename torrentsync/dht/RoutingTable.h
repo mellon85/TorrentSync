@@ -69,6 +69,11 @@ protected:
 
 private:
 
+    //! returns the most specific callback, and will be removed from the
+    //! callbacks.
+    boost::optional<Callback> getCallback(
+        const message::Message& message);
+
     //! Registers a callback to be called when we receive a message.
     //! It will be executed only once and before any other processing.
     //! The callback will be removed in any case if it is not used in less than 60 seconds.

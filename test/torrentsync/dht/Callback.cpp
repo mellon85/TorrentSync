@@ -10,7 +10,7 @@ BOOST_AUTO_TEST_SUITE(torrentsync_dht_Callback);
 
 using namespace torrentsync::dht;
 
-static const torrentsync::utils::Buffer buff("GGGGGGGGHHHHHHHHIIII",20);
+static const torrentsync::dht::NodeData buff(torrentsync::utils::Buffer("GGGGGGGGHHHHHHHHIIII",20));
 static const torrentsync::utils::Buffer transaction("aa");
 
 boost::shared_ptr<torrentsync::dht::message::Message> getMessage()
@@ -36,15 +36,14 @@ BOOST_AUTO_TEST_CASE(match_type_fail)
             return true;},
         torrentsync::dht::message::Type::Response,
         torrentsync::dht::message::Messages::Ping,
-        buff,
-        Callback::filterTransactionID());
+        buff);
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
     BOOST_REQUIRE_EQUAL(v,0);
     call.call(*getMessage());
     BOOST_REQUIRE_EQUAL(v,1);
 
-    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(*getMessage()));
+    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(*getMessage()));
 }
 
 BOOST_AUTO_TEST_CASE(match_type_success)
@@ -57,15 +56,15 @@ BOOST_AUTO_TEST_CASE(match_type_success)
               return true;},
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
-        buff,
-        Callback::filterTransactionID());
+        buff);
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
+    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(*getMessage()));
     BOOST_REQUIRE_EQUAL(v,0);
     call.call(*getMessage());
     BOOST_REQUIRE_EQUAL(v,1);
-
     BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(*getMessage()));
+
 }
 
 BOOST_AUTO_TEST_CASE(match_messagetype_fail)
@@ -87,7 +86,7 @@ BOOST_AUTO_TEST_CASE(match_messagetype_fail)
     call.call(*getMessage());
     BOOST_REQUIRE_EQUAL(v,1);
 
-    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(*getMessage()));
+    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(*getMessage()));
 }
 
 BOOST_AUTO_TEST_CASE(match_node_success)
@@ -101,8 +100,7 @@ BOOST_AUTO_TEST_CASE(match_node_success)
             return true;},
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
-        buff,
-        Callback::filterTransactionID());
+        buff);
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
     BOOST_REQUIRE_EQUAL(v,0);
@@ -125,8 +123,8 @@ BOOST_AUTO_TEST_CASE(match_node_failure)
             return true;},
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
-        buff2,
-        Callback::filterTransactionID());
+        buff2);
+        
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
     BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(*getMessage()));
@@ -149,7 +147,7 @@ BOOST_AUTO_TEST_CASE(match_transaction_success)
         Callback::filterTransactionID(transaction));
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
-    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(*getMessage()));
+    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(*getMessage()));
     call.call(*getMessage());
     BOOST_REQUIRE_EQUAL(v,1);
 }

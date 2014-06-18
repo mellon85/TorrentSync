@@ -50,7 +50,8 @@ public:
         const std::string& type,
         const std::string& messageType,
         const torrentsync::dht::NodeData& source,
-        const filterTransactionID& transactionID);
+        const filterTransactionID& transactionID = filterTransactionID());
+
 
     //! Calls the callback function
     void call( const torrentsync::dht::message::Message& m ) const;
@@ -68,10 +69,10 @@ private:
     callback _func;
 
     //! filter condition for type (mandatory)
-    const std::string _type;
+    std::string _type;
 
     //! filter condition for message type (mandatory)
-    const std::string& _messageType;
+    std::string _messageType;
 
     //! filter condition for source address
     torrentsync::dht::NodeData _source;
