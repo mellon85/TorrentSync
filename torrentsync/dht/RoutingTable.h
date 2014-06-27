@@ -37,6 +37,10 @@ public:
 
     boost::asio::io_service& getIO_service();
 
+    //! Blocking call to look for a node specific node.
+    //! Will return a tcp connection to the target node holder.
+    boost::shared_ptr<boost::asio::ip::tcp::socket> lookForNode();
+
 protected:
     typedef boost::shared_ptr<boost::asio::deadline_timer> shared_timer;
 
@@ -116,7 +120,9 @@ private:
     //! Socket 
     udp::socket _socket;
 
-    //! Callbacks container
+    //! Callbacks container.
+    //! A multimap is enough as anyway there shouldn't be more than one
+    //! request at the same time (even though it may happen).
     std::multimap<
         torrentsync::dht::NodeData,
         torrentsync::dht::Callback> _callbacks;
@@ -125,7 +131,7 @@ private:
 template <class Archive>
 void RoutingTable::save( Archive &ar, const unsigned int version) const
 {
-    if (version > 0)
+    if (version <= 0)
     {
         ar << _table.size();
         throw std::runtime_error("Unimplemented yet");

@@ -1,6 +1,10 @@
 #include <torrentsync/utils/log/Logger.h>
 #include <torrentsync/dht/RoutingTable.h>
 #include <torrentsync/dht/message/Ping.h>
+
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+
 #include <vector>
 
 #include <boost/bind.hpp>
@@ -143,6 +147,13 @@ void RoutingTable::sendMessage()
 void RoutingTable::recvMessage()
 {
     throw std::runtime_error("Not Implemented Yet");
+}
+
+boost::shared_ptr<boost::asio::ip::tcp::socket> RoutingTable::lookForNode()
+{
+    throw std::runtime_error("Not Implemented Yet");
+    boost::shared_ptr<boost::asio::ip::tcp::socket> ret;
+    return ret;
 }
 
 }; // dht
