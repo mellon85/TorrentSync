@@ -32,17 +32,11 @@ BOOST_AUTO_TEST_CASE(constructor)
 BOOST_AUTO_TEST_CASE(initializing_addresses)
 {
     _initial_addresses.push_back(
-        torrentsync::dht::Peer(
-            torrentsync::dht::Node(generateRandomNode()),
-            udp::endpoint()));
+            boost::asio::ip::address());
     _initial_addresses.push_back(
-        torrentsync::dht::Peer(
-            torrentsync::dht::Node(generateRandomNode()),
-            udp::endpoint()));
+            boost::asio::ip::address_v4());
     _initial_addresses.push_back(
-        torrentsync::dht::Peer(
-            torrentsync::dht::Node(generateRandomNode()),
-            udp::endpoint()));
+            boost::asio::ip::address_v6());
 
     BOOST_REQUIRE_EQUAL( 3, _initial_addresses.size() );
     initializeTable();

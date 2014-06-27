@@ -69,7 +69,7 @@ protected:
         const udp::endpoint& endpoint );
     
     //! list of address to populate the table with
-    std::list<Peer> _initial_addresses;
+    std::list<boost::asio::ip::address> _initial_addresses;
 
 private:
 
@@ -134,7 +134,7 @@ void RoutingTable::save( Archive &ar, const unsigned int version) const
     if (version <= 0)
     {
         ar << _table.size();
-        throw std::runtime_error("Unimplemented yet");
+        throw std::runtime_error("Not Implemented Yet");
         // TODO
     }
 }
@@ -148,7 +148,7 @@ void RoutingTable::load( Archive &ar, const unsigned int version)
     }
     size_t nodes_count;
     ar >> nodes_count;
-    throw std::runtime_error("Unimplemented yet");
+    throw std::runtime_error("Not Implemented Yet");
     // TODO 
     // refresh all the nodes
     // 1. ping all known and insert them in the routing table with the normal procedure

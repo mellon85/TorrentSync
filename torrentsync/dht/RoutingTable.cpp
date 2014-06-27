@@ -9,12 +9,25 @@
 
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/array.hpp>
+#include <boost/assign/list_of.hpp>
+
+//! list of known bootstrap servers for the DHT network
+static const std::list<
+    boost::tuple<std::string,unsigned short> > BOOTSTRAP_ADDRESSES =
+        boost::assign::tuple_list_of
+            ("router.bittorrent.com",6881)
+            ("router.utorrent.com"  ,6881);
 
 //! 3 batches per second while initializing the DHT, should be configurable.
 static const size_t INITIALIZE_PING_BATCH_INTERVAL = static_cast<size_t>(1000/3);
 
 //! 5 addresses per batch while initialing the DHT, should be configurable.
-static const size_t INITIALIZE_PING_BATCH_SIZE     = static_cast<size_t>(5);
+static const size_t INITIALIZE_PING_BATCH_SIZE     = 5;
+
+//! The minimum number of nodes in the table under which we'll try to
+//! connect at the bootstrap addresses
+static const size_t MINIMUM_NODES_UNTIL_BOOTSTRAP = 10;
 
 namespace torrentsync
 {
@@ -50,6 +63,17 @@ void RoutingTable::initializeTable( shared_timer timer )
     if (_initial_addresses.empty())
     {
         LOG(INFO, "RoutingTable: table initialization from previously known addresses terminated");
+
+        const size_t table_size = _table.size();
+        if ( table_size < MINIMUM_NODES_UNTIL_BOOTSTRAP )
+        {
+            LOG(INFO,"Proceeding with boostrap procedure from known nodes: "
+                    << table_size << ','
+                    << MINIMUM_NODES_UNTIL_BOOTSTRAP);
+
+            //! TODO proceed with bootstrap
+            throw std::runtime_error("Not Implemented Yet");
+        }
         return;
     }
 
@@ -64,11 +88,14 @@ void RoutingTable::initializeTable( shared_timer timer )
         [this,timer] (const boost::system::error_code& e) {
                 if ( e.value() != 0 )
                     LOG(ERROR, "Error in RoutingTable initializeTable timer: " << e.message());
+                using namespace boost::asio;
 
                 assert(!_initial_addresses.empty());
-                Node addr(_initial_addresses.front()); // get head
-                LOG(DEBUG, "RoutingTable: initializing ping with " << addr);
-                _initial_addresses.pop_front();        // delete head
+
+                const ip::address ip = _initial_addresses.front();
+                _initial_addresses.pop_front(); // copy local and delete head
+
+                LOG(DEBUG, "RoutingTable: initializing ping with " << ip);
 
                 //! create and send the message
                 torrentsync::utils::Buffer msg =
