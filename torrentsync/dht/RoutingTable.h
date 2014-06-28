@@ -56,7 +56,9 @@ protected:
     void tableMaintenance();
 
     //! TODO
-    virtual void sendMessage();
+    virtual void sendMessage(
+        const torrentsync::utils::Buffer,
+        const udp::endpoint& addr);
 
     //! TODO
     virtual void recvMessage();
@@ -69,7 +71,7 @@ protected:
         const udp::endpoint& endpoint );
     
     //! list of address to populate the table with
-    std::list<boost::asio::ip::address> _initial_addresses;
+    std::list<boost::asio::ip::udp::endpoint> _initial_addresses;
 
 private:
 

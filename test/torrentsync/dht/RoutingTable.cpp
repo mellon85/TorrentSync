@@ -32,11 +32,11 @@ BOOST_AUTO_TEST_CASE(constructor)
 BOOST_AUTO_TEST_CASE(initializing_addresses)
 {
     _initial_addresses.push_back(
-            boost::asio::ip::address());
+            boost::asio::ip::udp::endpoint());
     _initial_addresses.push_back(
-            boost::asio::ip::address_v4());
+            boost::asio::ip::udp::endpoint());
     _initial_addresses.push_back(
-            boost::asio::ip::address_v6());
+            boost::asio::ip::udp::endpoint());
 
     BOOST_REQUIRE_EQUAL( 3, _initial_addresses.size() );
     initializeTable();

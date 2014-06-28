@@ -13,17 +13,17 @@
 #include <boost/assign/list_of.hpp>
 
 //! list of known bootstrap servers for the DHT network
-static const std::list<
-    boost::tuple<std::string,unsigned short> > BOOTSTRAP_ADDRESSES =
+static const std::list< // domain/ip address, port, needs to be resolved
+    boost::tuple<std::string,unsigned short,bool> > BOOTSTRAP_ADDRESSES =
         boost::assign::tuple_list_of
-            ("router.bittorrent.com",6881)
-            ("router.utorrent.com"  ,6881);
+            ("router.bittorrent.com",6881,true)
+            ("router.utorrent.com"  ,6881,true);
 
 //! 3 batches per second while initializing the DHT, should be configurable.
 static const size_t INITIALIZE_PING_BATCH_INTERVAL = static_cast<size_t>(1000/3);
 
 //! 5 addresses per batch while initialing the DHT, should be configurable.
-static const size_t INITIALIZE_PING_BATCH_SIZE     = 5;
+static const size_t INITIALIZE_PING_BATCH_SIZE = 5;
 
 //! The minimum number of nodes in the table under which we'll try to
 //! connect at the bootstrap addresses
@@ -86,31 +86,38 @@ void RoutingTable::initializeTable( shared_timer timer )
     LOG(DEBUG, "RoutingTable: Register initializeTable timer");
     timer->async_wait(
         [this,timer] (const boost::system::error_code& e) {
+                using namespace boost::asio;
+
                 if ( e.value() != 0 )
                     LOG(ERROR, "Error in RoutingTable initializeTable timer: " << e.message());
-                using namespace boost::asio;
 
                 assert(!_initial_addresses.empty());
 
-                const ip::address ip = _initial_addresses.front();
-                _initial_addresses.pop_front(); // copy local and delete head
+                for( size_t i = 0; 
+                    i < INITIALIZE_PING_BATCH_SIZE && !_initial_addresses.empty(); ++i )
+                {   
+                    // copy local and delete head
+                    const auto endpoint = _initial_addresses.front();
+                    _initial_addresses.pop_front();
 
-                LOG(DEBUG, "RoutingTable: initializing ping with " << ip);
+                    LOG(DEBUG, "RoutingTable: initializing ping with " << endpoint);
 
-                //! create and send the message
-                torrentsync::utils::Buffer msg =
-                    torrentsync::dht::message::Ping::getMessage(
-                        torrentsync::utils::Buffer("aab"),
-                        _table.getPeerNode());
+                    //! create and send the message
+                    torrentsync::utils::Buffer msg =
+                        torrentsync::dht::message::Ping::getMessage(
+                            torrentsync::utils::Buffer("aab"),
+                            _table.getPeerNode());
 
-                //! send the message
+                    //! send the message
+                    //! sendMessage(msg,endpoint);
 
-                //! TODO send find_node to get our node
-                // give the 8 nodes priority over others. once we start having
-                // enough fresh nodes we don't need additional old nodes and we
-                // can dump them.
-                
-                LOG(ERROR, "RoutingTable::initializeTable lambda not implemented yet!");
+                    //! TODO send find_node to get our node
+                    // give the 8 nodes priority over others. once we start having
+                    // enough fresh nodes we don't need additional old nodes and we
+                    // can dump them.
+
+                    LOG(ERROR, "RoutingTable::initializeTable lambda not implemented yet!");
+                }
 
                 LOG(DEBUG, "RoutingTable: " << _initial_addresses.size() <<
                                 " initializing addresses remaining");
@@ -166,7 +173,9 @@ boost::optional<Callback> RoutingTable::getCallback(
     return ret;
 }
 
-void RoutingTable::sendMessage()
+void RoutingTable::sendMessage(
+    const torrentsync::utils::Buffer buff,
+    const udp::endpoint& addr)
 {
     throw std::runtime_error("Not Implemented Yet");
 }
