@@ -37,7 +37,8 @@ namespace dht
 RoutingTable::RoutingTable(
     const udp::endpoint& endpoint)
     : _table(NodeData::getRandom()),
-      _socket(io_service)
+      _recv_socket(io_service),
+      _send_socket(io_service)
 {
     LOG(INFO, "RoutingTable * Peer Node: " << _table.getPeerNode());
     LOG(INFO, "RoutingTable * Bind Node: " << endpoint);
@@ -55,7 +56,7 @@ boost::asio::io_service& RoutingTable::getIO_service()
 
 udp::endpoint RoutingTable::getEndpoint() const
 {
-    return _socket.local_endpoint();
+    return _recv_socket.local_endpoint();
 }
 
 void RoutingTable::initializeTable( shared_timer timer )
@@ -135,9 +136,9 @@ void RoutingTable::tableMaintenance()
 void RoutingTable::initializeNetwork(
     const udp::endpoint& endpoint )
 {
-    // throws boost::system::system_error
-    _socket.open(endpoint.protocol());
-    _socket.bind(endpoint);
+    _send_socket.open(endpoint.protocol());
+    _recv_socket.open(endpoint.protocol());
+    _recv_socket.bind(endpoint);
 }
 
 void RoutingTable::registerCallback(
@@ -174,14 +175,24 @@ boost::optional<Callback> RoutingTable::getCallback(
 }
 
 void RoutingTable::sendMessage(
-    const torrentsync::utils::Buffer buff,
+    const torrentsync::utils::Buffer& buff,
     const udp::endpoint& addr)
 {
-    throw std::runtime_error("Not Implemented Yet");
+    WriteLock lock(_send_mutex);
+    //! todo I have to  copy the buffer somewhere and then let it be
+    //! destroyed with the write handler
+
+    buff.freeze();
+    _send_socket.send_to(
+        boost::asio::buffer(buff.get(),buff.size()),addr);
 }
 
 void RoutingTable::recvMessage()
 {
+    WriteLock lock(_recv_mutex);
+
+    //! _recv_socket.async_receive_from()
+    //! TODO must also be non blocking
     throw std::runtime_error("Not Implemented Yet");
 }
 

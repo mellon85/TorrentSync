@@ -56,8 +56,9 @@ protected:
     void tableMaintenance();
 
     //! TODO
+    //! @throws boost::system::system_error
     virtual void sendMessage(
-        const torrentsync::utils::Buffer,
+        const torrentsync::utils::Buffer&,
         const udp::endpoint& addr);
 
     //! TODO
@@ -96,7 +97,7 @@ private:
         const boost::optional<torrentsync::utils::Buffer>& transactionID);
 
     //! Internal mutex to synchronize the various threads
-    mutable Mutex mutex;
+    mutable Mutex _mutex;
 
     //! Node table
     NodeTree _table;
@@ -120,7 +121,11 @@ private:
     boost::asio::io_service io_service;
 
     //! Socket 
-    udp::socket _socket;
+    udp::socket _recv_socket;
+    udp::socket _send_socket;
+
+    Mutex _send_mutex;
+    Mutex _recv_mutex;
 
     //! Callbacks container.
     //! A multimap is enough as anyway there shouldn't be more than one
