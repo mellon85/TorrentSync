@@ -57,7 +57,7 @@ private:
     {
         if( used_bytes+add > result.size() )
         {
-            result.resize(((result.size()/1024)+1 *1024));
+            result.resize(((result.size()/1024)+1)*1024);
         }
     }
 

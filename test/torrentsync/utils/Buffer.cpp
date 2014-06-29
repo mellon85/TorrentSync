@@ -1,4 +1,5 @@
 #include <boost/test/unit_test.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <iostream>
 
 #include <torrentsync/utils/Buffer.h>
@@ -27,6 +28,22 @@ BOOST_AUTO_TEST_CASE(initialize_and_destroy)
     BOOST_REQUIRE_EQUAL(buff4.get()[buff4.size()],0);
 }
 
+BOOST_AUTO_TEST_CASE(no_diff_between_cstr_and_str)
+{
+    std::string str("aa");
+    Buffer buff("aa");
+
+    BOOST_REQUIRE_EQUAL(buff,str.c_str());
+    BOOST_REQUIRE_EQUAL(buff,str);
+}
+
+BOOST_AUTO_TEST_CASE(delete_with_resize)
+{
+    Buffer buff("abc");
+    buff.resize(2);
+    BOOST_REQUIRE_EQUAL(buff,"ab");
+}
+
 BOOST_AUTO_TEST_CASE(resize)
 {
     Buffer buff("abcdefg");
@@ -44,5 +61,33 @@ BOOST_AUTO_TEST_CASE(resize)
     buff.get()[2] = 'f';
     BOOST_REQUIRE_EQUAL(memcmp("abf",buff.get(),3),0);
 }
+
+BOOST_AUTO_TEST_CASE(freeze)
+{
+    Buffer x("abdef");
+    Buffer y(x);
+
+    BOOST_REQUIRE_EQUAL(y,x);
+    BOOST_REQUIRE_EQUAL(y.begin(),x.begin()); // same pointers
+
+    x.freeze();
+    *x.begin() = *x.begin();
+
+    BOOST_REQUIRE_EQUAL(y,x);
+    BOOST_CHECK_PREDICATE( boost::lambda::_1 != boost::lambda::_2, (x.begin())(y.begin()));
+}
+
+BOOST_AUTO_TEST_CASE(constructor_equality)
+{
+    std::string content = "abcdefghi";
+
+    Buffer a(content);
+    Buffer b(content.c_str());
+    Buffer c(content.c_str(),content.size());
+    BOOST_REQUIRE_EQUAL(a,b);
+    BOOST_REQUIRE_EQUAL(b,c);
+
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 

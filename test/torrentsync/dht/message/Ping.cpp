@@ -24,8 +24,8 @@ BOOST_AUTO_TEST_CASE(generation_1)
 
     BOOST_REQUIRE_NO_THROW(
         ret = Ping::getMessage(transaction,data)); 
-    BOOST_REQUIRE(
-        torrentsync::utils::Buffer("d1:ad2:id20:GGGGGGGGHHHHHHHHIIIIe1:q4:ping1:t2:aa1:y1:qe") == ret);
+    BOOST_REQUIRE_EQUAL(
+        torrentsync::utils::Buffer("d1:ad2:id20:GGGGGGGGHHHHHHHHIIIIe1:q4:ping1:t2:aa1:y1:qe"),ret);
 }
 
 BOOST_AUTO_TEST_CASE(parse)
@@ -42,8 +42,8 @@ BOOST_AUTO_TEST_CASE(parse)
     auto p = dynamic_cast<torrentsync::dht::message::Ping*>(m.get());
     BOOST_REQUIRE(p);
 
-    BOOST_REQUIRE(p->getID() == "GGGGGGGGHHHHHHHHIIII");
-    BOOST_REQUIRE(p->getTransactionID() == "aa");
+    BOOST_REQUIRE_EQUAL(p->getID(),"GGGGGGGGHHHHHHHHIIII");
+    BOOST_REQUIRE_EQUAL(p->getTransactionID(),"aa");
 }
 
 BOOST_AUTO_TEST_CASE(parseBinary)
@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE(parseBinary)
     id[3] = '\t';
     id[6] = '\0';
 
-    BOOST_REQUIRE(p->getID() == id);
-    BOOST_REQUIRE(p->getTransactionID() == "aa");
+    BOOST_REQUIRE_EQUAL(p->getID(),id);
+    BOOST_REQUIRE_EQUAL(p->getTransactionID(),"aa");
 }
 
 BOOST_AUTO_TEST_CASE(parseRandom)
@@ -92,8 +92,8 @@ BOOST_AUTO_TEST_CASE(parseRandom)
         auto p = dynamic_cast<torrentsync::dht::message::Ping*>(m.get());
         BOOST_REQUIRE(p);
 
-        BOOST_REQUIRE(p->getID() == ab);
-        BOOST_REQUIRE(p->getTransactionID() == "aa");
+        BOOST_REQUIRE_EQUAL(p->getID(),ab);
+        BOOST_REQUIRE_EQUAL(p->getTransactionID(),"aa");
     }
 }
 
