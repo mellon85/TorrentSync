@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(parseRandom)
 
         auto addr = torrentsync::dht::NodeData::getRandom();
         auto ab = addr.write();
-        b.copy(12,ab.get(),ab.size());
+        std::copy(ab.cbegin(),ab.cend(),b.begin()+12);
 
         std::stringstream s;
         s.write(b.get(),b.size());

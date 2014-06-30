@@ -42,18 +42,18 @@ class BEncodeEncoder
         endList();
     }
 
-    inline void startList() { checkAndExpand(1); result[used_bytes++] = 'l'; }
-    inline void endList() { checkAndExpand(1); result[used_bytes++] = 'e'; }
-    inline void startDictionary() { checkAndExpand(1); result[used_bytes++] = 'd'; }
-    inline void endDictionary() { lastKey.clear(); checkAndExpand(1); result[used_bytes++] = 'e'; }
+    void startList() { checkAndExpand(1); result[used_bytes++] = 'l'; }
+    void endList() { checkAndExpand(1); result[used_bytes++] = 'e'; }
+    void startDictionary() { checkAndExpand(1); result[used_bytes++] = 'd'; }
+    void endDictionary() { lastKey.clear(); checkAndExpand(1); result[used_bytes++] = 'e'; }
 
-    inline torrentsync::utils::Buffer value() const { result.resize(used_bytes); return result; } // copy to a buffer and pass it back..
+    torrentsync::utils::Buffer value() const { result.resize(used_bytes); return result; } // copy to a buffer and pass it back..
 
 private:
 
     size_t used_bytes;
     
-    inline void checkAndExpand( const size_t add )
+    void checkAndExpand( const size_t add )
     {
         if( used_bytes+add > result.size() )
         {
@@ -89,10 +89,13 @@ void BEncodeEncoder::addElement( const torrentsync::utils::Buffer& v )
 
     checkAndExpand(len+1+1+v.size());
 
-    result.copy(used_bytes, static_cast<const char*>(length_as_string),len);
+    assert(result.size()+used_bytes >= len); 
+
+    std::copy(length_as_string,length_as_string+len,result.begin()+used_bytes);
+
     used_bytes += len;
     result[used_bytes++] = ':';
-    result.copy(used_bytes,v.get(),v.size());
+    std::copy(v.cbegin(),v.cend(),result.begin()+used_bytes);
     used_bytes += v.size();
 }
 
