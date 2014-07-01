@@ -86,8 +86,25 @@ BOOST_AUTO_TEST_CASE(constructor_equality)
     Buffer c(content.c_str(),content.size());
     BOOST_REQUIRE_EQUAL(a,b);
     BOOST_REQUIRE_EQUAL(b,c);
+}
 
+BOOST_AUTO_TEST_CASE(test_zero_size)
+{
+    // to avoid confusin the compiler with 0 as a pointer I have to cast
+    // it.
+    Buffer buff(static_cast<size_t>(0));
+
+    BOOST_REQUIRE_NO_THROW(
+        buff.begin());
+    BOOST_REQUIRE_NO_THROW(
+        buff.end());
+    BOOST_REQUIRE_NO_THROW(
+        buff.cbegin());
+    BOOST_REQUIRE_NO_THROW(
+        buff.cend());
+
+    BOOST_REQUIRE_NO_THROW(
+        BOOST_REQUIRE_EQUAL(buff.begin(),buff.end()));
 }
 
 BOOST_AUTO_TEST_SUITE_END();
-
