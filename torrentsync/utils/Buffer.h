@@ -37,9 +37,7 @@ private:
     typedef union {
         uint8_t _raw_bytes[];
         struct {
-            struct {
-                size_t     size;
-            } _meta;
+            size_t size;
             value_type data[];
         } _sized;
     } intrusive_size_t;
