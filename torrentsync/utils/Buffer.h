@@ -33,24 +33,29 @@ public:
     typedef value_type_t * iterator;
 
 private:
+    typedef struct {
+        size_t size;
+        bool frozen;
+    } meta_t;
+
     //! type to embedded the size along with the data. Nice way to avoid
     //! having a second shared_ptr just to hold the size in case the copy
     //! on write is triggered.
     typedef union {
         uint8_t _raw_bytes[];
         struct {
-            size_t size;
+            meta_t _meta;
             value_type data[];
         } _sized;
     } intrusive_size_t;
 
-    static constexpr size_t adjust_size = sizeof(size_t);
+    static constexpr size_t adjust_size = sizeof(meta_t);
 
 public:
     //! returns the size of the buffer
     size_t size() const noexcept
     {
-        return _data.get() ? _data->_sized.size : 0;
+        return _data.get() ? _data->_sized._meta.size : 0;
     }
 
     //! Constructor to initialize the data from an address and the length of
@@ -101,8 +106,9 @@ public:
                 begin()+std::min(new_size,element_bytes),
                 ptr->_sized.data);
 
-        ptr->_sized.size = new_size;     // set the size
-        ptr->_raw_bytes[byte_size-1] = 0; // set the end byte
+        ptr->_sized._meta.size = new_size; // set the size
+        ptr->_sized._meta.frozen = false;  // set the size
+        ptr->_raw_bytes[byte_size-1] = 0;  // set the end byte
 
         _data.reset(ptr);
     }
@@ -157,9 +163,14 @@ public:
     //! Next write operation will be performed on a different memory
     //! copy of the data. In this way copies of the buffer will remain
     //! unchanged
-    void freeze()    const { frozen = true; }
+    void freeze() const noexcept {
+        assert(_data.get());
+        _data->_sized._meta.frozen = true;
+    }
 
-    bool is_frozen() const { return frozen; }
+    bool is_frozen() const noexcept {
+        return _data.get() ?  _data->_sized._meta.frozen : 0;
+    }
 
 private:
 
@@ -167,14 +178,11 @@ private:
         if( !is_frozen() )
             return;
 
-        //! a buffer must exist to be frozen
-        assert( _data.get() );
-
+        assert(_data.get());
         // as the buffer was frozen, we have do duplicate it and use a copy
         // from now on.
-
         const size_t byte_size =
-            _data->_sized.size * sizeof(value_type) + 1 + adjust_size;
+            _data->_sized._meta.size * sizeof(value_type) + 1 + adjust_size;
 
         intrusive_size_t *ptr =
             reinterpret_cast<intrusive_size_t*>(new uint8_t[byte_size]);
@@ -187,12 +195,12 @@ private:
         }
         else
         {
-            ptr->_sized.size = _data->_sized.size;
+            ptr->_sized._meta.size = _data->_sized._meta.size;
             ptr->_raw_bytes[byte_size-1] = 0; // set the end byte
         }
 
         _data.reset(ptr);
-        frozen = false;
+        ptr->_sized._meta.frozen = false;
     }
 
     //! frozen status
