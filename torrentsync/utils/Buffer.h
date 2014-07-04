@@ -230,9 +230,11 @@ auto BufferImpl<value_type_t>::operator[]( size_t index ) const -> const value_t
 
 typedef BufferImpl<char> Buffer;
 
-inline std::ostream& operator<<( std::ostream& stream, const Buffer& buff )
+template <class T>
+std::ostream& operator<<( std::ostream& stream, const BufferImpl<T>& buff )
 {
-    stream << buff.cbegin();
+    for( auto it = buff.cbegin(); it != buff.cend(); ++it )
+        stream << *it;
     return stream;
 };
 
