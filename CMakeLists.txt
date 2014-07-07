@@ -128,3 +128,4 @@ target_link_libraries(unittest
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
     )
 
+add_custom_target(doxygen doxygen doxygen.config)
