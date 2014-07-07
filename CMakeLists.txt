@@ -97,6 +97,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 # main executable
 add_executable(TorrentSyncExecutable
+    torrentsync/App.cpp
     torrentsync/main.cpp)
 
 set_target_properties(

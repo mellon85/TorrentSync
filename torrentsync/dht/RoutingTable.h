@@ -39,6 +39,8 @@ public:
 
     //! Blocking call to look for a node specific node.
     //! Will return a tcp connection to the target node holder.
+    //! @TODO should return a class that manages the swarm of nodes, not
+    //!       an address.
     boost::shared_ptr<boost::asio::ip::tcp::socket> lookForNode();
 
 protected:
