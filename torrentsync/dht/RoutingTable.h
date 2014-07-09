@@ -29,13 +29,13 @@ public:
     //! Constructor
     //! @param endpoint the port and address to bind
     RoutingTable(
-        const udp::endpoint& endpoint );
+        const udp::endpoint& endpoint,
+        boost::asio::io_service& io_service);
 
     virtual ~RoutingTable();
 
+    //! @return DHT table endpoint
     udp::endpoint getEndpoint() const;
-
-    boost::asio::io_service& getIO_service();
 
     //! Blocking call to look for a node specific node.
     //! Will return a tcp connection to the target node holder.
@@ -120,7 +120,7 @@ private:
     void load( Archive &ar, const unsigned int version);
 
     //! IO service of for the routing table
-    boost::asio::io_service io_service;
+    boost::asio::io_service& _io_service;
 
     //! Socket 
     udp::socket _recv_socket;

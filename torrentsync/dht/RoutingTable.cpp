@@ -35,10 +35,12 @@ namespace dht
 {
 
 RoutingTable::RoutingTable(
-    const udp::endpoint& endpoint)
-    : _table(NodeData::getRandom()),
-      _recv_socket(io_service),
-      _send_socket(io_service)
+    const udp::endpoint&     endpoint,
+    boost::asio::io_service& io_service)
+        : _table(NodeData::getRandom()),
+          _io_service(io_service),
+          _recv_socket(io_service),
+          _send_socket(io_service)
 {
     LOG(INFO, "RoutingTable * Peer Node: " << _table.getPeerNode());
     LOG(INFO, "RoutingTable * Bind Node: " << endpoint);
@@ -47,11 +49,6 @@ RoutingTable::RoutingTable(
 
 RoutingTable::~RoutingTable()
 {
-}
-
-boost::asio::io_service& RoutingTable::getIO_service()
-{
-    return io_service;
 }
 
 udp::endpoint RoutingTable::getEndpoint() const
@@ -80,7 +77,7 @@ void RoutingTable::initializeTable( shared_timer timer )
 
     if (!timer)
     {
-        timer = shared_timer(new boost::asio::deadline_timer(io_service,
+        timer = shared_timer(new boost::asio::deadline_timer(_io_service,
             boost::posix_time::milliseconds(INITIALIZE_PING_BATCH_INTERVAL)));
     }
 

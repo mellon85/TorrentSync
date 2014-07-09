@@ -12,13 +12,18 @@ using namespace torrentsync::dht;
 using namespace torrentsync::utils::log;
 using boost::asio::ip::udp;
 
+boost::asio::io_service _service;
+
 MOCK_BASE_CLASS(MockRoutingTable, torrentsync::dht::RoutingTable)
 {
 public:
-    MockRoutingTable( const udp::endpoint e ) : RoutingTable(e) {}
+
+    MockRoutingTable( const udp::endpoint e ) : RoutingTable(e,_service) {}
     MockRoutingTable() : MockRoutingTable(udp::endpoint(udp::v4(),0)) {}
 
+
     MOCK_METHOD(initializeNetwork, 1);
+
 };
 
 
@@ -40,7 +45,7 @@ BOOST_AUTO_TEST_CASE(initializing_addresses)
 
     BOOST_REQUIRE_EQUAL( 3, _initial_addresses.size() );
     initializeTable();
-    getIO_service().run();
+    _service.run();
     BOOST_REQUIRE_EQUAL( 0, _initial_addresses.size() );
 }
 

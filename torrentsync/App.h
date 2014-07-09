@@ -19,19 +19,23 @@ public:
     void runloop();
 
 private:
-    //! main io_service
+    //! Main io_service
     boost::asio::io_service _service;
 
-    //! work system to avoid closing the run() call to the service
+    //! Work system to avoid closing the run() call to the service
     //! without calling stop
     boost::asio::io_service::work _work;
 
-    //! signal mask for the signal to check
+    //! Signal mask for the signal to check
     boost::asio::signal_set _stop_signal;
 
-    //! setups up signal handlers
+    //! Setup up signal handlers
     void setupSignalHandlers();
 
+    //! Setup up signal handlers
+    void setupIOServices();
+
+    //! The DHT routing table
     torrentsync::dht::RoutingTable _table;
 };
 
