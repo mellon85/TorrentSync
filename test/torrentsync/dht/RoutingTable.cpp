@@ -13,35 +13,24 @@ using namespace torrentsync::utils::log;
 using boost::asio::ip::udp;
 
 boost::asio::io_service _service;
+boost::asio::ip::udp::endpoint ep = udp::endpoint(udp::v4(),0);
 
 MOCK_BASE_CLASS(MockRoutingTable, torrentsync::dht::RoutingTable)
 {
 public:
 
-    MockRoutingTable( const udp::endpoint e ) : RoutingTable(e,_service) {}
-    MockRoutingTable() : MockRoutingTable(udp::endpoint(udp::v4(),0)) {}
-
-
-    MOCK_METHOD(initializeNetwork, 1);
-
+    MockRoutingTable() : RoutingTable(_service) {}
 };
 
 
 BOOST_FIXTURE_TEST_SUITE(torrentsync_dht_RoutingTable,MockRoutingTable);
 
-BOOST_AUTO_TEST_CASE(constructor)
-{
-    MockRoutingTable table(udp::endpoint(udp::v4(),0));
-}
 
 BOOST_AUTO_TEST_CASE(initializing_addresses)
 {
-    _initial_addresses.push_back(
-            boost::asio::ip::udp::endpoint());
-    _initial_addresses.push_back(
-            boost::asio::ip::udp::endpoint());
-    _initial_addresses.push_back(
-            boost::asio::ip::udp::endpoint());
+    _initial_addresses.push_back(boost::asio::ip::udp::endpoint());
+    _initial_addresses.push_back(boost::asio::ip::udp::endpoint());
+    _initial_addresses.push_back(boost::asio::ip::udp::endpoint());
 
     BOOST_REQUIRE_EQUAL( 3, _initial_addresses.size() );
     initializeTable();

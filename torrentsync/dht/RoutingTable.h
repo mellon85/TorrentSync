@@ -29,7 +29,6 @@ public:
     //! Constructor
     //! @param endpoint the port and address to bind
     RoutingTable(
-        const udp::endpoint& endpoint,
         boost::asio::io_service& io_service);
 
     virtual ~RoutingTable();
@@ -42,6 +41,14 @@ public:
     //! @TODO should return a class that manages the swarm of nodes, not
     //!       an address.
     boost::shared_ptr<boost::asio::ip::tcp::socket> lookForNode();
+
+
+    //! Initializes network sockets binding to the specific endpoint.
+    //! May throw exceptions for error
+    //! @param endpoint to bind to
+    //! @throws boost::system::system_error throw in case of error
+    void initializeNetwork(
+        const udp::endpoint& endpoint);
 
 protected:
     typedef boost::shared_ptr<boost::asio::deadline_timer> shared_timer;
@@ -63,18 +70,17 @@ protected:
         const torrentsync::utils::Buffer&,
         const udp::endpoint& addr);
 
-    //! TODO
-    virtual void recvMessage();
+    virtual void recvMessage(
+            const boost::system::error_code& error,
+            torrentsync::utils::Buffer buffer,
+            std::size_t bytes_transferred,
+            const boost::asio::ip::udp::endpoint& sender);
 
-    //! Initializes network sockets binding to the specific endpoint.
-    //! May throw exceptions for error
-    //! @param endpoint to bind to
-    //! @throws boost::system::system_error throw in case of error
-    virtual void initializeNetwork(
-        const udp::endpoint& endpoint );
-    
     //! list of address to populate the table with
     std::list<boost::asio::ip::udp::endpoint> _initial_addresses;
+
+    //! configure the io_service actions to receive messages
+    void scheduleNextReceive();
 
 private:
 
@@ -122,12 +128,17 @@ private:
     //! IO service of for the routing table
     boost::asio::io_service& _io_service;
 
-    //! Socket 
+    //! Inbound socket 
     udp::socket _recv_socket;
+
+    //! Outbound socket 
     udp::socket _send_socket;
 
-    Mutex _send_mutex;
+    //! Inbound mutex 
     Mutex _recv_mutex;
+
+    //! Outbout mutex
+    Mutex _send_mutex;
 
     //! Callbacks container.
     //! A multimap is enough as anyway there shouldn't be more than one

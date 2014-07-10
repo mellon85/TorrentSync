@@ -9,10 +9,12 @@ App::App( /* configuration */ ) :
     _service(),
     _work(_service),
     _stop_signal(_service, SIGINT, SIGTERM),
-    _table(boost::asio::ip::udp::endpoint(),_service)
+    _table(_service)
 {
     // Initializes the various part of the application
     setupSignalHandlers();
+
+    _table.initializeNetwork(boost::asio::ip::udp::endpoint());
 }
 
 void App::runloop()
@@ -42,8 +44,5 @@ void App::setupSignalHandlers()
     LOG(DEBUG,"App * Signals configured");
 }
 
-void App::setupIOServices()
-{
-}
 
 }; // torrentsync

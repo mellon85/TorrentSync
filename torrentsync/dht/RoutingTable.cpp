@@ -1,11 +1,12 @@
 #include <torrentsync/utils/log/Logger.h>
+#include <torrentsync/utils/Buffer.h>
+#include <torrentsync/utils/Finally.h>
 #include <torrentsync/dht/RoutingTable.h>
 #include <torrentsync/dht/message/Ping.h>
 
-#include <boost/multi_index_container.hpp>
-#include <boost/multi_index/ordered_index.hpp>
-
+#include <iterator>
 #include <vector>
+#include <atomic>
 
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
@@ -29,13 +30,16 @@ static const size_t INITIALIZE_PING_BATCH_SIZE = 5;
 //! connect at the bootstrap addresses
 static const size_t MINIMUM_NODES_UNTIL_BOOTSTRAP = 10;
 
+//! Maximum amount of packets in the send queue.
+//! In case there are more then the package will be dropped.
+static const size_t MAX_SEND_QUEUE = 100;
+
 namespace torrentsync
 {
 namespace dht
 {
 
 RoutingTable::RoutingTable(
-    const udp::endpoint&     endpoint,
     boost::asio::io_service& io_service)
         : _table(NodeData::getRandom()),
           _io_service(io_service),
@@ -43,8 +47,6 @@ RoutingTable::RoutingTable(
           _send_socket(io_service)
 {
     LOG(INFO, "RoutingTable * Peer Node: " << _table.getPeerNode());
-    LOG(INFO, "RoutingTable * Bind Node: " << endpoint);
-    initializeNetwork(endpoint);
 }
 
 RoutingTable::~RoutingTable()
@@ -60,12 +62,12 @@ void RoutingTable::initializeTable( shared_timer timer )
 {
     if (_initial_addresses.empty())
     {
-        LOG(INFO, "RoutingTable: table initialization from previously known addresses terminated");
+        LOG(INFO, "RoutingTable * table initialization from previously known addresses terminated");
 
         const size_t table_size = _table.size();
         if ( table_size < MINIMUM_NODES_UNTIL_BOOTSTRAP )
         {
-            LOG(INFO,"Proceeding with boostrap procedure from known nodes: "
+            LOG(INFO,"RoutingTable * Proceeding with boostrap procedure from known nodes: "
                     << table_size << ','
                     << MINIMUM_NODES_UNTIL_BOOTSTRAP);
 
@@ -81,7 +83,7 @@ void RoutingTable::initializeTable( shared_timer timer )
             boost::posix_time::milliseconds(INITIALIZE_PING_BATCH_INTERVAL)));
     }
 
-    LOG(DEBUG, "RoutingTable: Register initializeTable timer");
+    LOG(DEBUG, "RoutingTable * Register initializeTable timer");
     timer->async_wait(
         [this,timer] (const boost::system::error_code& e) {
                 using namespace boost::asio;
@@ -98,7 +100,7 @@ void RoutingTable::initializeTable( shared_timer timer )
                     const auto endpoint = _initial_addresses.front();
                     _initial_addresses.pop_front();
 
-                    LOG(DEBUG, "RoutingTable: initializing ping with " << endpoint);
+                    LOG(DEBUG, "RoutingTable * initializing ping with " << endpoint);
 
                     //! create and send the message
                     torrentsync::utils::Buffer msg =
@@ -114,10 +116,10 @@ void RoutingTable::initializeTable( shared_timer timer )
                     // enough fresh nodes we don't need additional old nodes and we
                     // can dump them.
 
-                    LOG(ERROR, "RoutingTable::initializeTable lambda not implemented yet!");
+                    LOG(ERROR, "RoutingTable * initializeTable lambda not implemented yet!");
                 }
 
-                LOG(DEBUG, "RoutingTable: " << _initial_addresses.size() <<
+                LOG(DEBUG, "RoutingTable * " << _initial_addresses.size() <<
                                 " initializing addresses remaining");
 
                 if ( ! _initial_addresses.empty() )
@@ -133,9 +135,27 @@ void RoutingTable::tableMaintenance()
 void RoutingTable::initializeNetwork(
     const udp::endpoint& endpoint )
 {
+    if (_send_socket.is_open() || _recv_socket.is_open())
+        throw std::runtime_error("The Routing table network has already been initialized");
+    LOG(INFO, "RoutingTable * Bind Node: " << endpoint);
     _send_socket.open(endpoint.protocol());
     _recv_socket.open(endpoint.protocol());
     _recv_socket.bind(endpoint);
+    scheduleNextReceive();
+}
+
+void RoutingTable::scheduleNextReceive()
+{
+    torrentsync::utils::Buffer buff(MESSAGE_BUFFER_SIZE);
+    boost::shared_ptr<boost::asio::ip::udp::endpoint> sender(
+        new boost::asio::ip::udp::endpoint());
+
+    _recv_socket.async_receive_from(
+            boost::asio::mutable_buffers_1(buff.begin(),buff.size()),
+            *sender,
+            [=] ( const boost::system::error_code& error,
+                  std::size_t bytes_transferred) -> void 
+                { recvMessage(error,buff,bytes_transferred,*sender); });
 }
 
 void RoutingTable::registerCallback(
@@ -149,7 +169,6 @@ void RoutingTable::registerCallback(
         std::make_pair(
             source,
             Callback(func,type,messageType,source,transactionID)));
-    throw std::runtime_error("Not Implemented Yet");
 }
 
 boost::optional<Callback> RoutingTable::getCallback(
@@ -175,22 +194,54 @@ void RoutingTable::sendMessage(
     const torrentsync::utils::Buffer& buff,
     const udp::endpoint& addr)
 {
-    WriteLock lock(_send_mutex);
-    //! todo I have to  copy the buffer somewhere and then let it be
-    //! destroyed with the write handler
+    static std::atomic<size_t> send_queue_counter(0);
 
+    // the write handler will ensure that the buffer exists until the
+    // end of the send.
     buff.freeze();
-    _send_socket.send_to(
-        boost::asio::buffer(buff.get(),buff.size()),addr);
+    WriteLock lock(_send_mutex);
+
+    const size_t count = send_queue_counter.fetch_add(1);
+    if (count != MAX_SEND_QUEUE)
+    {
+        _recv_socket.async_send_to(
+            boost::asio::buffer(buff.get(),buff.size()),
+            addr,
+            [=] (
+                  const boost::system::error_code& error,
+                  std::size_t bytes_transferred) -> void 
+                { send_queue_counter--;
+                  LOG(DEBUG,"RoutingTable* Send to " << addr << " " <<
+                    bytes_transferred << "/" << buff.size() << " e:" <<
+                    error.message() << " buffer:"<<buff); });
+    } else {
+        send_queue_counter--;
+    }
 }
 
-void RoutingTable::recvMessage()
+void RoutingTable::recvMessage(
+    const boost::system::error_code& error,
+    torrentsync::utils::Buffer buffer,
+    std::size_t bytes_transferred,
+    const boost::asio::ip::udp::endpoint& sender)
 {
+    torrentsync::utils::Finally([&](){scheduleNextReceive();});
+    buffer.freeze();
     WriteLock lock(_recv_mutex);
 
-    //! _recv_socket.async_receive_from()
-    //! TODO must also be non blocking
     throw std::runtime_error("Not Implemented Yet");
+    /*
+    if (!error)
+    {
+        LOG(ERROR,"Error: " << error.message() << ". " << error);
+        return;
+    }
+
+    if (sender.port() == bytes_transferred)
+    {
+        buffer.freeze();
+    }
+    */
 }
 
 boost::shared_ptr<boost::asio::ip::tcp::socket> RoutingTable::lookForNode()

@@ -32,9 +32,6 @@ private:
     //! Setup up signal handlers
     void setupSignalHandlers();
 
-    //! Setup up signal handlers
-    void setupIOServices();
-
     //! The DHT routing table
     torrentsync::dht::RoutingTable _table;
 };
