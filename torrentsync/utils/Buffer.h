@@ -240,3 +240,12 @@ std::ostream& operator<<( std::ostream& stream, const BufferImpl<T>& buff )
 
 }; // utils
 }; // torrentsync
+
+struct pretty_print
+{
+    const torrentsync::utils::Buffer& _buff;
+    pretty_print(const torrentsync::utils::Buffer& buff) : _buff(buff) {}
+};
+
+std::ostream& operator<<( std::ostream& stream, const pretty_print& buff );
+

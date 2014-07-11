@@ -108,8 +108,8 @@ void RoutingTable::initializeTable( shared_timer timer )
                             torrentsync::utils::Buffer("aab"),
                             _table.getPeerNode());
 
-                    //! send the message
-                    //! sendMessage(msg,endpoint);
+                    // send the message
+                    sendMessage(msg,endpoint);
 
                     //! TODO send find_node to get our node
                     // give the 8 nodes priority over others. once we start having
@@ -142,6 +142,7 @@ void RoutingTable::initializeNetwork(
     _recv_socket.open(endpoint.protocol());
     _recv_socket.bind(endpoint);
     scheduleNextReceive();
+    initializeTable();
 }
 
 void RoutingTable::scheduleNextReceive()
@@ -211,10 +212,11 @@ void RoutingTable::sendMessage(
                   const boost::system::error_code& error,
                   std::size_t bytes_transferred) -> void 
                 { send_queue_counter--;
-                  LOG(DEBUG,"RoutingTable* Send to " << addr << " " <<
+                  LOG(DEBUG,"RoutingTable * Sent to " << addr << " " <<
                     bytes_transferred << "/" << buff.size() << " e:" <<
-                    error.message() << " buffer:"<<buff); });
+                    error.message() << " buffer:" << pretty_print(buff)); });
     } else {
+        LOG(DEBUG,"RoutingTable * dropped to " << addr << " " << " buffer:"<<buff);
         send_queue_counter--;
     }
 }
@@ -226,20 +228,17 @@ void RoutingTable::recvMessage(
     const boost::asio::ip::udp::endpoint& sender)
 {
     torrentsync::utils::Finally([&](){scheduleNextReceive();});
+    buffer[bytes_transferred] = 0;
     buffer.freeze();
     WriteLock lock(_recv_mutex);
 
+    LOG(DEBUG,"RoutingTable * from "<< sender << " received " << bytes_transferred <<  " " << pretty_print(buffer) << " e:"<<error.message());
     throw std::runtime_error("Not Implemented Yet");
     /*
     if (!error)
     {
         LOG(ERROR,"Error: " << error.message() << ". " << error);
         return;
-    }
-
-    if (sender.port() == bytes_transferred)
-    {
-        buffer.freeze();
     }
     */
 }

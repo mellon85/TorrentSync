@@ -38,7 +38,7 @@ public:
     //! Destructor
     virtual ~BEncodeDecoder() {}
 
-    //! Parse the message from the istream
+    //! Parse the message from a istream
     //! @param stream stream parser
     void parseMessage( std::istream &stream );
 

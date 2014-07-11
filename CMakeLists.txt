@@ -46,6 +46,7 @@ set(SOURCES
     torrentsync/dht/message/BEncodeDecoder.cpp
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Ping.cpp
+    torrentsync/utils/Buffer.cpp
     torrentsync/utils/RandomGenerator.cpp
     torrentsync/utils/log/Log.cpp
     torrentsync/utils/log/LogStream.cpp
