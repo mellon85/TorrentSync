@@ -20,6 +20,10 @@ MOCK_BASE_CLASS(MockRoutingTable, torrentsync::dht::RoutingTable)
 public:
 
     MockRoutingTable() : RoutingTable(_service) {}
+
+    MOCK_METHOD_EXT(sendMessage, 2, void (
+        const torrentsync::utils::Buffer&,
+        const udp::endpoint& addr), sendMessage);
 };
 
 
@@ -32,10 +36,24 @@ BOOST_AUTO_TEST_CASE(initializing_addresses)
     _initial_addresses.push_back(boost::asio::ip::udp::endpoint());
     _initial_addresses.push_back(boost::asio::ip::udp::endpoint());
 
+    MOCK_EXPECT(sendMessage).exactly(3);
     BOOST_REQUIRE_EQUAL( 3, _initial_addresses.size() );
     initializeTable();
-    _service.run();
+    _service.run_one();
     BOOST_REQUIRE_EQUAL( 0, _initial_addresses.size() );
+}
+
+BOOST_AUTO_TEST_CASE(initializing_addresses2)
+{
+    for ( size_t i = 0; i < INITIALIZE_PING_BATCH_SIZE; ++i)
+        _initial_addresses.push_back(boost::asio::ip::udp::endpoint());
+    _initial_addresses.push_back(boost::asio::ip::udp::endpoint());
+
+    MOCK_EXPECT(sendMessage).exactly(INITIALIZE_PING_BATCH_SIZE);
+    BOOST_REQUIRE_EQUAL( INITIALIZE_PING_BATCH_SIZE+1, _initial_addresses.size() );
+    initializeTable();
+    _service.run_one();
+    BOOST_REQUIRE_EQUAL( 1, _initial_addresses.size() );
 }
 
 BOOST_AUTO_TEST_SUITE_END();

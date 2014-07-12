@@ -65,7 +65,7 @@ protected:
     BucketContainer::const_iterator findBucket(
         const NodeData& address ) const; 
 
-    //! return sthe counts of the buckets
+    //! returns the counts of the buckets
     size_t getBucketsCount() const { return buckets.size(); }
 
 private:

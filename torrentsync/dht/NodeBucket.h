@@ -24,8 +24,8 @@ public:
     ~NodeBucket();
 
     typedef boost::array<boost::shared_ptr<Node>, MaxSizeT > NodeList;
-    typedef typename boost::array<boost::shared_ptr<Node>, MaxSizeT >::const_iterator const_iterator;
-    typedef typename boost::array<boost::shared_ptr<Node>, MaxSizeT >::iterator iterator;
+    typedef typename NodeList::const_iterator const_iterator;
+    typedef typename NodeList::iterator iterator;
 
     bool add(
         const boost::shared_ptr<Node> addr);

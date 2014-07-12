@@ -89,20 +89,12 @@ NodeTree::findBucket( const NodeData& addr ) const
 {
     const BucketContainer::key_type key(new Bucket(addr,addr));
 
-    
     BucketContainer::const_iterator it = buckets.begin();
+    // TODO should not be linear
     while ( it != buckets.end() && ! (*it)->inBounds(addr))
     {
         ++it;
     }
-
-    /*
-    BucketContainer::const_iterator it = buckets.lower_bound(key);
-
-    if (it == buckets.end() )
-        it = buckets.begin();
-        */
-
     assert( it != buckets.end() );
     assert( it->get() );
     return it;

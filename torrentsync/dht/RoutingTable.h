@@ -15,6 +15,14 @@
 #include <map>
 #include <list>
 #include <utility>
+#include <atomic>
+
+//! Number of nodes that return my address when looking for my node
+//! to be sure that I can't get any closer.
+static const size_t DHT_CLOSE_ENOUGH = 10;
+
+//! 5 addresses per batch while initialing the DHT, should be configurable.
+static const size_t INITIALIZE_PING_BATCH_SIZE = 5;
 
 namespace torrentsync
 {
@@ -42,7 +50,6 @@ public:
     //!       an address.
     boost::shared_ptr<boost::asio::ip::tcp::socket> lookForNode();
 
-
     //! Initializes network sockets binding to the specific endpoint.
     //! May throw exceptions for error
     //! @param endpoint to bind to
@@ -57,6 +64,11 @@ protected:
     //! from previous runs. It will try sending ping requests to these nodes.
     void initializeTable( shared_timer timer = shared_timer());
     
+    //! Use a few known addresses to start a connection with the DHT network.
+    //! This function must not be called until initialization of the
+    //! table has not finished.
+    void bootstrap();
+
     //! Performs a table cleanup, usually called by a timer from boost::asio
     //! - removes bad addresses,
     //! - starts bucket refresh,
@@ -70,11 +82,11 @@ protected:
         const torrentsync::utils::Buffer&,
         const udp::endpoint& addr);
 
-    virtual void recvMessage(
-            const boost::system::error_code& error,
-            torrentsync::utils::Buffer buffer,
-            std::size_t bytes_transferred,
-            const boost::asio::ip::udp::endpoint& sender);
+    void recvMessage(
+        const boost::system::error_code& error,
+        torrentsync::utils::Buffer buffer,
+        std::size_t bytes_transferred,
+        const boost::asio::ip::udp::endpoint& sender);
 
     //! list of address to populate the table with
     std::list<boost::asio::ip::udp::endpoint> _initial_addresses;
@@ -146,6 +158,9 @@ private:
     std::multimap<
         torrentsync::dht::NodeData,
         torrentsync::dht::Callback> _callbacks;
+
+    //! Number of close nodes found.
+    std::atomic<size_t> _close_nodes_count;
 };
 
 template <class Archive>

@@ -23,13 +23,6 @@ static const std::list< // domain/ip address, port, needs to be resolved
 //! 3 batches per second while initializing the DHT, should be configurable.
 static const size_t INITIALIZE_PING_BATCH_INTERVAL = static_cast<size_t>(1000/3);
 
-//! 5 addresses per batch while initialing the DHT, should be configurable.
-static const size_t INITIALIZE_PING_BATCH_SIZE = 5;
-
-//! The minimum number of nodes in the table under which we'll try to
-//! connect at the bootstrap addresses
-static const size_t MINIMUM_NODES_UNTIL_BOOTSTRAP = 10;
-
 //! Maximum amount of packets in the send queue.
 //! In case there are more then the package will be dropped.
 static const size_t MAX_SEND_QUEUE = 100;
@@ -44,7 +37,8 @@ RoutingTable::RoutingTable(
         : _table(NodeData::getRandom()),
           _io_service(io_service),
           _recv_socket(io_service),
-          _send_socket(io_service)
+          _send_socket(io_service),
+          _close_nodes_count(0)
 {
     LOG(INFO, "RoutingTable * Peer Node: " << _table.getPeerNode());
 }
@@ -60,28 +54,9 @@ udp::endpoint RoutingTable::getEndpoint() const
 
 void RoutingTable::initializeTable( shared_timer timer )
 {
-    if (_initial_addresses.empty())
-    {
-        LOG(INFO, "RoutingTable * table initialization from previously known addresses terminated");
-
-        const size_t table_size = _table.size();
-        if ( table_size < MINIMUM_NODES_UNTIL_BOOTSTRAP )
-        {
-            LOG(INFO,"RoutingTable * Proceeding with boostrap procedure from known nodes: "
-                    << table_size << ','
-                    << MINIMUM_NODES_UNTIL_BOOTSTRAP);
-
-            //! TODO proceed with bootstrap
-            throw std::runtime_error("Not Implemented Yet");
-        }
-        return;
-    }
-
     if (!timer)
-    {
         timer = shared_timer(new boost::asio::deadline_timer(_io_service,
             boost::posix_time::milliseconds(INITIALIZE_PING_BATCH_INTERVAL)));
-    }
 
     LOG(DEBUG, "RoutingTable * Register initializeTable timer");
     timer->async_wait(
@@ -89,20 +64,24 @@ void RoutingTable::initializeTable( shared_timer timer )
                 using namespace boost::asio;
 
                 if ( e.value() != 0 )
+                {
                     LOG(ERROR, "Error in RoutingTable initializeTable timer: " << e.message());
+                    initializeTable(timer);
+                }
 
-                assert(!_initial_addresses.empty());
+                if ( _initial_addresses.empty() )
+                    bootstrap();
 
                 for( size_t i = 0; 
                     i < INITIALIZE_PING_BATCH_SIZE && !_initial_addresses.empty(); ++i )
                 {   
-                    // copy local and delete head
+                    // copy to local and delete head
                     const auto endpoint = _initial_addresses.front();
                     _initial_addresses.pop_front();
 
                     LOG(DEBUG, "RoutingTable * initializing ping with " << endpoint);
 
-                    //! create and send the message
+                    // create and send the message
                     torrentsync::utils::Buffer msg =
                         torrentsync::dht::message::Ping::getMessage(
                             torrentsync::utils::Buffer("aab"),
@@ -111,10 +90,10 @@ void RoutingTable::initializeTable( shared_timer timer )
                     // send the message
                     sendMessage(msg,endpoint);
 
-                    //! TODO send find_node to get our node
+                    // TODO send find_node to get our node
                     // give the 8 nodes priority over others. once we start having
                     // enough fresh nodes we don't need additional old nodes and we
-                    // can dump them.
+                    // can skip them.
 
                     LOG(ERROR, "RoutingTable * initializeTable lambda not implemented yet!");
                 }
@@ -122,9 +101,25 @@ void RoutingTable::initializeTable( shared_timer timer )
                 LOG(DEBUG, "RoutingTable * " << _initial_addresses.size() <<
                                 " initializing addresses remaining");
 
-                if ( ! _initial_addresses.empty() )
+                if ( _close_nodes_count < DHT_CLOSE_ENOUGH )
                     initializeTable(timer);
             });
+}
+
+void RoutingTable::bootstrap()
+{
+    if (!_initial_addresses.empty())
+    {
+        LOG(INFO,"RoutingTable * bootstrap Can't bootstrap while I still " <<
+                "have initial addresses");
+        return;
+    }
+
+    LOG(INFO,"RoutingTable * Proceeding with boostrap procedure from " <<
+            "known nodes: " << _table.size() << "-" << _close_nodes_count);
+
+    //! TODO proceed with bootstrap
+    throw std::runtime_error("bootstrap Not Implemented Yet");
 }
 
 void RoutingTable::tableMaintenance()
