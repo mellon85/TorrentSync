@@ -95,14 +95,12 @@ BOOST_AUTO_TEST_CASE(addNode_oneSplit_toLower)
 
 BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999)
 {
-    int count;
     for ( int a = 0; a < 9; ++a )
     {
         for ( int b = 0; b < 9; ++b )
         {
             for ( int c = 0; c < 9; ++c )
             {
-                ++count;
                 std::stringstream num;
                 num << a << b << c;
                 addNode(NodeSPtr(new Node(generateRandomNode(num.str()))));
@@ -113,14 +111,12 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999)
 
 BOOST_AUTO_TEST_CASE(addNode_inARow_999_to_000)
 {
-    int count = 0;
     for ( int a = 9; a >= 0; --a )
     {
         for ( int b = 9; b >= 0; --b )
         {
             for ( int c = 9; c >= 0; --c )
             {
-                ++count;
                 std::stringstream num;
                 num << a << b << c;
                 addNode(NodeSPtr(new Node(generateRandomNode(num.str()))));
@@ -131,14 +127,12 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_999_to_000)
 
 BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_cba)
 {
-    int count;
     for ( int a = 0; a < 9; ++a )
     {
         for ( int b = 0; b < 9; ++b )
         {
             for ( int c = 0; c < 9; ++c )
             {
-                ++count;
                 std::stringstream num;
                 num << c << b << a;
                 addNode(NodeSPtr(new Node(generateRandomNode(num.str()))));
@@ -149,14 +143,12 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_cba)
 
 BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_bca)
 {
-    int count;
     for ( int a = 0; a < 9; ++a )
     {
         for ( int b = 0; b < 9; ++b )
         {
             for ( int c = 0; c < 9; ++c )
             {
-                ++count;
                 std::stringstream num;
                 num << b << c << a;
                 addNode(NodeSPtr(new Node(generateRandomNode(num.str()))));
@@ -167,14 +159,12 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_bca)
 
 BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_acb)
 {
-    int count;
     for ( int a = 0; a < 9; ++a )
     {
         for ( int b = 0; b < 9; ++b )
         {
             for ( int c = 0; c < 9; ++c )
             {
-                ++count;
                 std::stringstream num;
                 num << a << c << b;
                 addNode(NodeSPtr(new Node(generateRandomNode(num.str()))));
@@ -185,14 +175,12 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_acb)
 
 BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_cab)
 {
-    int count;
     for ( int a = 0; a < 9; ++a )
     {
         for ( int b = 0; b < 9; ++b )
         {
             for ( int c = 0; c < 9; ++c )
             {
-                ++count;
                 std::stringstream num;
                 num << c << a << b;
                 addNode(NodeSPtr(new Node(generateRandomNode(num.str()))));
@@ -203,14 +191,12 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_cab)
 
 BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_bac)
 {
-    int count;
     for ( int a = 0; a < 9; ++a )
     {
         for ( int b = 0; b < 9; ++b )
         {
             for ( int c = 0; c < 9; ++c )
             {
-                ++count;
                 std::stringstream num;
                 num << b << a << c;
                 addNode(NodeSPtr(new Node(generateRandomNode(num.str()))));

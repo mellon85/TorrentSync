@@ -1,6 +1,8 @@
 #pragma once
 
 #include <boost/shared_ptr.hpp>
+#include <boost/call_traits.hpp>
+
 #include <cstring>
 #include <stdexcept>
 #include <cassert>
@@ -11,36 +13,49 @@ namespace torrentsync
 namespace utils
 {
 
-//! Generic buffer class.
-//! Useful to bring around chunks of binary data.
-//! It will always allocate n+1+sizeof(size_t) bytes of data to hold a
-//! \0 as a delimiter to ! simplify it's usage as a string container and
-//! the first 8 bytes ! are the buffer length. It has been encoded in the
-//! buffer allocated ! memory to simplify the freeze functionality.
-//! Can contain only POD data. I didn't develop it tobe safe if exceptions
-//! are thrown in the value_type type.
+/*! Generic buffer class.
+ *  Useful to bring around chunks of binary data.  It will always
+ *  allocate n+1+sizeof(size_t) bytes of data to hold a c-string
+ *  terminator ('\0') as a delimiter to ! simplify it's usage as a
+ *  string container and the first 8 bytes ! are the buffer length. It
+ *  has been encoded in the buffer allocated ! memory to simplify the
+ *  freeze functionality.  Can contain only POD data. I didn't develop
+ *  it tobe safe if exceptions are thrown in the value_type type.
+ */
 template <class value_type_t>
 class BufferImpl
 {
 public:
     //! the type used to keep the data
-    typedef value_type_t value_type;
+    typedef typename boost::call_traits<value_type_t>::value_type value_type;
+
+    typedef typename boost::call_traits<value_type_t>::reference reference;
+
+    typedef typename boost::call_traits<value_type_t>::const_reference const_reference;
+
+    typedef typename boost::call_traits<value_type_t>::param_type param_type;
 
     //! const iterator type
-    typedef value_type_t const * const_iterator;
+    typedef value_type const * const_iterator;
 
     //! iterator type
-    typedef value_type_t * iterator;
+    typedef value_type * iterator;
 
 private:
+    /*!
+     * Contains the meta information of the buffer. The allocated size
+     * and if it's immutable or not.
+     */
     typedef struct {
         size_t size;
         bool frozen;
     } meta_t;
 
-    //! type to embedded the size along with the data. Nice way to avoid
-    //! having a second shared_ptr just to hold the size in case the copy
-    //! on write is triggered.
+    /*! 
+     * Type to embedded the size along with the data. Nice way to avoid
+     * having a second shared_ptr just to hold the size in case the copy
+     * on write is triggered.
+     */
     typedef union {
         uint8_t _raw_bytes[];
         struct {
@@ -60,12 +75,13 @@ public:
 
     //! Constructor to initialize the data from an address and the length of
     //! the data itself
-    BufferImpl( const char* const str, const size_t size ) {
+    BufferImpl( const param_type* data, const size_t size ) {
         resize(size,false);
-        std::copy(str,str+size,begin());
+        std::copy(data,data+size,begin());
     }
 
-    //! Constructor to initialize the buffer from a c string
+    //! Constructor to initialize the buffer copying a c string until a
+    //! 0 is found
     BufferImpl( const char* const str ) {
         const int size = strlen(str);
         resize(size,false);
@@ -159,10 +175,11 @@ public:
 
     const value_type& operator[]( size_t index ) const;
 
-    //! The buffer is now Copy On Write.
-    //! Next write operation will be performed on a different memory
-    //! copy of the data. In this way copies of the buffer will remain
-    //! unchanged
+    /*! The buffer is now Copy On Write.
+     *  Next write operation will be performed on a different memory
+     *  copy of the data. In this way copies of the buffer will remain
+     *  unchanged.
+     */
     void freeze() const noexcept {
         assert(_data.get());
         _data->_sized._meta.frozen = true;
@@ -241,6 +258,9 @@ std::ostream& operator<<( std::ostream& stream, const BufferImpl<T>& buff )
 }; // utils
 }; // torrentsync
 
+//! Pretty printing wrapper for a buffer containing string data.
+//! Will print all the content of the buffer escaping the binary data
+//! until a c-string terminator ('\0') is found.
 struct pretty_print
 {
     const torrentsync::utils::Buffer& _buff;
