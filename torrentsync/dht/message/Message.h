@@ -52,13 +52,16 @@ class Message
 public:
     virtual ~Message() {}
 
-    //! Parse a generic message and returns an instance of it.
-    //! This method must be used to parse messages.
-    //! @param istream the input stream to read from
-    //! @return a shared pointer with the message
-    //! @throw BEncodeDecoderException in case an error is encountered while
-    //! parsing
+    /*! Parse a generic message and returns an instance of it.
+     * This method must be used to parse messages.
+     * @param istream the input stream to read from
+     * @return a shared pointer with the message
+     * @throw BEncodeDecoderException in case an error is encountered while
+     *  parsing
+     */
     static boost::shared_ptr<Message> parseMessage( std::istream& istream );
+    static boost::shared_ptr<Message> parseMessage( const torrentsync::utils::Buffer& buffer );
+    static boost::shared_ptr<Message> parseMessage( const torrentsync::utils::Buffer& buffer, const size_t size );
 
     //! Returns the message type. In this way you can cast to the correct
     //! object.

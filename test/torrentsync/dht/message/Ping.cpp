@@ -31,10 +31,8 @@ BOOST_AUTO_TEST_CASE(generation_1)
 BOOST_AUTO_TEST_CASE(parse)
 {
     torrentsync::utils::Buffer b("d1:ad2:id20:GGGGGGGGHHHHHHHHIIIIe1:q4:ping1:t2:aa1:y1:qe");
-    std::stringstream s;
-    s.write(b.get(),b.size());
 
-    auto m = torrentsync::dht::message::Message::parseMessage(s);
+    auto m = torrentsync::dht::message::Message::parseMessage(b);
     BOOST_REQUIRE(!!m);
     BOOST_REQUIRE_EQUAL(m->getType(), Type::Query);
     BOOST_REQUIRE_EQUAL(m->getMessageType(), Messages::Ping);
@@ -51,10 +49,8 @@ BOOST_AUTO_TEST_CASE(parseBinary)
     torrentsync::utils::Buffer b("d1:ad2:id20:GGGGGGGGHHHHHHHHIIIIe1:q4:ping1:t2:aa1:y1:qe");
     b[15] = '\t';
     b[18] = '\0';
-    std::stringstream s;
-    s.write(b.get(),b.size());
 
-    auto m = torrentsync::dht::message::Message::parseMessage(s);
+    auto m = torrentsync::dht::message::Message::parseMessage(b);
     BOOST_REQUIRE(!!m);
     BOOST_REQUIRE_EQUAL(m->getType(), Type::Query);
     BOOST_REQUIRE_EQUAL(m->getMessageType(), Messages::Ping);
@@ -81,10 +77,7 @@ BOOST_AUTO_TEST_CASE(parseRandom)
         auto ab = addr.write();
         std::copy(ab.cbegin(),ab.cend(),b.begin()+12);
 
-        std::stringstream s;
-        s.write(b.get(),b.size());
-
-        auto m = torrentsync::dht::message::Message::parseMessage(s);
+        auto m = torrentsync::dht::message::Message::parseMessage(b);
         BOOST_REQUIRE(!!m);
         BOOST_REQUIRE_EQUAL(m->getType(), Type::Query);
         BOOST_REQUIRE_EQUAL(m->getMessageType(), Messages::Ping);

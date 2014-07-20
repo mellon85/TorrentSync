@@ -1,6 +1,9 @@
 #include <torrentsync/dht/message/Message.h>
 #include <torrentsync/dht/message/Ping.h>
 
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/array.hpp>
+
 namespace torrentsync
 {
 namespace dht
@@ -32,6 +35,24 @@ namespace Messages
     const std::string Ping     = "ping";
     const std::string FindNode = "find_node";
 };
+
+namespace bio = boost::iostreams;
+
+typedef bio::stream<bio::array_source> array_stream;
+
+boost::shared_ptr<Message> Message::parseMessage( const torrentsync::utils::Buffer& buffer )
+{
+    bio::array_source source(buffer.cbegin(),buffer.cend());
+    bio::stream<bio::array_source> in(source);
+    return parseMessage(in);
+}
+
+boost::shared_ptr<Message> Message::parseMessage( const torrentsync::utils::Buffer& buffer, const size_t length )
+{
+    bio::array_source source(buffer.cbegin(),length);
+    bio::stream<bio::array_source> in(source);
+    return parseMessage(in);
+}
 
 boost::shared_ptr<Message> Message::parseMessage( std::istream& istream )
 {

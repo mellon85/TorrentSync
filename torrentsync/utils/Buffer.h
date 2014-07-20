@@ -26,7 +26,6 @@ template <class value_type_t>
 class BufferImpl
 {
 public:
-    //! the type used to keep the data
     typedef typename boost::call_traits<value_type_t>::value_type value_type;
 
     typedef typename boost::call_traits<value_type_t>::reference reference;
@@ -67,6 +66,7 @@ private:
     static constexpr size_t adjust_size = sizeof(meta_t);
 
 public:
+
     //! returns the size of the buffer
     size_t size() const noexcept
     {
@@ -219,10 +219,6 @@ private:
         _data.reset(ptr);
         ptr->_sized._meta.frozen = false;
     }
-
-    //! frozen status
-    //! if it's frozen and a change is done a copy will be created
-    mutable bool frozen = false;
 
     //! pointer to the data
     boost::shared_ptr<intrusive_size_t> _data;

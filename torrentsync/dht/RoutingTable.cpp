@@ -114,6 +114,7 @@ void RoutingTable::bootstrap()
                 "have initial addresses");
         return;
     }
+    
 
     LOG(INFO,"RoutingTable * Proceeding with boostrap procedure from " <<
             "known nodes: " << _table.size() << "-" << _close_nodes_count);
@@ -223,19 +224,39 @@ void RoutingTable::recvMessage(
     const boost::asio::ip::udp::endpoint& sender)
 {
     torrentsync::utils::Finally([&](){scheduleNextReceive();});
+
+    namespace msg = torrentsync::dht::message;
+
+    // safely terminate the buffer
     buffer[bytes_transferred] = 0;
     buffer.freeze();
-    WriteLock lock(_recv_mutex);
 
     LOG(DEBUG,"RoutingTable * from "<< sender << " received " << bytes_transferred <<  " " << pretty_print(buffer) << " e:"<<error.message());
-    throw std::runtime_error("Not Implemented Yet");
-    /*
-    if (!error)
+    boost::shared_ptr<msg::Message> message;
+
+    // check for errors
+    if (error)
     {
-        LOG(ERROR,"Error: " << error.message() << ". " << error);
+        LOG(ERROR, "RoutingTable * recvMessage error: " << error << " " << error.message());
         return;
     }
-    */
+
+    // parse the message
+    try
+    {
+         message = msg::Message::parseMessage(buffer,bytes_transferred);
+    }
+    catch ( const msg::BEncodeException& e )
+    {
+        LOG(ERROR, "RoutingTable * message parsing failed: " << pretty_print(buffer) << " e:" << e.what());
+        return;
+    }
+
+    // @TODO execute pre-process pass
+    // @TODO process the message
+    // @TODO execute post-process pass
+
+    throw std::runtime_error("Not Implemented Yet");
 }
 
 boost::shared_ptr<boost::asio::ip::tcp::socket> RoutingTable::lookForNode()

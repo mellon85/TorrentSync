@@ -146,9 +146,6 @@ private:
     //! Outbound socket 
     udp::socket _send_socket;
 
-    //! Inbound mutex 
-    Mutex _recv_mutex;
-
     //! Outbout mutex
     Mutex _send_mutex;
 

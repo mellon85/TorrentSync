@@ -27,19 +27,19 @@ public:
     BEncodeException( const std::string& reason ) : std::runtime_error(reason) {}
 };
 
-//! Decoder for a BEncode message decoder
+//! Decoder for a bencoded message
 class BEncodeDecoder
 {
 public:
-
     //! Constructor
     BEncodeDecoder() {}
 
     //! Destructor
-    virtual ~BEncodeDecoder() {}
+    ~BEncodeDecoder() {}
 
-    //! Parse the message from a istream
-    //! @param stream stream parser
+    /*! Parse the message from a istream
+     *  @param stream stream parser
+     */
     void parseMessage( std::istream &stream );
 
     const DataMap& getData() const noexcept { return data; }
@@ -48,18 +48,25 @@ public:
         torrentsync::utils::Buffer> find( const std::string& key ) const;
 
 private:
+    //! parse a single element from the stream
     std::string readElement( std::istream& stream );
+
+    //! parse a single value from the stream
     torrentsync::utils::Buffer readValue( std::istream& stream );
 
+    //! Stack entry
     typedef std::pair<std::string,bool> structureStackE;
+
+    //! Stack to use while parsing
     std::vector<structureStackE> structureStack;
 
+    //! Container of all the parsed data
     DataMap data;
 
-    enum {
-        DICTIONARY = false,
-        LIST = true
-    };
+    typedef enum {
+        DICTIONARY = 0,
+        LIST
+    } structure_t;
 
 };
 
