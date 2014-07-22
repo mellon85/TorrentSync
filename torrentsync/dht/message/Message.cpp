@@ -1,5 +1,6 @@
 #include <torrentsync/dht/message/Message.h>
 #include <torrentsync/dht/message/Ping.h>
+#include <torrentsync/dht/message/FindNode.h>
 
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -20,14 +21,18 @@ namespace Type
 
 namespace Field
 {
+    const std::string PeerID        = "id";
     const std::string TransactionID = "t";
     const std::string Type          = "y";
     const std::string QueryType     = "q";
     const std::string ResponseType  = "r";
+    const std::string Response      = "r";
     const std::string ErrorType     = "e";
     const std::string Arguments     = "a";
 
-    const std::string PeerID = "id";
+
+    const std::string Target        = "target";
+    const std::string Nodes         = "nodes";
 };
 
 namespace Messages
@@ -68,17 +73,19 @@ boost::shared_ptr<Message> Message::parseMessage( std::istream& istream )
         throw MalformedMessageException("Couldn't find message name");
 
     boost::shared_ptr<Message> message;
-    if (*msgType == Messages::Ping)
+    if( *msgType == Messages::Ping)
     {
         message.reset(new Ping(decoder.getData()));
         return message;
     }
-    else
+    else if ( *msgType == Messages::FindNode )
+    {
+        message.reset(new FindNode(decoder.getData()));
+        return message;
+    } else
     {
         throw MalformedMessageException("Unknown message name");
     }
-
-    return message;
 }
 
 const std::string Message::getMessageType() const
@@ -97,6 +104,27 @@ const std::string Message::getType() const
     if (!type)
         throw MalformedMessageException("Couldn't find message type");
     return type->get();
+}
+
+torrentsync::utils::Buffer Message::getTransactionID() const
+{
+    boost::optional<torrentsync::utils::Buffer> token;
+    token = find( Field::TransactionID, data );
+    if (!token)
+        throw MalformedMessageException("Couldn't find token");
+    return *token;
+}
+
+torrentsync::utils::Buffer Message::getID() const
+{
+    const std::string path =
+        (getType() == Type::Response ? Field::ResponseType : Field::Arguments) 
+            + "/" + Field::PeerID;
+    boost::optional<torrentsync::utils::Buffer> id;
+    id = find(path,data);
+    if (!id)
+        throw MalformedMessageException("Couldn't find peer id");
+    return *id;
 }
 
 boost::optional<torrentsync::utils::Buffer> Message::find(

@@ -44,6 +44,8 @@ set(SOURCES
     torrentsync/dht/Peer.cpp
     torrentsync/dht/RoutingTable.cpp
     torrentsync/dht/message/BEncodeDecoder.cpp
+    torrentsync/dht/message/BEncodeEncoder.cpp
+    torrentsync/dht/message/FindNode.cpp
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Ping.cpp
     torrentsync/utils/Buffer.cpp
@@ -63,6 +65,7 @@ set(SOURCES_UT
     test/torrentsync/dht/message/BEncodeDecoder.cpp
     test/torrentsync/dht/message/BEncodeEncoder.cpp
     test/torrentsync/dht/message/Ping.cpp
+    test/torrentsync/dht/message/FindNode.cpp
     test/torrentsync/utils/Buffer.cpp
     test/torrentsync/utils/log/Log.cpp
 )

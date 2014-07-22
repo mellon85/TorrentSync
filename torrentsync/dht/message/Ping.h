@@ -30,12 +30,6 @@ public:
     static const torrentsync::utils::Buffer getMessage( 
         const torrentsync::utils::Buffer& transactionID,
         const torrentsync::dht::NodeData& source);
-
-    //! @see Message::getID
-    virtual torrentsync::utils::Buffer getID() const;
-
-    //! @see Message::getTransactionID
-    virtual torrentsync::utils::Buffer getTransactionID() const;
 };
 
 } /* message */

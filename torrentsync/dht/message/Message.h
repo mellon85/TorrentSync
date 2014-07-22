@@ -22,14 +22,20 @@ namespace Type
 
 namespace Field
 {
+    // general
+    extern const std::string PeerID;
     extern const std::string TransactionID;
     extern const std::string Type;
     extern const std::string QueryType;
     extern const std::string ResponseType;
+    extern const std::string Response;
     extern const std::string ErrorType;
     extern const std::string Arguments;
 
-    extern const std::string PeerID;
+    // find_node
+    extern const std::string Target;
+    extern const std::string Nodes;
+
 };
 
 namespace Messages
@@ -66,24 +72,25 @@ public:
     //! Returns the message type. In this way you can cast to the correct
     //! object.
     //! @return a member of the Messages namespace
-    //! @throw MalformedMessageException in case the field is not available (it's mandatory)
-    virtual const std::string getMessageType() const;
+    //! @throw MalformedMessageException in case the field is not available.
+    const std::string getMessageType() const;
 
     //! returns the type of the message
     //! @return a member of Type namespace
-    //! @throw MalformedMessageException in case the field is not available (it's mandatory)
-    virtual const std::string getType() const;
+    //! @throw MalformedMessageException in case the field is not available.
+    const std::string getType() const;
+ 
+    //! Returns a buffer containing the transaction ID of the message.
+    //! Must be reimplemented in every subclass
+    //! @return transaction id
+    torrentsync::utils::Buffer getTransactionID() const;
 
     //! returns the node address of the remote node. Must be implemented
     //! by every subclass
     //! @return a NodeData instance
-    //! @throw MalformedMessageException in case the data is not available (it's mandatory)
-    virtual torrentsync::utils::Buffer getID() const =0;
-
-    //! Returns a buffer containing the transaction ID of the message.
-    //! Must be reimplemented in every subclass
-    //! @return transaction id
-    virtual torrentsync::utils::Buffer getTransactionID() const =0;
+    //! @throw MalformedMessageException in case the data is not available or
+    //! the message is an error (it's mandatory otherwise).
+    torrentsync::utils::Buffer getID() const;
 
 protected:
     //! inline constructor

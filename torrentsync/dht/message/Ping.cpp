@@ -28,25 +28,6 @@ Ping::getMessage(
     return enc.value();
 }
 
-torrentsync::utils::Buffer Ping::getID() const
-{
-    static const std::string path = Field::Arguments + "/" + Field::PeerID;
-    boost::optional<torrentsync::utils::Buffer> id;
-    id = find(path,data);
-    if (!id)
-        throw MalformedMessageException("Couldn't find peer id");
-    return *id;
-}
-
-torrentsync::utils::Buffer Ping::getTransactionID() const
-{
-    boost::optional<torrentsync::utils::Buffer> token;
-    token = find( Field::TransactionID, data );
-    if (!token)
-        throw MalformedMessageException("Couldn't find token");
-    return *token;
-}
-
 } /* message */
 } /* dht */
 } /* torrentsync */
