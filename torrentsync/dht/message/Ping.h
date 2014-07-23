@@ -27,9 +27,16 @@ public:
     //! creates a Ping message
     //! @param transactionID the ID
     //! @param source source address (should be our own address)
-    static const torrentsync::utils::Buffer getMessage( 
+    static const torrentsync::utils::Buffer getQuery( 
         const torrentsync::utils::Buffer& transactionID,
-        const torrentsync::dht::NodeData& source);
+        const torrentsync::dht::NodeData& address);
+
+    //! creates a Pong message
+    //! @param transactionID the ID
+    //! @param source address (should be our own address)
+    static const torrentsync::utils::Buffer getReply( 
+        const torrentsync::utils::Buffer& transactionID,
+        const torrentsync::dht::NodeData& address);
 };
 
 } /* message */

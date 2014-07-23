@@ -73,6 +73,18 @@ public:
         return _data.get() ? _data->_sized._meta.size : 0;
     }
 
+    //! In case the code is trying to use a const buffer as non const 
+    //! the constructor will copy the data.
+    BufferImpl( const BufferImpl &t )
+    {
+        resize(t.size(),false);
+        std::copy(t.cbegin(),t.cend(),begin());
+    }
+
+    //! In case the code is trying to use a const buffer as non const 
+    //! the constructor will copy the data.
+    BufferImpl( BufferImpl &t ) { _data = t._data; }
+
     //! Constructor to initialize the data from an address and the length of
     //! the data itself
     BufferImpl( const param_type* data, const size_t size ) {
@@ -123,7 +135,7 @@ public:
                 ptr->_sized.data);
 
         ptr->_sized._meta.size = new_size; // set the size
-        ptr->_sized._meta.frozen = false;  // set the size
+        ptr->_sized._meta.frozen = false;  // a new buffer is not frozen
         ptr->_raw_bytes[byte_size-1] = 0;  // set the end byte
 
         _data.reset(ptr);

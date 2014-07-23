@@ -26,6 +26,9 @@ public:
     // distance operator
     inline Distance operator^( const Node& addr ) const;
 
+    const torrentsync::utils::Buffer getTransactionID() const;
+    torrentsync::utils::Buffer& accessTransactionID();
+
     //! marks the address as good/fresh
     inline void setGood();
 
@@ -45,38 +48,39 @@ protected:
     Node() {};
 
     //! the last time the node was set as good
-    time_t last_time_good;
+    time_t _last_time_good;
 
     //! Number of the last unanswered queries
-    size_t last_unanswered_queries;
+    size_t _last_unanswered_queries;
 
-    //! @TODO callbacks go here with boost slot
+    //! latest transaction id used
+    torrentsync::utils::Buffer _transacton_id;
 };
 
 typedef boost::shared_ptr<Node> NodeSPtr;
 
 void Node::setGood() 
 {
-    last_time_good = time(0);
-    last_unanswered_queries = 0;
+    _last_time_good = time(0);
+    _last_unanswered_queries = 0;
 }
 
 bool Node::isGood() const
 {
-    return last_time_good > time(0)-good_interval;
+    return _last_time_good > time(0)-good_interval;
 }
 
 bool Node::isQuestionable() const {
-    return !isGood() && last_unanswered_queries <= allowed_unanswered_queries;
+    return !isGood() && _last_unanswered_queries <= allowed_unanswered_queries;
 }
 
 bool Node::isBad() const {
-    return !isGood() && last_unanswered_queries >  allowed_unanswered_queries;
+    return !isGood() && _last_unanswered_queries >  allowed_unanswered_queries;
 }
 
 const time_t& Node::getLastTimeGood() const
 {
-    return last_time_good;
+    return _last_time_good;
 }
 
 Distance Node::operator^( const Node& addr ) const

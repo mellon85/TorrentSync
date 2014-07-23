@@ -25,7 +25,7 @@ const torrentsync::utils::Buffer
     enc.addDictionaryElement(Field::PeerID,source.write());
     enc.addDictionaryElement(Field::Target,target.write());
     enc.endDictionary();
-    enc.addDictionaryElement(Field::QueryType,Messages::FindNode); 
+    enc.addDictionaryElement(Field::Query,Messages::FindNode); 
     enc.addDictionaryElement(Field::TransactionID,transactionID);
     enc.addDictionaryElement(Field::Type,Type::Query); 
     enc.endDictionary();
@@ -44,7 +44,7 @@ Buffer FindNode::getTarget()
 Buffer FindNode::getNodes()
 {
     boost::optional<torrentsync::utils::Buffer> token;
-    token = find( Field::ResponseType + "/" + Field::Nodes, data );
+    token = find( Field::Reply + "/" + Field::Nodes, data );
     if (!token)
         throw MalformedMessageException("Couldn't find token");
     return *token;

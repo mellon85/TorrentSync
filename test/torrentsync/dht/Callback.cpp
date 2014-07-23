@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(match_type_fail)
             {
             v += t.getType().empty() ? 0 : 1;
             return true;},
-        torrentsync::dht::message::Type::Response,
+        torrentsync::dht::message::Type::Reply,
         torrentsync::dht::message::Messages::Ping,
         buff);
 

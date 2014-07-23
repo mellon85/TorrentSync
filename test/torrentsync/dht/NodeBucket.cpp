@@ -168,8 +168,8 @@ class FakeNode : public torrentsync::dht::Node
 public:
     FakeNode( const std::string& str ) : Node(str) {}
     
-    time_t& getTime() { return Node::last_time_good; }
-    size_t& getLastUnansweredQueries() { return Node::last_unanswered_queries; }
+    time_t& getTime() { return Node::_last_time_good; }
+    size_t& getLastUnansweredQueries() { return Node::_last_unanswered_queries; }
 };
 
 BOOST_AUTO_TEST_CASE(removeBad)

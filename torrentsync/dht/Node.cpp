@@ -23,6 +23,15 @@ Node::Node( const Node& addr )
     setGood();
 }
 
+const torrentsync::utils::Buffer Node::getTransactionID() const
+{
+    return _transacton_id;
+}
+
+torrentsync::utils::Buffer& Node::accessTransactionID()
+{
+    return _transacton_id;
+}
 }; // dht
 }; // torrentsync
 

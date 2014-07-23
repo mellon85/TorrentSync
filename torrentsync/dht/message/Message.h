@@ -16,7 +16,7 @@ namespace message
 namespace Type
 {
     extern const std::string Query;
-    extern const std::string Response;
+    extern const std::string Reply;
     extern const std::string Error;
 };
 
@@ -26,9 +26,8 @@ namespace Field
     extern const std::string PeerID;
     extern const std::string TransactionID;
     extern const std::string Type;
-    extern const std::string QueryType;
-    extern const std::string ResponseType;
-    extern const std::string Response;
+    extern const std::string Query;
+    extern const std::string Reply;
     extern const std::string ErrorType;
     extern const std::string Arguments;
 

@@ -111,14 +111,14 @@ BOOST_AUTO_TEST_CASE(is_Good_Bad_Questionale)
     BOOST_REQUIRE_EQUAL(isBad(),false);
     BOOST_REQUIRE_EQUAL(isQuestionable(),false);
 
-    last_time_good = last_time_good - good_interval;
-    BOOST_REQUIRE_EQUAL(last_unanswered_queries,0);
+    _last_time_good = _last_time_good - good_interval;
+    BOOST_REQUIRE_EQUAL(_last_unanswered_queries,0);
 
     BOOST_REQUIRE_EQUAL(isGood(),false);
     BOOST_REQUIRE_EQUAL(isQuestionable(),true);
     BOOST_REQUIRE_EQUAL(isBad(),false);
 
-    last_unanswered_queries = allowed_unanswered_queries+1;
+    _last_unanswered_queries = allowed_unanswered_queries+1;
 
     BOOST_REQUIRE_EQUAL(isGood(),false);
     BOOST_REQUIRE_EQUAL(isQuestionable(),false);

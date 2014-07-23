@@ -15,7 +15,7 @@ namespace message
 namespace Type
 {
     const std::string Query     = "q";
-    const std::string Response  = "r";
+    const std::string Reply     = "r";
     const std::string Error     = "e";
 };
 
@@ -24,12 +24,10 @@ namespace Field
     const std::string PeerID        = "id";
     const std::string TransactionID = "t";
     const std::string Type          = "y";
-    const std::string QueryType     = "q";
-    const std::string ResponseType  = "r";
-    const std::string Response      = "r";
+    const std::string Reply         = "r";
+    const std::string Query         = "q";
     const std::string ErrorType     = "e";
     const std::string Arguments     = "a";
-
 
     const std::string Target        = "target";
     const std::string Nodes         = "nodes";
@@ -68,7 +66,7 @@ boost::shared_ptr<Message> Message::parseMessage( std::istream& istream )
     if (!type)
         throw MalformedMessageException("Couldn't find message type");
 
-    auto msgType = find( *type == Type::Query ? Field::QueryType : Field::ResponseType, decoder.getData() );
+    auto msgType = find( *type == Type::Query ? Field::Query : Field::Reply, decoder.getData() );
     if (!msgType)
         throw MalformedMessageException("Couldn't find message name");
 
@@ -91,7 +89,7 @@ boost::shared_ptr<Message> Message::parseMessage( std::istream& istream )
 const std::string Message::getMessageType() const
 {
     std::string type = getType();
-    auto msgType = find( type == Type::Query ? Field::QueryType : Field::ResponseType, data );
+    auto msgType = find( type == Type::Query ? Field::Query : Field::Reply, data );
     if (!msgType)
         throw MalformedMessageException("Couldn't find message name");
     return msgType->get();
@@ -118,7 +116,7 @@ torrentsync::utils::Buffer Message::getTransactionID() const
 torrentsync::utils::Buffer Message::getID() const
 {
     const std::string path =
-        (getType() == Type::Response ? Field::ResponseType : Field::Arguments) 
+        (getType() == Type::Reply ? Field::Reply : Field::Arguments) 
             + "/" + Field::PeerID;
     boost::optional<torrentsync::utils::Buffer> id;
     id = find(path,data);

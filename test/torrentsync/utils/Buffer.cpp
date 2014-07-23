@@ -77,6 +77,22 @@ BOOST_AUTO_TEST_CASE(freeze)
     BOOST_CHECK_PREDICATE( boost::lambda::_1 != boost::lambda::_2, (x.begin())(y.begin()));
 }
 
+BOOST_AUTO_TEST_CASE(diff_constr)
+{
+    Buffer x("abc");
+    const Buffer y(x);
+    BOOST_REQUIRE_EQUAL(y,x);
+    BOOST_REQUIRE(y.cbegin() == x.cbegin()); // same pointers
+}
+
+BOOST_AUTO_TEST_CASE(diff_constr2)
+{
+    const Buffer x("abc");
+    Buffer y(x);
+    BOOST_REQUIRE_EQUAL(y,x);
+    //BOOST_REQUIRE(y.cbegin() != x.cbegin()); // same pointers
+}
+
 BOOST_AUTO_TEST_CASE(constructor_equality)
 {
     std::string content = "abcdefghi";

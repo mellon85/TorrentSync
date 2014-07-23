@@ -3,6 +3,7 @@
 #include <torrentsync/utils/Finally.h>
 #include <torrentsync/dht/RoutingTable.h>
 #include <torrentsync/dht/message/Ping.h>
+#include <torrentsync/dht/message/FindNode.h>
 
 #include <iterator>
 #include <vector>
@@ -83,8 +84,9 @@ void RoutingTable::initializeTable( shared_timer timer )
 
                     // create and send the message
                     torrentsync::utils::Buffer msg =
-                        torrentsync::dht::message::Ping::getMessage(
+                        torrentsync::dht::message::FindNode::getMessage(
                             torrentsync::utils::Buffer("aab"),
+                            _table.getPeerNode(),
                             _table.getPeerNode());
 
                     // send the message
@@ -119,7 +121,8 @@ void RoutingTable::bootstrap()
     LOG(INFO,"RoutingTable * Proceeding with boostrap procedure from " <<
             "known nodes: " << _table.size() << "-" << _close_nodes_count);
 
-    //! TODO proceed with bootstrap
+    //! @TODO proceed with bootstrap
+
     throw std::runtime_error("bootstrap Not Implemented Yet");
 }
 
@@ -199,7 +202,7 @@ void RoutingTable::sendMessage(
     WriteLock lock(_send_mutex);
 
     const size_t count = send_queue_counter.fetch_add(1);
-    if (count != MAX_SEND_QUEUE)
+    if (count < MAX_SEND_QUEUE)
     {
         _recv_socket.async_send_to(
             boost::asio::buffer(buff.get(),buff.size()),
@@ -244,7 +247,9 @@ void RoutingTable::recvMessage(
     // parse the message
     try
     {
-         message = msg::Message::parseMessage(buffer,bytes_transferred);
+        message = msg::Message::parseMessage(buffer,bytes_transferred);
+        LOG(DEBUG, "RoutingTable * message parsed: " << message);
+
     }
     catch ( const msg::BEncodeException& e )
     {
@@ -252,11 +257,59 @@ void RoutingTable::recvMessage(
         return;
     }
 
-    // @TODO execute pre-process pass
-    // @TODO process the message
-    // @TODO execute post-process pass
+    // @TODO pre-process
+    // - check the transaction id correspondence if it's 
 
-    throw std::runtime_error("Not Implemented Yet");
+    // @TODO process
+    const auto msg_type = message->getMessageType();
+    const auto type     = message->getType();
+    if ( type == msg::Type::Query )
+    {
+        if ( msg_type == msg::Messages::Ping )
+        {
+            // @TODO send pong
+        }
+        else if ( msg_type == msg::Messages::FindNode )
+        {
+            // @TODO answer with our node knowledge
+        } 
+        else
+        {
+            LOG(ERROR, "RoutingTable * unknown query type: " << pretty_print(buffer) << " - " << message);
+        }
+
+    }
+    else if ( type == msg::Type::Reply)
+    {
+        if ( msg_type == msg::Messages::Ping )
+        {
+            LOG(DEBUG, "RoutingTable * received ping");
+        }
+        else if ( msg_type == msg::Messages::FindNode )
+        {
+            LOG(DEBUG, "RoutingTable * received find_node");
+            // @TODO answer with our node knowledge
+        } 
+        else
+        {
+            LOG(ERROR, "RoutingTable * unknown query type: " << pretty_print(buffer) << " - " << message);
+        }
+
+    }
+    else if ( type == msg::Type::Error )
+    {
+        // @TODO implement error handling
+    }
+    else 
+    {
+        LOG(ERROR, "RoutingTable * unknown message type: " << pretty_print(buffer) << " - " << message);
+    }
+ 
+    // @TODO post-process
+    // - add the node to the known addresses
+    // - update node statistics
+
+    // - update transaction id if it was a query
 }
 
 boost::shared_ptr<boost::asio::ip::tcp::socket> RoutingTable::lookForNode()

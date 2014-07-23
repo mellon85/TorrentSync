@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(generation_1)
     data.read(b.cbegin(),b.cend());
 
     BOOST_REQUIRE_NO_THROW(
-        ret = Ping::getMessage(transaction,data)); 
+        ret = Ping::getQuery(transaction,data)); 
     BOOST_REQUIRE_EQUAL(
         torrentsync::utils::Buffer("d1:ad2:id20:GGGGGGGGHHHHHHHHIIIIe1:q4:ping1:t2:aa1:y1:qe"),ret);
 }
