@@ -33,6 +33,8 @@ namespace torrentsync
 namespace dht
 {
 
+namespace msg = torrentsync::dht::message;
+
 RoutingTable::RoutingTable(
     boost::asio::io_service& io_service)
         : _table(NodeData::getRandom()),
@@ -41,7 +43,7 @@ RoutingTable::RoutingTable(
           _send_socket(io_service),
           _close_nodes_count(0)
 {
-    LOG(INFO, "RoutingTable * Peer Node: " << _table.getPeerNode());
+    LOG(INFO, "RoutingTable * Table Node: " << _table.getTableNode());
 }
 
 RoutingTable::~RoutingTable()
@@ -86,8 +88,8 @@ void RoutingTable::initializeTable( shared_timer timer )
                     torrentsync::utils::Buffer msg =
                         torrentsync::dht::message::FindNode::getMessage(
                             torrentsync::utils::Buffer("aab"),
-                            _table.getPeerNode(),
-                            _table.getPeerNode());
+                            _table.getTableNode(),
+                            _table.getTableNode());
 
                     // send the message
                     sendMessage(msg,endpoint);
@@ -163,7 +165,7 @@ void RoutingTable::registerCallback(
     const std::string& type,
     const std::string& messageType,
     const torrentsync::dht::NodeData& source, 
-    const boost::optional<torrentsync::utils::Buffer>& transactionID)
+    const torrentsync::utils::Buffer& transactionID)
 {
     _callbacks.insert(
         std::make_pair(
@@ -257,52 +259,72 @@ void RoutingTable::recvMessage(
         return;
     }
 
-    // @TODO pre-process
-    // - check the transaction id correspondence if it's 
-
-    // @TODO process
     const auto msg_type = message->getMessageType();
     const auto type     = message->getType();
-    if ( type == msg::Type::Query )
-    {
-        if ( msg_type == msg::Messages::Ping )
-        {
-            // @TODO send pong
-        }
-        else if ( msg_type == msg::Messages::FindNode )
-        {
-            // @TODO answer with our node knowledge
-        } 
-        else
-        {
-            LOG(ERROR, "RoutingTable * unknown query type: " << pretty_print(buffer) << " - " << message);
-        }
 
-    }
-    else if ( type == msg::Type::Reply)
+    // fetch the node from the tree table
+    boost::optional<NodeSPtr> node = _table.getNode( message->getID() );
+    
+    if (!!node) // we already know the node
     {
-        if ( msg_type == msg::Messages::Ping )
-        {
-            LOG(DEBUG, "RoutingTable * received ping");
-        }
-        else if ( msg_type == msg::Messages::FindNode )
-        {
-            LOG(DEBUG, "RoutingTable * received find_node");
-            // @TODO answer with our node knowledge
-        } 
-        else
-        {
-            LOG(ERROR, "RoutingTable * unknown query type: " << pretty_print(buffer) << " - " << message);
-        }
+        const auto endpoint = (*node)->getEndpoint();
+        // message dropped if the data is still fresh but with a different IP.
+        if (!!endpoint && *endpoint != sender)
+            return;
+    }
+    else
+    {
+        // create new node
+        node = boost::optional<NodeSPtr>(NodeSPtr(
+            new Node(message->getID(),sender)));
+    }
 
-    }
-    else if ( type == msg::Type::Error )
+    // if a callback is registred call it instead of the normal flow
+    auto callback = getCallback(*message);
+    if( !!callback ) 
     {
-        // @TODO implement error handling
+        callback->call(*message,**node);
     }
-    else 
+    else
     {
-        LOG(ERROR, "RoutingTable * unknown message type: " << pretty_print(buffer) << " - " << message);
+        if ( type == msg::Type::Query )
+        {
+            try
+            {
+                if ( msg_type == msg::Messages::Ping )
+                {
+                    handlePingQuery( dynamic_cast<msg::Ping&>(*message), **node);
+                }
+                else if ( msg_type == msg::Messages::FindNode )
+                {
+                    // @TODO answer with our node knowledge
+                } 
+                else
+                {
+                   LOG(ERROR, "RoutingTable * unknown query type: " << pretty_print(buffer) << " - " << message);
+                }
+            }
+            catch ( std::bad_cast& e ) 
+            {
+                LOG(ERROR, " RoutingTable * A message was mis-interpreted! " << message << " Report this bug! ");
+            }
+        }
+        else if ( type == msg::Type::Reply)
+        {
+            // Replies should be all managed by the Callback
+            // Log the message and drop it, it's an unexpected response.
+            // Maybe it's a response that came to late or what not.
+            LOG(INFO, "RoutingTable * received unexpected reply: "<<message<<" "<<sender);
+            return;
+        }
+        else if ( type == msg::Type::Error )
+        {
+            // @TODO implement error handling
+        }
+        else 
+        {
+            LOG(ERROR, "RoutingTable * unknown message type: " << pretty_print(buffer) << " - " << message);
+        }
     }
  
     // @TODO post-process
@@ -311,6 +333,27 @@ void RoutingTable::recvMessage(
 
     // - update transaction id if it was a query
 }
+
+void RoutingTable::handlePingQuery(
+    const torrentsync::dht::message::Ping& ping,
+    const torrentsync::dht::Node&          node)
+{
+    registerCallback([&](
+            const torrentsync::dht::message::Message& message,
+            const torrentsync::dht::Node&             node,
+            const torrentsync::dht::Callback&         trigger) -> void {
+
+            //! @TODO update data from the node
+
+        }, ping.getType(),ping.getMessageType(),ping.getID(),ping.getTransactionID());
+    
+    // send ping reply
+    assert(!!(node.getEndpoint()));
+    sendMessage( msg::Ping::getReply(
+                    ping.getTransactionID(), _table.getTableNode()),
+                 *(node.getEndpoint()) );
+}
+
 
 boost::shared_ptr<boost::asio::ip::tcp::socket> RoutingTable::lookForNode()
 {

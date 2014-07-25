@@ -17,8 +17,8 @@ using namespace boost::assign;
 
 BOOST_AUTO_TEST_CASE(constructor)
 {
-    NodeData lowbound = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData highbound = NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData lowbound  = NodeData(NodeData::parse("0000000000000000000000000000000000000000"));
+    NodeData highbound = NodeData(NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
     NodeBucket<8> bucket(lowbound,highbound);
 
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(constructor)
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         const std::string str = generateRandomNode();
-        boost::shared_ptr<Node> addr(new Node(str));
+        boost::shared_ptr<Node> addr(new Node(Node::parse(str)));
         BOOST_REQUIRE_EQUAL(true,bucket.inBounds(addr));
     }
 
@@ -42,8 +42,8 @@ BOOST_AUTO_TEST_CASE(constructor)
 
 BOOST_AUTO_TEST_CASE(outside)
 {
-    NodeData lowbound  = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData highbound = NodeData::parse("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData lowbound  = NodeData(NodeData::parse("0000000000000000000000000000000000000000"));
+    NodeData highbound = NodeData(NodeData::parse("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
     NodeBucket<8> bucket(lowbound,highbound);
 
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(outside)
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::string str = generateRandomNode("F");
-        boost::shared_ptr<Node> addr(new Node(str));
+        boost::shared_ptr<Node> addr(new Node(Node::parse(str)));
         BOOST_REQUIRE_EQUAL(false,bucket.inBounds(addr));
     }
 
@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE(outside)
 
 BOOST_AUTO_TEST_CASE(inside)
 {
-    NodeData lowbound  = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData highbound = NodeData::parse("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData lowbound  = NodeData(NodeData::parse("0000000000000000000000000000000000000000"));
+    NodeData highbound = NodeData(NodeData::parse("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
     NodeBucket<2> bucket(lowbound,highbound);
     
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(inside)
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::string str = generateRandomNode("000002003400");
-        boost::shared_ptr<Node> addr(new Node(str));
+        boost::shared_ptr<Node> addr(new Node(Node::parse(str)));
         BOOST_REQUIRE_EQUAL(true,bucket.inBounds(addr));
     }
 
@@ -117,10 +117,10 @@ BOOST_AUTO_TEST_CASE(add_remove)
 
         for( int i = 0; i < 10; ++i)
         {
-            boost::shared_ptr<Node> a = boost::shared_ptr<Node>(new Node(generateRandomNode("0")));
+            boost::shared_ptr<Node> a = boost::shared_ptr<Node>(new Node(Node::parse(generateRandomNode("0"))));
             addresses.push_back(a);
             BOOST_REQUIRE_NO_THROW(BOOST_REQUIRE(bucket.add(a)));
-            boost::shared_ptr<Node> f = boost::shared_ptr<Node>(new Node(generateRandomNode("F")));
+            boost::shared_ptr<Node> f = boost::shared_ptr<Node>(new Node(Node::parse(generateRandomNode("F"))));
             BOOST_REQUIRE_THROW(bucket.add(f),std::invalid_argument);
 
             BOOST_FOREACH( const boost::shared_ptr<Node>& va, addresses)
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(add_remove)
             }
             BOOST_REQUIRE_EQUAL(bucket.size(),i+1);
         }
-        boost::shared_ptr<Node> a = boost::shared_ptr<Node>(new Node(generateRandomNode("0")));
+        boost::shared_ptr<Node> a = boost::shared_ptr<Node>(new Node(Node::parse(generateRandomNode("0"))));
         BOOST_REQUIRE_EQUAL(false,bucket.add(a));
         BOOST_REQUIRE_EQUAL(bucket.size(),10);
 
@@ -146,7 +146,6 @@ BOOST_AUTO_TEST_CASE(add_remove)
             boost::shared_ptr<Node> a = addresses[index];
             addresses.erase(addresses.begin()+index);
             BOOST_REQUIRE(a.get() > 0);
-
 
             BOOST_REQUIRE_NO_THROW(
                     BOOST_REQUIRE(bucket.remove(*a)));
@@ -166,7 +165,7 @@ BOOST_AUTO_TEST_CASE(add_remove)
 class FakeNode : public torrentsync::dht::Node
 {
 public:
-    FakeNode( const std::string& str ) : Node(str) {}
+    FakeNode( const std::string& str ) { parseString(str); }
     
     time_t& getTime() { return Node::_last_time_good; }
     size_t& getLastUnansweredQueries() { return Node::_last_unanswered_queries; }
@@ -218,8 +217,8 @@ BOOST_AUTO_TEST_CASE(removeBad)
 
 BOOST_AUTO_TEST_CASE(removeBad_2)
 {
-    NodeData bot = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData top = NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData bot = NodeData(NodeData::parse("0000000000000000000000000000000000000000"));
+    NodeData top = NodeData(NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
 
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
@@ -268,11 +267,11 @@ BOOST_AUTO_TEST_CASE(addIsSorted)
 
     std::vector<Node> addresses;
     addresses += 
-        Node("0000000000000000000000000000000000000001"),
-        Node("0000000000000000000000000000000000000002"),
-        Node("00000000000000000000000000F0000000000000"),
-        Node("00000000000000000000F0000000000000000000"),
-        Node("0000000000000000F00000000000000000000000");
+        Node::parse("0000000000000000000000000000000000000001"),
+        Node::parse("0000000000000000000000000000000000000002"),
+        Node::parse("00000000000000000000000000F0000000000000"),
+        Node::parse("00000000000000000000F0000000000000000000"),
+        Node::parse("0000000000000000F00000000000000000000000");
 
     std::vector<Node> sorted_addresses = addresses;
 
@@ -303,7 +302,7 @@ BOOST_AUTO_TEST_CASE(addIsSortedRandom)
         std::vector<Node> addresses;
         for( int i = 0; i < 10; ++i)
         {
-            addresses.push_back(Node(generateRandomNode()));
+            addresses.push_back(Node::parse(generateRandomNode()));
         }
         std::vector<Node> sorted_addresses = addresses;
         std::sort(sorted_addresses.begin(),sorted_addresses.end());
@@ -329,11 +328,11 @@ BOOST_AUTO_TEST_CASE(add_and_find)
     NodeData top = NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     std::vector<Node> addresses;
-    addresses += Node("0000000000000000000000000000000000000001"),
-                 Node("0000000000000000000000000000000000000002"),
-                 Node("00000000000000000000000000F0000000000000"),
-                 Node("00000000000000000000F0000000000000000000"),
-                 Node("0000000000000000F00000000000000000000000");
+    addresses += Node::parse("0000000000000000000000000000000000000001"),
+                 Node::parse("0000000000000000000000000000000000000002"),
+                 Node::parse("00000000000000000000000000F0000000000000"),
+                 Node::parse("00000000000000000000F0000000000000000000"),
+                 Node::parse("0000000000000000F00000000000000000000000");
 
     std::vector<Node> sorted_addresses = addresses;
 
@@ -355,7 +354,7 @@ BOOST_AUTO_TEST_CASE(add_and_find)
         for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
         {
             boost::optional<NodeSPtr> b = bucket.find(
-                    Node(generateRandomNode("F")));
+                    Node::parse(generateRandomNode("F")));
             BOOST_CHECK(!b);
         }
     } while(std::next_permutation(addresses.begin(),addresses.end()));
@@ -371,7 +370,7 @@ BOOST_AUTO_TEST_CASE(addRandom_and_find)
         std::vector<Node> addresses;
         for( int i = 0; i < 10; ++i)
         {
-            addresses.push_back(Node(generateRandomNode()));
+            addresses.push_back(Node::parse(generateRandomNode()));
         }
         std::vector<Node> sorted_addresses = addresses;
         std::sort(sorted_addresses.begin(),sorted_addresses.end());
@@ -392,7 +391,7 @@ BOOST_AUTO_TEST_CASE(addRandom_and_find)
         for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
         {
             boost::optional<NodeSPtr> b = bucket.find(
-                    Node(generateRandomNode("F")));
+                    Node::parse(generateRandomNode("F")));
             BOOST_CHECK(!b);
         }
     }

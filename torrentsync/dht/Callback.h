@@ -1,16 +1,15 @@
 #pragma once
 
 #include <torrentsync/utils/Buffer.h>
-#include <torrentsync/dht/NodeData.h>
+#include <torrentsync/dht/Node.h>
 
 #include <functional>
-
-#include <boost/optional.hpp>
 
 namespace torrentsync
 {
 namespace dht
 {
+class Node;
 
 namespace message
 {
@@ -35,10 +34,9 @@ public:
     static const size_t TIME_LIMIT;
 
     //! type of the callback
-    typedef std::function<void (const torrentsync::dht::message::Message&)> callback;
-
-    //! type of the trasaction filter 
-    typedef boost::optional<torrentsync::utils::Buffer> filterTransactionID;
+    typedef std::function<void (const torrentsync::dht::message::Message&,
+                                const torrentsync::dht::Node&,
+                                const torrentsync::dht::Callback&)> callback;
 
     //! Constructor
     //! @param function         Callback do call
@@ -50,11 +48,11 @@ public:
         const std::string& type,
         const std::string& messageType,
         const torrentsync::dht::NodeData& source,
-        const filterTransactionID& transactionID = filterTransactionID());
-
+        const torrentsync::utils::Buffer& transactionID);
 
     //! Calls the callback function
-    void call( const torrentsync::dht::message::Message& m ) const;
+    void call( const torrentsync::dht::message::Message&,
+               const torrentsync::dht::Node& ) const;
 
     //! verifies if the callback is too old.
     //! @returns true if the callback is more than TIME_LIMIT seconds old.
@@ -78,7 +76,7 @@ private:
     torrentsync::dht::NodeData _source;
 
     //! filter condition for transaction it
-    boost::optional<torrentsync::utils::Buffer> _transactionID;
+    torrentsync::utils::Buffer _transactionID;
     
     //! creation time, to filter out old callbacks
     time_t _creation_time;

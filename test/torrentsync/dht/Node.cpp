@@ -22,14 +22,14 @@ using namespace torrentsync::dht;
 
 BOOST_AUTO_TEST_CASE(distance_0)
 {
-    const std::string data = "FFFFFFFFFFFFFFFF0000000000000001AAAAAAAA";
+    const std::string data = "ffffffffffffffff0000000000000001aaaaaaaa";
 
     Node *addr1;
-    BOOST_REQUIRE_NO_THROW(addr1 = new Node(data));
+    BOOST_REQUIRE_NO_THROW(addr1 = new Node(Node::parse(data)));
     Node *addr2;
-    BOOST_REQUIRE_NO_THROW(addr2 = new Node(data));
+    BOOST_REQUIRE_NO_THROW(addr2 = new Node(Node::parse(data)));
 
-    BOOST_REQUIRE(boost::iequals(data,addr1->string()));
+    BOOST_REQUIRE_EQUAL(data,addr1->string());
     BOOST_REQUIRE(boost::iequals(data,addr2->string()));
 
     const Distance dist = *addr1 ^ *addr2;
@@ -41,13 +41,13 @@ BOOST_AUTO_TEST_CASE(distance_0)
 
 BOOST_AUTO_TEST_CASE(distance_some_static)
 {
-    const std::string data1 = "FFFFFFFFFFFFFFFF0000000000000001AAAAAAAA";
-    const std::string data2 = "FFFFFFFFFFFFFFFF0001100000000001AAAAAAAA";
+    const std::string data1 = "ffffffffffffffff0000000000000001aaaaaaaa";
+    const std::string data2 = "ffffffffffffffff0001100000000001aaaaaaaa";
 
     Node *addr1;
-    BOOST_REQUIRE_NO_THROW(addr1 = new Node(data1));
+    BOOST_REQUIRE_NO_THROW(addr1 = new Node(Node::parse(data1)));
     Node *addr2;
-    BOOST_REQUIRE_NO_THROW(addr2 = new Node(data2));
+    BOOST_REQUIRE_NO_THROW(addr2 = new Node(Node::parse(data2)));
 
     BOOST_REQUIRE(boost::iequals(data1,addr1->string()));
     BOOST_REQUIRE(boost::iequals(data2,addr2->string()));
@@ -76,9 +76,9 @@ BOOST_AUTO_TEST_CASE(distance_random)
         }
 
         Node *addr1;
-        BOOST_REQUIRE_NO_THROW(addr1 = new Node(data1));
+        BOOST_REQUIRE_NO_THROW(addr1 = new Node(Node::parse(data1)));
         Node *addr2;
-        BOOST_REQUIRE_NO_THROW(addr2 = new Node(data2));
+        BOOST_REQUIRE_NO_THROW(addr2 = new Node(Node::parse(data2)));
 
         BOOST_REQUIRE(boost::iequals(data1,addr1->string()));
         BOOST_REQUIRE(boost::iequals(data2,addr2->string()));
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(distance_random)
         BOOST_REQUIRE(boost::iequals(data2,addr2->string()));
 
         Node *addr3;
-        BOOST_REQUIRE_NO_THROW(addr3 = new Node(dist.string()));
+        BOOST_REQUIRE_NO_THROW(addr3 = new Node(Node::parse(dist.string())));
         const Distance dist1 = *addr3 ^ *addr2;
         const Distance dist2 = *addr3 ^ *addr1;
 

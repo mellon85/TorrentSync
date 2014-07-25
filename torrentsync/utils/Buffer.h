@@ -3,6 +3,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/call_traits.hpp>
 
+#include <cctype>
 #include <cstring>
 #include <stdexcept>
 #include <cassert>
@@ -276,4 +277,3 @@ struct pretty_print
 };
 
 std::ostream& operator<<( std::ostream& stream, const pretty_print& buff );
-

@@ -20,6 +20,8 @@ typedef std::set< boost::shared_ptr<Bucket> > BucketContainer;
 typedef std::pair<BucketSPtr,BucketSPtr> BucketSPtrPair;
 typedef boost::optional<BucketSPtrPair> MaybeBuckets;
  
+// @TODO must be reritten to use Node instead of NodeData
+// and so renamed NodeTree.
 class NodeTree : public boost::noncopyable
 {
 public:
@@ -39,13 +41,13 @@ public:
 
     //! Returns the number of addresses stored in the container
     //! @return number of address.
-    size_t size() const;
+    size_t size() const noexcept;
 
     //! Returns our own address used to setup the tree
-    const NodeData& getPeerNode() const { return nodeNode; }
+    const NodeData& getTableNode() const noexcept;
 
-    // clears every bucket
-    void clear();
+    // clears every bucke
+    void clear() noexcept;
 
     // find an address inside the tree
     const boost::optional<NodeSPtr> getNode(
@@ -66,14 +68,14 @@ protected:
         const NodeData& address ) const; 
 
     //! returns the counts of the buckets
-    size_t getBucketsCount() const { return buckets.size(); }
+    size_t getBucketsCount() const noexcept;
 
 private:
     //! bucket container
-    BucketContainer buckets;
+    BucketContainer _buckets;
 
     //! address used as the center of the tree
-    const NodeData nodeNode;
+    const NodeData _node;
 };
 
 }; // dht

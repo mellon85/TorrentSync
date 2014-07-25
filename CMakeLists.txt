@@ -41,7 +41,6 @@ set(SOURCES
     torrentsync/dht/Node.cpp 
     torrentsync/dht/NodeData.cpp
     torrentsync/dht/NodeTree.cpp
-    torrentsync/dht/Peer.cpp
     torrentsync/dht/RoutingTable.cpp
     torrentsync/dht/message/BEncodeDecoder.cpp
     torrentsync/dht/message/BEncodeEncoder.cpp
@@ -60,7 +59,6 @@ set(SOURCES_UT
     test/torrentsync/dht/NodeBucket.cpp
     test/torrentsync/dht/NodeData.cpp
     test/torrentsync/dht/NodeTree.cpp
-    test/torrentsync/dht/Peer.cpp
     test/torrentsync/dht/RoutingTable.cpp
     test/torrentsync/dht/message/BEncodeDecoder.cpp
     test/torrentsync/dht/message/BEncodeEncoder.cpp

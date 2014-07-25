@@ -8,7 +8,6 @@
 
 #include <torrentsync/dht/Callback.h>
 #include <torrentsync/dht/NodeTree.h>
-#include <torrentsync/dht/Peer.h>
 #include <torrentsync/utils/Lock.h>
 
 #include <exception>
@@ -29,6 +28,13 @@ namespace torrentsync
 namespace dht
 {
 
+namespace message
+{
+class Ping;
+class FindNode;
+class Message;
+};
+
 using boost::asio::ip::udp;
 
 class RoutingTable : public boost::noncopyable
@@ -47,7 +53,7 @@ public:
     //! Blocking call to look for a node specific node.
     //! Will return a tcp connection to the target node holder.
     //! @TODO should return a class that manages the swarm of nodes, not
-    //!       an address.
+    //!       an address. still missing every parameter.
     boost::shared_ptr<boost::asio::ip::tcp::socket> lookForNode();
 
     //! Initializes network sockets binding to the specific endpoint.
@@ -114,7 +120,7 @@ private:
         const std::string& type,
         const std::string& messageType,
         const torrentsync::dht::NodeData& source, 
-        const boost::optional<torrentsync::utils::Buffer>& transactionID);
+        const torrentsync::utils::Buffer& transactionID);
 
     //! Internal mutex to synchronize the various threads
     mutable Mutex _mutex;
@@ -158,6 +164,14 @@ private:
 
     //! Number of close nodes found.
     std::atomic<size_t> _close_nodes_count;
+
+    //! ************** Message handlers *****************
+
+    //! Handle ping queries.
+    void handlePingQuery(
+        const torrentsync::dht::message::Ping&,
+        const torrentsync::dht::Node&);
+
 };
 
 template <class Archive>

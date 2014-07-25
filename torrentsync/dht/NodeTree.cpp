@@ -9,7 +9,7 @@ namespace dht
 {
 
 NodeTree::NodeTree(
-        const NodeData nodeNode) : nodeNode(nodeNode)
+    const NodeData nodeNode) : _node(nodeNode)
 {
     clear();
 }
@@ -26,13 +26,13 @@ bool NodeTree::addNode( NodeSPtr address )
     UpgradableLock rlock(mutex);
 
     BucketContainer::const_iterator bucket_it = findBucket(*address);
-    assert(bucket_it != buckets.end());
+    assert(bucket_it != _buckets.end());
 
     BucketContainer::key_type bucket = *bucket_it;
     assert(bucket->inBounds(address));
 
     const bool isAdded = bucket->add(address);
-    if ( !isAdded && bucket->inBounds(nodeNode) )
+    if ( !isAdded && bucket->inBounds(_node) )
     {
         UpgradedWriteLock wlock(rlock);
         MaybeBuckets maybe_split_buckets = split(bucket_it);
@@ -68,7 +68,7 @@ void NodeTree::removeNode( NodeSPtr address )
     UpgradableLock rlock(mutex);
 
     BucketContainer::const_iterator bucket_it = findBucket(*address);
-    assert(bucket_it != buckets.end());
+    assert(bucket_it != _buckets.end());
 
     BucketContainer::key_type bucket = *bucket_it;
     assert(bucket->inBounds(address));
@@ -76,10 +76,10 @@ void NodeTree::removeNode( NodeSPtr address )
     bucket->remove(*address);
 }
 
-size_t NodeTree::size() const
+size_t NodeTree::size() const noexcept
 {
     ReadLock rlock(mutex);
-    return std::accumulate(buckets.begin(), buckets.end(), static_cast<size_t>(0),
+    return std::accumulate(_buckets.begin(), _buckets.end(), static_cast<size_t>(0),
         [](const size_t init,const BucketContainer::key_type& t) -> size_t
             { return init+t->size(); });
 }
@@ -89,13 +89,13 @@ NodeTree::findBucket( const NodeData& addr ) const
 {
     const BucketContainer::key_type key(new Bucket(addr,addr));
 
-    BucketContainer::const_iterator it = buckets.begin();
-    // TODO should not be linear
-    while ( it != buckets.end() && ! (*it)->inBounds(addr))
+    // @TODO should not be linear search
+    BucketContainer::const_iterator it = _buckets.begin();
+    while ( it != _buckets.end() && ! (*it)->inBounds(addr))
     {
         ++it;
     }
-    assert( it != buckets.end() );
+    assert( it != _buckets.end() );
     assert( it->get() );
     return it;
 }
@@ -103,7 +103,7 @@ NodeTree::findBucket( const NodeData& addr ) const
 MaybeBuckets
 NodeTree::split( BucketContainer::const_iterator bucket_it )
 {
-    assert(bucket_it != buckets.end());
+    assert(bucket_it != _buckets.end());
     assert(bucket_it->get());
     BucketSPtr bucket = *bucket_it;
 
@@ -132,28 +132,38 @@ NodeTree::split( BucketContainer::const_iterator bucket_it )
 
     assert(upper_bucket->size() + lower_bucket->size() == bucket->size());
  
-    buckets.insert(bucket_it,upper_bucket);
-    buckets.insert(bucket_it,lower_bucket);
-    buckets.erase(bucket_it);
+    _buckets.insert(bucket_it,upper_bucket);
+    _buckets.insert(bucket_it,lower_bucket);
+    _buckets.erase(bucket_it);
 
     return MaybeBuckets(BucketSPtrPair(lower_bucket,upper_bucket));
 }
 
-void NodeTree::clear()
+void NodeTree::clear() noexcept
 {
     WriteLock lock(mutex);
-    buckets.clear();
+    _buckets.clear();
 
     // initialize first bucket
     boost::shared_ptr<Bucket> bucket(
             new Bucket( NodeData::minValue, NodeData::maxValue));
-    buckets.insert(bucket);
+    _buckets.insert(bucket);
 }
 
 const boost::optional<NodeSPtr> NodeTree::getNode(
     const NodeData& data ) const
 {
-    return (*findBucket(data))->find(data);
+    return (*findBucket(data))->find(data); 
+}
+
+const NodeData& NodeTree::getTableNode() const noexcept
+{
+    return _node;
+}
+
+size_t NodeTree::getBucketsCount() const noexcept
+{
+    return _buckets.size();
 }
 
 }; // dht

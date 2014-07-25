@@ -1,5 +1,6 @@
-
 #pragma once
+
+#include <boost/asio.hpp>
 
 #include <torrentsync/dht/NodeData.h>
 #include <torrentsync/dht/Distance.h>
@@ -11,38 +12,55 @@ namespace torrentsync
 namespace dht
 {
 
+using boost::asio::ip::udp;
+
 //! A DHT address with the associated statistics and informations
 class Node : public NodeData
 {
 public:
-    //! Builds an address from an hexadecimal string
-    Node( const std::string& );
-
     //! Copy constructor
     Node( const Node& addr );
 
-    inline ~Node() {};
+    Node(
+        const torrentsync::utils::Buffer&,
+        const boost::optional<udp::endpoint>& = boost::optional<udp::endpoint>() );
+
+    ~Node() {};
+
+    static Node parse( const std::string& string );
 
     // distance operator
-    inline Distance operator^( const Node& addr ) const;
-
-    const torrentsync::utils::Buffer getTransactionID() const;
-    torrentsync::utils::Buffer& accessTransactionID();
+    Distance operator^( const Node& addr ) const noexcept;
 
     //! marks the address as good/fresh
-    inline void setGood();
+    void setGood() noexcept;
 
     //! Is the address good/fresh?
     //! @return true if good/fresh
-    inline bool isGood() const;
+    bool isGood() const noexcept;
 
-    inline bool isQuestionable() const;
-    inline bool isBad()          const;
-    inline const time_t& getLastTimeGood() const;
+    bool isQuestionable()           const noexcept;
+    bool isBad()                    const noexcept;
+    const time_t& getLastTimeGood() const noexcept;
 
     static const time_t good_interval; 
 
+    //! Maximum number of unanswered queries
     static const size_t allowed_unanswered_queries;
+
+    //! returns the Peer's endpoint
+    const boost::optional<udp::endpoint>& getEndpoint() const noexcept;
+
+    void setEndpoint( udp::endpoint& );
+
+    //! Parses a node information from the Buffer.
+    //! In this class it implements the parsing of the actual ip address.
+    //! @param begin the beginning of the data in the iterator
+    //! @param end the beginning of the data in the iterator
+    //! @throws std::invalid_argument in case the data is not correct
+    void read(
+        torrentsync::utils::Buffer::const_iterator begin,
+        torrentsync::utils::Buffer::const_iterator end);
 
 protected:
     Node() {};
@@ -53,45 +71,11 @@ protected:
     //! Number of the last unanswered queries
     size_t _last_unanswered_queries;
 
-    //! latest transaction id used
-    torrentsync::utils::Buffer _transacton_id;
+    //! the endpoint of the node
+    boost::optional<udp::endpoint> _endpoint;
 };
 
 typedef boost::shared_ptr<Node> NodeSPtr;
-
-void Node::setGood() 
-{
-    _last_time_good = time(0);
-    _last_unanswered_queries = 0;
-}
-
-bool Node::isGood() const
-{
-    return _last_time_good > time(0)-good_interval;
-}
-
-bool Node::isQuestionable() const {
-    return !isGood() && _last_unanswered_queries <= allowed_unanswered_queries;
-}
-
-bool Node::isBad() const {
-    return !isGood() && _last_unanswered_queries >  allowed_unanswered_queries;
-}
-
-const time_t& Node::getLastTimeGood() const
-{
-    return _last_time_good;
-}
-
-Distance Node::operator^( const Node& addr ) const
-{
-    Distance ret;
-    ret.p1 = p1 ^ addr.p1;
-    ret.p2 = p2 ^ addr.p2;
-    ret.p3 = p3 ^ addr.p3;
-    return ret;
-}
-
 
 }; // dht
 }; // torrentsync
