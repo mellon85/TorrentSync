@@ -21,12 +21,20 @@ static const std::list< // domain/ip address, port, needs to be resolved
             ("router.bittorrent.com",6881,true)
             ("router.utorrent.com"  ,6881,true);
 
-//! 3 batches per second while initializing the DHT, should be configurable.
+//! number of batches per second while initializing the DHT.
 static const size_t INITIALIZE_PING_BATCH_INTERVAL = static_cast<size_t>(1000/3);
 
 //! Maximum amount of packets in the send queue.
 //! In case there are more then the package will be dropped.
 static const size_t MAX_SEND_QUEUE = 100;
+
+//! Number of nodes that return my address when looking for my node
+//! to be sure that I can't get any closer.
+static const size_t DHT_CLOSE_ENOUGH = 10;
+
+//! Maximum number of seconds to wait for a reply.
+static const size_t ROUTINGTABLE_TIMEOUT = 10;
+
 
 namespace torrentsync
 {
@@ -346,7 +354,7 @@ void RoutingTable::handlePingQuery(
             //! @TODO update data from the node
 
         }, ping.getType(),ping.getMessageType(),ping.getID(),ping.getTransactionID());
-    
+
     // send ping reply
     assert(!!(node.getEndpoint()));
     sendMessage( msg::Ping::getReply(

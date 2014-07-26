@@ -16,17 +16,13 @@
 #include <utility>
 #include <atomic>
 
-//! Number of nodes that return my address when looking for my node
-//! to be sure that I can't get any closer.
-static const size_t DHT_CLOSE_ENOUGH = 10;
-
-//! 5 addresses per batch while initialing the DHT, should be configurable.
-static const size_t INITIALIZE_PING_BATCH_SIZE = 5;
-
 namespace torrentsync
 {
 namespace dht
 {
+
+//! Number of addresses per batch while initialing the DHT, should be configurable.
+static const size_t INITIALIZE_PING_BATCH_SIZE = 5;
 
 namespace message
 {
@@ -64,6 +60,7 @@ public:
         const udp::endpoint& endpoint);
 
 protected:
+    //! Shared pointer containing a timeout timer
     typedef boost::shared_ptr<boost::asio::deadline_timer> shared_timer;
 
     //! Initalizes the tables by trying to contact the initial addresses stored
@@ -80,14 +77,18 @@ protected:
     //! - starts bucket refresh,
     //! - sends ping to aging nodes.
     //! - look for close nodes.
+    //! - clean timedout callbacks.
     void tableMaintenance();
 
-    //! TODO
+    //! Sends a message to the specified address
+    //! It will send it asynchronously putting them in a queue of at
+    //! most MAX_SEND_QUEUE length.
     //! @throws boost::system::system_error
     virtual void sendMessage(
         const torrentsync::utils::Buffer&,
         const udp::endpoint& addr);
 
+    //! @TODO
     void recvMessage(
         const boost::system::error_code& error,
         torrentsync::utils::Buffer buffer,

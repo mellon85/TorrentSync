@@ -51,15 +51,17 @@ public:
         const torrentsync::utils::Buffer& transactionID);
 
     //! Calls the callback function
-    void call( const torrentsync::dht::message::Message&,
-               const torrentsync::dht::Node& ) const;
+    void call(
+        const torrentsync::dht::message::Message&,
+        const torrentsync::dht::Node& ) const;
 
     //! verifies if the callback is too old.
     //! @returns true if the callback is more than TIME_LIMIT seconds old.
     bool isOld() const;
 
     //! verifies if the callback respects the filters set
-    bool verifyConstraints( const torrentsync::dht::message::Message& message ) const;
+    bool verifyConstraints(
+        const torrentsync::dht::message::Message& message ) const;
 
 private:
 
