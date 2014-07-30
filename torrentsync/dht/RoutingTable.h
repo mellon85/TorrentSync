@@ -117,7 +117,7 @@ private:
     //! @param source optional parameter specifing if the message is awaited from a specific Peer
     //! @param transactionID optional parameter specifing if the message is awaited from a specific Peer
     void registerCallback(
-        const Callback::callback& func,
+        const Callback::callback_t& func,
         const std::string& type,
         const std::string& messageType,
         const torrentsync::dht::NodeData& source, 

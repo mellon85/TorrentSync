@@ -13,29 +13,26 @@ using namespace torrentsync::dht;
 static const torrentsync::dht::NodeData buff(torrentsync::utils::Buffer("GGGGGGGGHHHHHHHHIIII",20));
 static const torrentsync::utils::Buffer transaction("aa");
 
-static boost::shared_ptr<torrentsync::dht::message::Message> getMessage()
+static torrentsync::dht::message::Message getMessage()
 {
     torrentsync::utils::Buffer b("d1:ad2:id20:GGGGGGGGHHHHHHHHIIIIe1:q4:ping1:t2:aa1:y1:qe");
     std::stringstream s;
     s.write(b.get(),b.size());
 
-    auto m = boost::shared_ptr<torrentsync::dht::message::Message>(
-            torrentsync::dht::message::Message::parseMessage(s));
-
-    return m;
+    return *(torrentsync::dht::message::Message::parseMessage(s));
 }
 
-static const torrentsync::dht::Node node(torrentsync::utils::Buffer("01234567890123456789",20));
+static torrentsync::dht::Node node(torrentsync::utils::Buffer("01234567890123456789",20));
 
 BOOST_AUTO_TEST_CASE(match_type_fail)
 {
     int v = 0;
 
     Callback call(
-        [&v]( const torrentsync::dht::message::Message& t,
-              const boost::optional<torrentsync::dht::Node>& peer,
-              const torrentsync::dht::Callback& c) -> void {
-            v += t.getType().empty() ? 0 : 1;
+        [&v](boost::optional<Callback::callback_payload_t> data,
+             const torrentsync::dht::Callback& c) -> void {
+            BOOST_REQUIRE(!!data);
+            v += data->get<0>().getType().empty() ? 0 : 1;
             },
         torrentsync::dht::message::Type::Reply,
         torrentsync::dht::message::Messages::Ping,
@@ -44,10 +41,10 @@ BOOST_AUTO_TEST_CASE(match_type_fail)
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
     BOOST_REQUIRE_EQUAL(v,0);
-    call.call(*getMessage(),node);
+    call.call(getMessage(),node);
     BOOST_REQUIRE_EQUAL(v,1);
 
-    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(*getMessage()));
+    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(getMessage()));
 }
 
 BOOST_AUTO_TEST_CASE(match_type_success)
@@ -55,21 +52,21 @@ BOOST_AUTO_TEST_CASE(match_type_success)
     int v = 0;
 
     Callback call(
-        [&v]( const torrentsync::dht::message::Message& t,
-              const boost::optional<torrentsync::dht::Node>& peer,
+        [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
-                v += t.getType().empty() ? 0 : 1; },
+            BOOST_REQUIRE(!!data);
+            v += data->get<0>().getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
         buff,
         transaction);
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
-    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(*getMessage()));
+    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(getMessage()));
     BOOST_REQUIRE_EQUAL(v,0);
-    call.call(*getMessage(),node);
+    call.call(getMessage(),node);
     BOOST_REQUIRE_EQUAL(v,1);
-    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(*getMessage()));
+    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(getMessage()));
 
 }
 
@@ -78,10 +75,10 @@ BOOST_AUTO_TEST_CASE(match_messagetype_fail)
     int v = 0;
 
     Callback call(
-        [&v]( const torrentsync::dht::message::Message& t,
-              const boost::optional<torrentsync::dht::Node>& peer,
+        [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
-                v += t.getType().empty() ? 0 : 1; },
+            BOOST_REQUIRE(!!data);
+            v += data->get<0>().getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::FindNode,
         buff,
@@ -89,10 +86,10 @@ BOOST_AUTO_TEST_CASE(match_messagetype_fail)
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
     BOOST_REQUIRE_EQUAL(v,0);
-    call.call(*getMessage(),node);
+    call.call(getMessage(),node);
     BOOST_REQUIRE_EQUAL(v,1);
 
-    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(*getMessage()));
+    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(getMessage()));
 }
 
 BOOST_AUTO_TEST_CASE(match_node_success)
@@ -100,10 +97,10 @@ BOOST_AUTO_TEST_CASE(match_node_success)
     int v = 0;
 
     Callback call(
-        [&v]( const torrentsync::dht::message::Message& t,
-              const boost::optional<torrentsync::dht::Node>& peer,
+        [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
-                v += t.getType().empty() ? 0 : 1; },
+            BOOST_REQUIRE(!!data);
+            v += data->get<0>().getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
         buff,
@@ -111,10 +108,10 @@ BOOST_AUTO_TEST_CASE(match_node_success)
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
     BOOST_REQUIRE_EQUAL(v,0);
-    call.call(*getMessage(),node);
+    call.call(getMessage(),node);
     BOOST_REQUIRE_EQUAL(v,1);
 
-    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(*getMessage()));
+    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(getMessage()));
 }
 
 BOOST_AUTO_TEST_CASE(match_node_failure)
@@ -124,10 +121,10 @@ BOOST_AUTO_TEST_CASE(match_node_failure)
     torrentsync::utils::Buffer buff2("G000GGG0HHHHHHHHIIII");
 
     Callback call(
-        [&v]( const torrentsync::dht::message::Message& t,
-              const boost::optional<torrentsync::dht::Node>& peer,
+        [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
-                v += t.getType().empty() ? 0 : 1; },
+            BOOST_REQUIRE(!!data);
+            v += data->get<0>().getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
         buff2,
@@ -135,8 +132,8 @@ BOOST_AUTO_TEST_CASE(match_node_failure)
         
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
-    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(*getMessage()));
-    call.call(*getMessage(),node);
+    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(getMessage()));
+    call.call(getMessage(),node);
     BOOST_REQUIRE_EQUAL(v,1);
 }
 
@@ -145,18 +142,18 @@ BOOST_AUTO_TEST_CASE(match_transaction_success)
     int v = 0;
 
     Callback call(
-        [&v]( const torrentsync::dht::message::Message& t,
-              const boost::optional<torrentsync::dht::Node>& peer,
+        [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
-                v += t.getType().empty() ? 0 : 1; },
+            BOOST_REQUIRE(!!data);
+            v += data->get<0>().getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
         buff,
         transaction);
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
-    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(*getMessage()));
-    call.call(*getMessage(),node);
+    BOOST_REQUIRE_EQUAL(true,call.verifyConstraints(getMessage()));
+    call.call(getMessage(),node);
     BOOST_REQUIRE_EQUAL(v,1);
 }
 
@@ -166,18 +163,18 @@ BOOST_AUTO_TEST_CASE(match_transaction_failure)
     const torrentsync::utils::Buffer transaction2("a2");
 
     Callback call(
-        [&v]( const torrentsync::dht::message::Message& t,
-              const boost::optional<torrentsync::dht::Node>& peer,
+        [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
-                v += t.getType().empty() ? 0 : 1; },
+            BOOST_REQUIRE(!!data);
+            v += data->get<0>().getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
         buff,
         transaction2);
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
-    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(*getMessage()));
-    call.call(*getMessage(),node);
+    BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(getMessage()));
+    call.call(getMessage(),node);
     BOOST_REQUIRE_EQUAL(v,1);
 }
 

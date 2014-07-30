@@ -3,6 +3,8 @@
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/Node.h>
 
+#include <boost/tuple/tuple.hpp>
+
 #include <functional>
 
 namespace torrentsync
@@ -33,18 +35,22 @@ public:
     //! after 3 minutes a callback is condisered old
     static const size_t TIME_LIMIT;
 
+    typedef boost::tuple<
+        const torrentsync::dht::message::Message&,
+        torrentsync::dht::Node&> callback_payload_t;
+
     //! type of the callback
-    typedef std::function<void (const torrentsync::dht::message::Message&,
-                                const torrentsync::dht::Node&,
-                                const torrentsync::dht::Callback&)> callback;
+    typedef std::function<void (
+            boost::optional<callback_payload_t>,
+            const torrentsync::dht::Callback&)> callback_t;
 
     //! Constructor
-    //! @param function         Callback do call
+    //! @param callback         Callback to call
     //! @param messageType      Filter by message type 
     //! @param source           Filter by the source address
     //! @param transactionID    Filter by transaction ID
     Callback(
-        const callback& function,
+        const callback_t& callback,
         const std::string& type,
         const std::string& messageType,
         const torrentsync::dht::NodeData& source,
@@ -53,7 +59,9 @@ public:
     //! Calls the callback function
     void call(
         const torrentsync::dht::message::Message&,
-        const torrentsync::dht::Node& ) const;
+        torrentsync::dht::Node& ) const;
+
+    void timeout() const;
 
     //! verifies if the callback is too old.
     //! @returns true if the callback is more than TIME_LIMIT seconds old.
@@ -66,7 +74,7 @@ public:
 private:
 
     //! callback function to call
-    callback _func;
+    callback_t _callback;
 
     //! filter condition for type (mandatory)
     std::string _type;

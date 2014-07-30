@@ -11,12 +11,12 @@ namespace dht
 const size_t Callback::TIME_LIMIT = 3*60;
 
 Callback::Callback(
-    const callback& function,
+    const callback_t& callback,
     const std::string& type,
     const std::string& messageType,
     const torrentsync::dht::NodeData& source,
     const torrentsync::utils::Buffer& transactionID ) :
-        _func(function), _type(type), _messageType(messageType),
+        _callback(callback), _type(type), _messageType(messageType),
         _source(source), _transactionID(transactionID),
         _creation_time(time(NULL))
 {
@@ -43,9 +43,16 @@ bool Callback::verifyConstraints( const torrentsync::dht::message::Message& mess
 
 void Callback::call(
     const torrentsync::dht::message::Message& m,
-    const torrentsync::dht::Node& node) const
+    torrentsync::dht::Node& node) const
 {
-    _func(m,node,*this);
+    _callback(
+        callback_payload_t(m,node),*this);
+}
+
+void Callback::timeout() const
+{
+    _callback(
+        boost::optional<callback_payload_t>(), *this);
 }
 
 } // dht

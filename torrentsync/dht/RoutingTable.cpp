@@ -169,7 +169,7 @@ void RoutingTable::scheduleNextReceive()
 }
 
 void RoutingTable::registerCallback(
-    const Callback::callback& func,
+    const Callback::callback_t& func,
     const std::string& type,
     const std::string& messageType,
     const torrentsync::dht::NodeData& source, 
@@ -347,9 +347,8 @@ void RoutingTable::handlePingQuery(
     const torrentsync::dht::Node&          node)
 {
     registerCallback([&](
-            const torrentsync::dht::message::Message& message,
-            const torrentsync::dht::Node&             node,
-            const torrentsync::dht::Callback&         trigger) -> void {
+            boost::optional<Callback::callback_payload_t> data,
+            const torrentsync::dht::Callback&             trigger) -> void {
 
             //! @TODO update data from the node
 
