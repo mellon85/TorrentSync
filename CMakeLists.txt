@@ -42,6 +42,7 @@ set(SOURCES
     torrentsync/dht/NodeData.cpp
     torrentsync/dht/NodeTree.cpp
     torrentsync/dht/RoutingTable.cpp
+    torrentsync/dht/RoutingTable_MessageHandlers.cpp
     torrentsync/dht/message/BEncodeDecoder.cpp
     torrentsync/dht/message/BEncodeEncoder.cpp
     torrentsync/dht/message/FindNode.cpp

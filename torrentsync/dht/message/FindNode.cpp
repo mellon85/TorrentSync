@@ -10,13 +10,13 @@ namespace dht
 namespace message
 {
 
-using namespace torrentsync::utils;
+using namespace torrentsync;
 
-const torrentsync::utils::Buffer
-    FindNode::getMessage( 
-        const torrentsync::utils::Buffer& transactionID,
-        const torrentsync::dht::NodeData& source,
-        const torrentsync::dht::NodeData& target)
+const utils::Buffer
+FindNode::getMessage( 
+    const utils::Buffer& transactionID,
+    const dht::NodeData& source,
+    const dht::NodeData& target)
 {
     BEncodeEncoder enc;
     enc.startDictionary();
@@ -32,9 +32,21 @@ const torrentsync::utils::Buffer
     return enc.value();
 }
 
+const utils::Buffer
+FindNode::getMessageReply( 
+    const utils::Buffer& transactionID,
+    const dht::NodeData& source,
+    const dht::NodeData& target,
+    const std::function<boost::optional<boost::shared_ptr<NodeData> >()> nodeRetriver)
+{
+    throw std::runtime_error("Not Implemented Yet");
+    BEncodeEncoder enc;
+    return enc.value();
+}
+
 Buffer FindNode::getTarget()
 {
-    boost::optional<torrentsync::utils::Buffer> token;
+    boost::optional<utils::Buffer> token;
     token = find( Field::Arguments + "/" + Field::Target, data );
     if (!token)
         throw MalformedMessageException("Couldn't find token");
@@ -43,7 +55,7 @@ Buffer FindNode::getTarget()
 
 Buffer FindNode::getNodes()
 {
-    boost::optional<torrentsync::utils::Buffer> token;
+    boost::optional<utils::Buffer> token;
     token = find( Field::Reply + "/" + Field::Nodes, data );
     if (!token)
         throw MalformedMessageException("Couldn't find token");

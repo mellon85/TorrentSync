@@ -4,11 +4,24 @@
 #include <boost/foreach.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/bind.hpp>
+
 #include <cstdlib>
 #include <sstream>
 
 #include <torrentsync/dht/NodeBucket.h>
 #include <test/torrentsync/dht/CommonNodeTest.h>
+
+namespace std
+{
+template <size_t Size>
+struct less<torrentsync::dht::NodeBucket<Size> >
+{
+      bool operator()
+          (const torrentsync::dht::NodeBucket<Size>& x
+          ,const torrentsync::dht::NodeBucket<Size>& y) const
+      {return x.getUpperBound() < y.getLowerBound();}
+};
+};
 
 BOOST_AUTO_TEST_SUITE(torrentsync_dht_NodeBucket);
 

@@ -12,6 +12,7 @@
 #include <boost/random/mersenne_twister.hpp>
 
 #include <torrentsync/dht/NodeData.h>
+#include <torrentsync/dht/Distance.h>
 #include <torrentsync/utils/RandomGenerator.h>
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/utils/log/Logger.h>
@@ -69,6 +70,15 @@ NodeData::~NodeData()
 {
 }
 
+Distance&& NodeData::operator^( const NodeData& addr ) const noexcept
+{
+    Distance ret;
+    ret.p1 = p1 ^ addr.p1;
+    ret.p2 = p2 ^ addr.p2;
+    ret.p3 = p3 ^ addr.p3;
+    return std::move(ret);
+}
+
 void NodeData::parseString( const std::string& str )
 {
     if (str.length() != 40 ||
@@ -85,15 +95,12 @@ void NodeData::parseString( const std::string& str )
 
 const std::string NodeData::string() const
 {
-    std::string ret;
-    ret.reserve(40);
-    std::stringstream ss;
+    std::ostringstream ss;
     ss << std::hex;
     ss.width(16); ss.fill('0'); ss << p1;
     ss.width(16); ss.fill('0'); ss << p2;
     ss.width(8);  ss.fill('0'); ss << p3;
-    ss >> ret;
-    return ret;
+    return ss.str();
 }
 
 const NodeData NodeData::minValue =
@@ -228,6 +235,13 @@ torrentsync::utils::Buffer NodeData::write() const
     buff.get()[19] = p3 >>  0 & 0xFF;
 
     return buff;
+}
+
+NodeData NodeData::parse( const std::string& str )
+{
+    NodeData data;
+    data.parseString(str);
+    return data;
 }
 
 std::ostream& operator<<( std::ostream& out, const NodeData& data )

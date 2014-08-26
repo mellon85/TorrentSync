@@ -34,7 +34,6 @@ namespace Field
     // find_node
     extern const std::string Target;
     extern const std::string Nodes;
-
 };
 
 namespace Messages

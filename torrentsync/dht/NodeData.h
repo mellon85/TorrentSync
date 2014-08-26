@@ -13,8 +13,10 @@ namespace dht
 {
 
 class NodeData;
-typedef std::pair<NodeData,NodeData> Bounds;
-typedef boost::optional<Bounds> MaybeBounds;
+typedef std::pair<NodeData,NodeData>    Bounds;
+typedef boost::optional<Bounds>         MaybeBounds;
+typedef boost::shared_ptr<NodeData>     NodeDataSPtr;
+class Distance;
 
 //! Basic implementation of a 160 bit data block
 //! This class can't be instantiated alone, must be subclassed first.
@@ -33,7 +35,7 @@ public:
     //! readable data in the code (and unit test).
     //! @param str the string with the hexadecimal representation [0-9A-F]{40}
     //! @return the parsed NodeData
-    static inline NodeData parse( const std::string& str );
+    static NodeData parse( const std::string& str );
 
     //! Destructor
     ~NodeData();
@@ -67,10 +69,14 @@ public:
         torrentsync::utils::Buffer::const_iterator begin,
         const torrentsync::utils::Buffer::const_iterator end  );
 
+    //! write node on a buffer
     torrentsync::utils::Buffer write() const;
 
     //! amount of binary data to parse the NodeData class from binary data.
     static const size_t addressDataLength;
+
+    // distance operator
+    Distance&& operator^( const NodeData& addr ) const noexcept;
 
 protected:
 
@@ -125,14 +131,6 @@ inline bool NodeData::operator>=( const NodeData& addr ) const
             (p1 == addr.p1 && p2 > addr.p2) ||
             (p1 == addr.p1 && p2 == addr.p2 && p3 > addr.p3) ||
             (p1 == addr.p1 && p2 == addr.p2 && p3 == addr.p3);
-}
-
-
-inline NodeData NodeData::parse( const std::string& str )
-{
-    NodeData data;
-    data.parseString(str);
-    return data;
 }
 
 std::ostream& operator<<( std::ostream& out, const NodeData& data );

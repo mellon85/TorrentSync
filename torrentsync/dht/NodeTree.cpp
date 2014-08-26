@@ -2,14 +2,25 @@
 
 #include <exception>
 #include <numeric>
+#include <functional>
+
+#include <boost/foreach.hpp>
+#include <boost/lambda/lambda.hpp>
 
 namespace torrentsync
 {
 namespace dht
 {
 
+bool sortByBounds(const BucketSPtr& x, const BucketSPtr& y) noexcept
+{
+    return x->getUpperBound() < y->getLowerBound();
+}
+
 NodeTree::NodeTree(
-    const NodeData nodeNode) : _node(nodeNode)
+    const NodeData nodeNode) :
+        _buckets(sortByBounds),
+        _node(nodeNode)
 {
     clear();
 }
@@ -31,7 +42,7 @@ bool NodeTree::addNode( NodeSPtr address )
     BucketContainer::key_type bucket = *bucket_it;
     assert(bucket->inBounds(address));
 
-    const bool isAdded = bucket->add(address);
+    bool isAdded = bucket->add(address);
     if ( !isAdded && bucket->inBounds(_node) )
     {
         UpgradedWriteLock wlock(rlock);
@@ -39,7 +50,7 @@ bool NodeTree::addNode( NodeSPtr address )
 
         // unsplittable, ignore it
         if (!maybe_split_buckets)
-            return isAdded;
+            return false;
 
         BucketSPtrPair& split_buckets = *maybe_split_buckets;
 
@@ -48,13 +59,14 @@ bool NodeTree::addNode( NodeSPtr address )
 
         if (split_buckets.first->inBounds(address))
         {
-            split_buckets.first->add(address);
+            isAdded = split_buckets.first->add(address);
         }
         else
         {
             assert(split_buckets.second->inBounds(address));
-            split_buckets.second->add(address);
+            isAdded = split_buckets.second->add(address);
         }
+        return isAdded;
     }
 
     return isAdded;
@@ -68,7 +80,6 @@ void NodeTree::removeNode( NodeSPtr address )
     UpgradableLock rlock(mutex);
 
     BucketContainer::const_iterator bucket_it = findBucket(*address);
-    assert(bucket_it != _buckets.end());
 
     BucketContainer::key_type bucket = *bucket_it;
     assert(bucket->inBounds(address));
@@ -89,19 +100,14 @@ NodeTree::findBucket( const NodeData& addr ) const
 {
     const BucketContainer::key_type key(new Bucket(addr,addr));
 
-    // @TODO should not be linear search
-    BucketContainer::const_iterator it = _buckets.begin();
-    while ( it != _buckets.end() && ! (*it)->inBounds(addr))
-    {
-        ++it;
-    }
+    auto it = _buckets.lower_bound(key);
+
     assert( it != _buckets.end() );
     assert( it->get() );
     return it;
 }
 
-MaybeBuckets
-NodeTree::split( BucketContainer::const_iterator bucket_it )
+MaybeBuckets NodeTree::split( BucketContainer::const_iterator bucket_it )
 {
     assert(bucket_it != _buckets.end());
     assert(bucket_it->get());
@@ -132,9 +138,9 @@ NodeTree::split( BucketContainer::const_iterator bucket_it )
 
     assert(upper_bucket->size() + lower_bucket->size() == bucket->size());
  
-    _buckets.insert(bucket_it,upper_bucket);
-    _buckets.insert(bucket_it,lower_bucket);
     _buckets.erase(bucket_it);
+    _buckets.insert(upper_bucket);
+    _buckets.insert(lower_bucket);
 
     return MaybeBuckets(BucketSPtrPair(lower_bucket,upper_bucket));
 }
@@ -151,9 +157,46 @@ void NodeTree::clear() noexcept
 }
 
 const boost::optional<NodeSPtr> NodeTree::getNode(
-    const NodeData& data ) const
+    const NodeData& data ) const noexcept
 {
     return (*findBucket(data))->find(data); 
+}
+
+// This method will not return the exact 8 closest, but fetches the nodes from
+// three buckets, the right one and the 2 adjacent ones.
+// In case we have a lot of nodes it will be precise, if not then we can't 
+// expect to have a precise result anyway.
+const std::list<NodeSPtr> NodeTree::getClosestNodes(
+    const NodeData& data) const
+{
+    std::list<NodeSPtr> nodes;
+    WriteLock lock(mutex);
+    
+    std::set<NodeSPtr,std::function<bool(const NodeSPtr&,const NodeSPtr&)> > knownNodes(
+        [&data]( const NodeSPtr& x, const NodeSPtr& y) {
+            return (*x ^ data) <= (*y ^ data);
+        });
+
+    // find bucket
+    auto bucket_it = findBucket(data);
+    if (bucket_it != _buckets.begin())
+        --bucket_it; // put it at the left bucket
+
+    for( int i = 0; i < 3 && bucket_it != _buckets.end(); ++i, ++bucket_it )
+    {
+        for( auto it = (*bucket_it)->cbegin(); it != (*bucket_it)->cend(); ++it)
+        {
+            knownNodes.insert(*it);
+        }
+    }
+
+    auto it = knownNodes.begin();
+    for( size_t i = 0; i < knownNodes.size() && i < 8;  ++i, ++it )
+    {
+        nodes.push_back(*it);
+    }
+
+    return std::move(nodes);
 }
 
 const NodeData& NodeTree::getTableNode() const noexcept

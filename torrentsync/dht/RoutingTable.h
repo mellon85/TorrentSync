@@ -32,6 +32,7 @@ class Message;
 };
 
 using boost::asio::ip::udp;
+using namespace torrentsync;
 
 class RoutingTable : public boost::noncopyable
 {
@@ -85,13 +86,13 @@ protected:
     //! most MAX_SEND_QUEUE length.
     //! @throws boost::system::system_error
     virtual void sendMessage(
-        const torrentsync::utils::Buffer&,
+        const utils::Buffer&,
         const udp::endpoint& addr);
 
     //! @TODO
     void recvMessage(
         const boost::system::error_code& error,
-        torrentsync::utils::Buffer buffer,
+        utils::Buffer buffer,
         std::size_t bytes_transferred,
         const boost::asio::ip::udp::endpoint& sender);
 
@@ -100,6 +101,9 @@ protected:
 
     //! configure the io_service actions to receive messages
     void scheduleNextReceive();
+
+    //! sends a ping message to the destination node (and setup a callback to receive).
+    void doPing( dht::Node& destination );
 
 private:
 
@@ -120,11 +124,8 @@ private:
         const Callback::callback_t& func,
         const std::string& type,
         const std::string& messageType,
-        const torrentsync::dht::NodeData& source, 
-        const torrentsync::utils::Buffer& transactionID);
-
-    //! Internal mutex to synchronize the various threads
-    mutable Mutex _mutex;
+        const dht::NodeData& source, 
+        const utils::Buffer& transactionID);
 
     //! Node table
     NodeTree _table;
@@ -160,8 +161,8 @@ private:
     //! A multimap is enough as anyway there shouldn't be more than one
     //! request at the same time (even though it may happen).
     std::multimap<
-        torrentsync::dht::NodeData,
-        torrentsync::dht::Callback> _callbacks;
+        dht::NodeData,
+        dht::Callback> _callbacks;
 
     //! Number of close nodes found.
     std::atomic<size_t> _close_nodes_count;
@@ -170,8 +171,30 @@ private:
 
     //! Handle ping queries.
     void handlePingQuery(
-        const torrentsync::dht::message::Ping&,
-        const torrentsync::dht::Node&);
+        const dht::message::Ping&,
+        const dht::Node&);
+
+    /** Handle ping reply
+     * nothing to do in this case.
+     * The default behaviour is to try to add the 
+     * nome to the known nodes or to mark it as a good node.
+     */
+    void handlePingReply(
+        const dht::message::Ping&,
+        const dht::Node&);
+
+    //! Handle find_node queries.
+    void handleFindNodeQuery(
+        const dht::message::FindNode&,
+        const dht::Node&);
+
+    /** Handle find_node replies
+     * This handler should never be called. find_node queries should always 
+     * belong to a use case not randomly received.
+     */
+    void handleFindNodeReply(
+        const dht::message::FindNode&,
+        const dht::Node&);
 
 };
 
@@ -182,7 +205,7 @@ void RoutingTable::save( Archive &ar, const unsigned int version) const
     {
         ar << _table.size();
         throw std::runtime_error("Not Implemented Yet");
-        // TODO
+        // @TODO
     }
 }
 
@@ -196,7 +219,7 @@ void RoutingTable::load( Archive &ar, const unsigned int version)
     size_t nodes_count;
     ar >> nodes_count;
     throw std::runtime_error("Not Implemented Yet");
-    // TODO 
+    // @TODO 
     // refresh all the nodes
     // 1. ping all known and insert them in the routing table with the normal procedure
     // 2. perform normal startup operation and let the bucket refreshing do it's job

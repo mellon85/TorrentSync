@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <torrentsync/dht/message/FindNode.h>
-#include <torrentsync/dht/NodeData.h>
+#include <torrentsync/dht/Node.h>
 
 #include <test/torrentsync/dht/CommonNodeTest.h>
 
@@ -50,6 +50,12 @@ BOOST_AUTO_TEST_CASE(parse)
             BOOST_REQUIRE_EQUAL(p->getTarget(),"mnopqrstuvwxyz123456"));
     BOOST_REQUIRE_THROW(p->getNodes(),
         MalformedMessageException);
+}
+
+BOOST_AUTO_TEST_CASE(reply)
+{
+//    BOOST_REQUIRE(false);
+//@TODO
 }
 
 BOOST_AUTO_TEST_SUITE_END()

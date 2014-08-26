@@ -8,18 +8,26 @@
 #include <boost/utility.hpp>
 #include <boost/optional.hpp>
 
+#include <algorithm>
+
 namespace torrentsync
 {
 namespace dht
 {
 
+/** Bucket containing nodes
+ * A bucket container for node data, used as a node in NodeTree.
+ */
 template <size_t MaxSizeT>
 class NodeBucket : public boost::noncopyable
 {
 public:
+    //! constructor
+    //! @param low the lower bound
+    //! @param high the higher bound
     NodeBucket(
-            const NodeData& low,
-            const NodeData& high );
+        const NodeData& low,
+        const NodeData& high );
 
     ~NodeBucket();
 
@@ -27,12 +35,27 @@ public:
     typedef typename NodeList::const_iterator const_iterator;
     typedef typename NodeList::iterator iterator;
 
+    /** adds a node to the bucket
+     * In case the bucket it's already full it will try to remove older bad nodes.
+     * @param addr the node
+     * @return true if the node was added, false if it was not possible
+     * @throws std::invalid_argument in case addr is not in the bucket bounds
+     */
     bool add(
         const boost::shared_ptr<Node> addr);
 
+    /** remove a node from the bucket
+     * In case the bucket it's already full it will try to remove older bad nodes.
+     * @param addr the node
+     * @return true if it was removed, false if not found
+     */
     bool remove(
         const Node& addr);
 
+    /** Looks for a node in the bucket
+     * @return a valid optional value if found or nothing
+     * @param addr the address
+     */
     const boost::optional<NodeSPtr> find(
         const NodeData& addr) const;
 
@@ -44,9 +67,9 @@ public:
     void clear();
 
     bool inBounds(
-            const boost::shared_ptr<Node> addr ) const;
+        const boost::shared_ptr<Node>& addr ) const;
     bool inBounds(
-            const NodeData& addr ) const;
+        const NodeData& addr ) const;
 
     inline const NodeData& getLowerBound() const { return low;  };
     inline const NodeData& getUpperBound() const { return high; };
@@ -110,8 +133,7 @@ void NodeBucket<MaxSizeT>::clear()
 template <size_t MaxSizeT>
 bool NodeBucket<MaxSizeT>::add( const boost::shared_ptr<Node> addr )
 {
-    if (!addr.get())
-        throw std::invalid_argument("Node is NULL");
+    assert(addr.get());
 
     if (*addr > high || *addr < low)
     {
@@ -151,11 +173,9 @@ void NodeBucket<MaxSizeT>::removeBad()
 
 template <size_t MaxSizeT>
 bool NodeBucket<MaxSizeT>::inBounds(
-        const boost::shared_ptr<Node> addr ) const
+        const boost::shared_ptr<Node>& addr ) const
 {
-    if (!addr.get())
-        throw std::invalid_argument("Node is NULL");
-        
+    assert(addr.get());
     return inBounds(*addr);
 }
 
@@ -170,33 +190,28 @@ template <size_t MaxSizeT>
 bool NodeBucket<MaxSizeT>::remove(
     const Node& addr)
 {
-    bool found = false;
     for ( size_t it = 0; it < addressCount; ++it)
     {
         const boost::shared_ptr<Node>& v = _elements[it];
         assert(v.get());
 
-        if (addr != *v)
-            continue;
-
-        if (it+1 == addressCount) 
+        if (addr == *v)
         {
-            _elements[it] = boost::shared_ptr<Node>();
-            --addressCount;
-        }
-        else
-        {
-            for( size_t in = it+1; in < addressCount; ++in )
+            if (it+1 == addressCount) 
             {
-                _elements[it] = _elements[in];
+                _elements[it] = boost::shared_ptr<Node>();
+                --addressCount;
             }
-            --addressCount;
-            _elements[addressCount] = boost::shared_ptr<Node>();
+            else
+            {
+                std::copy( begin()+it+1, end(), begin()+it);
+                --addressCount;
+                _elements[addressCount] = boost::shared_ptr<Node>();
+            }
+            return true;
         }
-        found = true;
     }
-
-    return found;
+    return false;
 }
 
 template <size_t MaxSizeT>
@@ -237,16 +252,3 @@ const boost::optional<NodeSPtr> NodeBucket<MaxSizeT>::find(
 
 }; // dht
 }; // torrentsync
-
-namespace std
-{
-template <size_t Size>
-struct less<torrentsync::dht::NodeBucket<Size> >
-{
-      bool operator()
-          (const torrentsync::dht::NodeBucket<Size>& x
-          , const torrentsync::dht::NodeBucket<Size>& y) const
-      {return x.getUpperBound() < y.getLowerBound();}
-};
-}; // std
-

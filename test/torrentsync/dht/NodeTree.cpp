@@ -308,6 +308,7 @@ BOOST_AUTO_TEST_CASE(removeNode_removeSerial)
         {
             BOOST_REQUIRE_NO_THROW(addNode(addr));
         }
+        BOOST_REQUIRE_EQUAL(size(),v.size());
 
         BOOST_FOREACH( NodeSPtr addr, v )
         {
@@ -401,6 +402,83 @@ BOOST_AUTO_TEST_CASE(removeNode_addAndRemove)
         BOOST_REQUIRE_NO_THROW(removeNode(a));
         BOOST_REQUIRE_NO_THROW(removeNode(b));
         BOOST_REQUIRE_EQUAL(size(),0);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(getClosestNode_1)
+{
+    std::vector<NodeSPtr> v;
+
+    for( int i = 0; i < TEST_LOOP_COUNT; ++i )
+    {
+        std::vector<NodeSPtr> v;
+        v += NodeSPtr(new Node(Node::parse(generateRandomNode("00")))),
+             NodeSPtr(new Node(Node::parse(generateRandomNode("01")))),
+             NodeSPtr(new Node(Node::parse(generateRandomNode("02")))),
+             NodeSPtr(new Node(Node::parse(generateRandomNode("03")))),
+             NodeSPtr(new Node(Node::parse(generateRandomNode("f0")))),
+             NodeSPtr(new Node(Node::parse(generateRandomNode("f1")))),
+             NodeSPtr(new Node(Node::parse(generateRandomNode("f2")))),
+             NodeSPtr(new Node(Node::parse(generateRandomNode("f3")))),
+             NodeSPtr(new Node(Node::parse(generateRandomNode("f4")))),
+             NodeSPtr(new Node(Node::parse(generateRandomNode("f5")))),
+             NodeSPtr(new Node(Node::parse(generateRandomNode("f6"))));
+
+        BOOST_FOREACH( NodeSPtr& a, v)
+        {
+            BOOST_REQUIRE_NO_THROW(addNode(a));
+        }
+        BOOST_REQUIRE_EQUAL(size(),v.size());
+
+        std::list<NodeSPtr> nodes = getClosestNodes(Node::parse(generateRandomNode()));
+        BOOST_REQUIRE_EQUAL(nodes.size(),DHT_FIND_NODE_COUNT);
+        clear();
+    }
+}
+
+BOOST_AUTO_TEST_CASE(getClosestNode_2)
+{
+    std::vector<NodeSPtr> v;
+
+    for( size_t _i = 0; _i < TEST_LOOP_COUNT; ++_i )
+    {
+        std::vector<NodeSPtr> v;
+        for( size_t _t = 0; _t < 1000; ++_t )
+        {
+            NodeSPtr n = NodeSPtr(new Node(Node::parse(generateRandomNode())));
+            if (addNode(n))
+                v += n;
+        }
+        BOOST_REQUIRE_EQUAL(size(),v.size());
+
+        // take a random address and get the close nodes
+        Node addr = Node::parse(generateRandomNode());
+        std::list<NodeSPtr> nodes = getClosestNodes(addr);
+
+        // sort the nodes for easy search
+        std::sort(v.begin(),v.end(),[](const NodeSPtr& a, const NodeSPtr& b){
+                return *a <= *b; 
+            });
+
+        // verify that the result is nodes from the 24 close nodes
+        auto it = v.begin();
+        while (it != v.end() && **it < addr)
+            ++it;
+
+        const size_t distance_to_end   = v.end()-it;
+        const size_t distance_to_begin = it-v.begin();
+        auto min = it - std::min(distance_to_begin,std::max((size_t)12,distance_to_end));
+        auto max = it + std::min(distance_to_end,std::max((size_t)12,distance_to_begin));
+
+        // all elements of nodes should be in this interval
+        BOOST_FOREACH( const NodeSPtr& n, nodes )
+        {
+            BOOST_REQUIRE(std::find_if( min, max, [&](const NodeSPtr& p) -> bool {
+                    return *p == *n;
+                }) != v.end());
+        }
+        
+        clear();
     }
 }
 

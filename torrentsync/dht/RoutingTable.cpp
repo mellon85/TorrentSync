@@ -13,6 +13,7 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/cast.hpp>
 
 //! list of known bootstrap servers for the DHT network
 static const std::list< // domain/ip address, port, needs to be resolved
@@ -102,7 +103,7 @@ void RoutingTable::initializeTable( shared_timer timer )
                     // send the message
                     sendMessage(msg,endpoint);
 
-                    // TODO send find_node to get our node
+                    // @TODO send find_node to get our node
                     // give the 8 nodes priority over others. once we start having
                     // enough fresh nodes we don't need additional old nodes and we
                     // can skip them.
@@ -244,7 +245,10 @@ void RoutingTable::recvMessage(
     buffer[bytes_transferred] = 0;
     buffer.freeze();
 
-    LOG(DEBUG,"RoutingTable * from "<< sender << " received " << bytes_transferred <<  " " << pretty_print(buffer) << " e:"<<error.message());
+    LOG(DEBUG,"RoutingTable * from " << sender << " received " <<
+        bytes_transferred <<  " " << pretty_print(buffer)
+        << " e:" << error.message());
+
     boost::shared_ptr<msg::Message> message;
 
     // check for errors
@@ -287,7 +291,7 @@ void RoutingTable::recvMessage(
             new Node(message->getID(),sender)));
     }
 
-    // if a callback is registred call it instead of the normal flow
+    // if a callback is registered call it instead of the normal flow
     auto callback = getCallback(*message);
     if( !!callback ) 
     {
@@ -301,11 +305,15 @@ void RoutingTable::recvMessage(
             {
                 if ( msg_type == msg::Messages::Ping )
                 {
-                    handlePingQuery( dynamic_cast<msg::Ping&>(*message), **node);
+                    handlePingQuery(
+                        *boost::polymorphic_downcast<msg::Ping*>(message.get()),
+                        **node);
                 }
                 else if ( msg_type == msg::Messages::FindNode )
                 {
-                    // @TODO answer with our node knowledge
+                    handleFindNodeQuery(
+                        *boost::polymorphic_downcast<msg::FindNode*>(message.get()),
+                        **node);
                 } 
                 else
                 {
@@ -339,28 +347,36 @@ void RoutingTable::recvMessage(
     // - add the node to the known addresses
     // - update node statistics
 
+    // - add the node to the tree in case it's missing, or set it good
     // - update transaction id if it was a query
 }
 
-void RoutingTable::handlePingQuery(
-    const torrentsync::dht::message::Ping& ping,
-    const torrentsync::dht::Node&          node)
+void RoutingTable::doPing(
+    torrentsync::dht::Node& destination )
 {
+    assert(!!(destination.getEndpoint()));
+
+    torrentsync::utils::Buffer transaction("aa"); // @TODO transaction id
+    transaction.freeze();
+
+    torrentsync::utils::Buffer ping = msg::Ping::getQuery(
+        transaction,
+        _table.getTableNode());
+
     registerCallback([&](
             boost::optional<Callback::callback_payload_t> data,
             const torrentsync::dht::Callback&             trigger) -> void {
 
-            //! @TODO update data from the node
-
-        }, ping.getType(),ping.getMessageType(),ping.getID(),ping.getTransactionID());
+            if (!!data)
+            {
+                data->get<1>().setGood(); // mark the node as good
+                LOG(DEBUG,"Ping handled: " << data->get<1>() );
+            }
+        }, msg::Type::Reply, msg::Messages::Ping, destination, transaction);
 
     // send ping reply
-    assert(!!(node.getEndpoint()));
-    sendMessage( msg::Ping::getReply(
-                    ping.getTransactionID(), _table.getTableNode()),
-                 *(node.getEndpoint()) );
+    sendMessage( ping, *(destination.getEndpoint()) );
 }
-
 
 boost::shared_ptr<boost::asio::ip::tcp::socket> RoutingTable::lookForNode()
 {

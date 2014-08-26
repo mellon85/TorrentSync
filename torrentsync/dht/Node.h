@@ -29,8 +29,7 @@ public:
 
     static Node parse( const std::string& string );
 
-    // distance operator
-    Distance operator^( const Node& addr ) const noexcept;
+    
 
     //! marks the address as good/fresh
     void setGood() noexcept;

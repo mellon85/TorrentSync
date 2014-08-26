@@ -9,19 +9,25 @@
 #include <boost/utility.hpp>
 
 #include <set>
+#include <list>
 
 namespace torrentsync
 {
 namespace dht
 {
+
 typedef torrentsync::dht::NodeBucket<DHT_K> Bucket;
 typedef boost::shared_ptr<Bucket> BucketSPtr;
-typedef std::set< boost::shared_ptr<Bucket> > BucketContainer;
+typedef std::set<boost::shared_ptr<Bucket>, bool(*)(const BucketSPtr&,const BucketSPtr&) > BucketContainer;
 typedef std::pair<BucketSPtr,BucketSPtr> BucketSPtrPair;
 typedef boost::optional<BucketSPtrPair> MaybeBuckets;
  
-// @TODO must be reritten to use Node instead of NodeData
-// and so renamed NodeTree.
+/**
+ * NodeTree is the tree structure to keep the known DHT addresses as per DHT 
+ * specification.
+ * Access to this class is thread safe as it manages it's own internal
+ * consistency.
+ */
 class NodeTree : public boost::noncopyable
 {
 public:
@@ -46,13 +52,17 @@ public:
     //! Returns our own address used to setup the tree
     const NodeData& getTableNode() const noexcept;
 
-    // clears every bucke
+    //! clears every bucket in the tree and resets its structure
     void clear() noexcept;
 
-    // find an address inside the tree
+    //! find an address inside the tree
     const boost::optional<NodeSPtr> getNode(
-           const NodeData& data ) const;
+        const NodeData& data ) const noexcept;
 
+    //! find the closest (DHT_FIND_NODE_COUNT) addresses to this address we know
+    const std::list<NodeSPtr> getClosestNodes(
+        const NodeData& data) const;
+ 
 protected:
 
     mutable Mutex mutex; // RW mutex
@@ -60,10 +70,12 @@ protected:
     //! splits, if possible, a bucket in 2 splitting the contents
     MaybeBuckets split( BucketContainer::const_iterator bucket_it );
 
-    //! Finds the bucket containing the address space for this address.
-    //! Should be called from a read-lock.
-    //! @param address the address
-    //! @return iterator to bucket
+    /** Finds the bucket containing the address space for this address.
+     *  Should be called from a read-lock; it will always return a valid bucket.
+     *  complexity: O(log n)
+     *  @param address the address
+     *  @return iterator to bucket
+     */
     BucketContainer::const_iterator findBucket(
         const NodeData& address ) const; 
 
@@ -76,6 +88,7 @@ private:
 
     //! address used as the center of the tree
     const NodeData _node;
+
 };
 
 }; // dht

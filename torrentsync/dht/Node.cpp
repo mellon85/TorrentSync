@@ -71,15 +71,6 @@ void Node::setEndpoint( udp::endpoint& endpoint )
     _endpoint = endpoint;
 }
 
-Distance Node::operator^( const Node& addr ) const noexcept
-{
-    Distance ret;
-    ret.p1 = p1 ^ addr.p1;
-    ret.p2 = p2 ^ addr.p2;
-    ret.p3 = p3 ^ addr.p3;
-    return ret;
-}
-
 void Node::read(
     torrentsync::utils::Buffer::const_iterator begin,
     torrentsync::utils::Buffer::const_iterator end)
