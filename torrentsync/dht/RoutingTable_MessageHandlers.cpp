@@ -44,15 +44,13 @@ void RoutingTable::handleFindNodeQuery(
 {
     LOG(DEBUG,"Find Query received " << message.getID() << " " << node);
     assert(!!(node.getEndpoint()));
-    
-    auto nodes = _table.getClosestNodes(node);
 
+    auto nodes = _table.getClosestNodes(node);
     sendMessage(
         msg::FindNode::getMessageReply(
             message.getTransactionID(),
             _table.getTableNode(),
-            node,
-            makeYield<boost::shared_ptr<NodeData> >(nodes.cbegin(),nodes.cend()).function()),
+            utils::makeYield<dht::NodeSPtr>(nodes.cbegin(),nodes.cend()).function()),
         *(node.getEndpoint()));
 }
 

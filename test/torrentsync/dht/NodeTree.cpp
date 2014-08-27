@@ -407,8 +407,6 @@ BOOST_AUTO_TEST_CASE(removeNode_addAndRemove)
 
 BOOST_AUTO_TEST_CASE(getClosestNode_1)
 {
-    std::vector<NodeSPtr> v;
-
     for( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::vector<NodeSPtr> v;
@@ -418,11 +416,7 @@ BOOST_AUTO_TEST_CASE(getClosestNode_1)
              NodeSPtr(new Node(Node::parse(generateRandomNode("03")))),
              NodeSPtr(new Node(Node::parse(generateRandomNode("f0")))),
              NodeSPtr(new Node(Node::parse(generateRandomNode("f1")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f2")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f3")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f4")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f5")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f6"))));
+             NodeSPtr(new Node(Node::parse(generateRandomNode("f2"))));
 
         BOOST_FOREACH( NodeSPtr& a, v)
         {
@@ -431,15 +425,13 @@ BOOST_AUTO_TEST_CASE(getClosestNode_1)
         BOOST_REQUIRE_EQUAL(size(),v.size());
 
         std::list<NodeSPtr> nodes = getClosestNodes(Node::parse(generateRandomNode()));
-        BOOST_REQUIRE_EQUAL(nodes.size(),DHT_FIND_NODE_COUNT);
+        BOOST_REQUIRE_LE(nodes.size(),DHT_FIND_NODE_COUNT);
         clear();
     }
 }
 
 BOOST_AUTO_TEST_CASE(getClosestNode_2)
 {
-    std::vector<NodeSPtr> v;
-
     for( size_t _i = 0; _i < TEST_LOOP_COUNT; ++_i )
     {
         std::vector<NodeSPtr> v;
@@ -477,6 +469,28 @@ BOOST_AUTO_TEST_CASE(getClosestNode_2)
                     return *p == *n;
                 }) != v.end());
         }
+        BOOST_REQUIRE_LE(nodes.size(),DHT_FIND_NODE_COUNT);
+        
+        clear();
+    }
+}
+
+BOOST_AUTO_TEST_CASE(getClosestNode_perfectmatch)
+{
+    for( size_t _i = 0; _i < TEST_LOOP_COUNT; ++_i )
+    {
+        std::vector<NodeSPtr> v;
+        for( size_t _t = 0; _t < 1000; ++_t )
+        {
+            NodeSPtr n = NodeSPtr(new Node(Node::parse(generateRandomNode())));
+            if (addNode(n))
+                v += n;
+        }
+        BOOST_REQUIRE_EQUAL(size(),v.size());
+
+        // take a random address and get the close nodes
+        std::list<NodeSPtr> nodes = getClosestNodes(*v[rand()%v.size()]);
+        BOOST_REQUIRE_LE(nodes.size(),1);
         
         clear();
     }

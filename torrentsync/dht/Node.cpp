@@ -1,4 +1,3 @@
-
 #include <torrentsync/dht/Node.h>
 #include <torrentsync/utils/log/Logger.h>
 
@@ -86,13 +85,32 @@ void Node::read(
 
     const boost::asio::ip::address_v4 new_address(
         ntohl(
-            *(reinterpret_cast<int const*>(begin))));
+            *(reinterpret_cast<uint32_t const*>(begin))));
 
     const uint16_t new_port =
         ntohs(
-            *(reinterpret_cast<short const*>(begin+4)));
+            *(reinterpret_cast<uint16_t const*>(begin+4)));
 
     _endpoint = udp::endpoint(new_address,new_port);
+}
+
+utils::Buffer Node::getPackedNode() const
+{
+    assert(!!_endpoint);
+    
+    utils::Buffer buff = NodeData::write();
+    
+    buff.resize(PACKED_NODE_SIZE);
+    
+    const std::array<uint8_t, 4> networkOrderAddress = _endpoint->address().to_v4().to_bytes();
+    const uint16_t portNetworkOrder    = htons(_endpoint->port());
+
+    for( int i = 0; i < 4; ++i)
+        buff[20+i] = networkOrderAddress[i];
+    buff[24] = static_cast<uint8_t>(portNetworkOrder & 0xFF);
+    buff[25] = static_cast<uint8_t>(portNetworkOrder >> 8);
+    
+    return buff;
 }
 
 }; // dht

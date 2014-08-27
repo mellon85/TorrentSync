@@ -32,7 +32,7 @@ public:
             in_type, OutputType>::type         value_type;
     
     typedef typename boost::optional<value_type>         return_type;
-    typedef typename std::function<return_type() >      function_type;
+    typedef typename std::function<return_type()>      function_type;
     
     static_assert( std::is_convertible<in_type,value_type>::value, "input type not convertible to output type");
 
@@ -45,7 +45,7 @@ public:
     
     function_type function()
     {
-        return [&](){ return (*this)(); };
+        return [&] { return (*this)(); };
     }
     
 private:

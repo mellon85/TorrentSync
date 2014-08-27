@@ -12,6 +12,8 @@ namespace torrentsync
 namespace dht
 {
 
+#define PACKED_NODE_SIZE 26
+
 using boost::asio::ip::udp;
 
 //! A DHT address with the associated statistics and informations
@@ -25,12 +27,10 @@ public:
         const torrentsync::utils::Buffer&,
         const boost::optional<udp::endpoint>& = boost::optional<udp::endpoint>() );
 
-    ~Node() {};
+    virtual ~Node() {};
 
     static Node parse( const std::string& string );
-
     
-
     //! marks the address as good/fresh
     void setGood() noexcept;
 
@@ -61,6 +61,13 @@ public:
         torrentsync::utils::Buffer::const_iterator begin,
         torrentsync::utils::Buffer::const_iterator end);
 
+    /** Returns a packed representation of the node
+     * 20-byte id followed by network order bytes representing the ipv4 address 
+     * and the port number.
+     * @return the packed representation.
+     */
+    virtual utils::Buffer getPackedNode() const;
+    
 protected:
     Node() {};
 
@@ -82,15 +89,15 @@ typedef boost::shared_ptr<Node> NodeSPtr;
 namespace std
 {
 template <>
-struct less<boost::shared_ptr<torrentsync::dht::Node> > :
+struct less<torrentsync::dht::NodeSPtr> :
     public std::binary_function<
-        boost::shared_ptr<torrentsync::dht::Node>,
-        boost::shared_ptr<torrentsync::dht::Node>, bool>
+        torrentsync::dht::NodeSPtr,
+        torrentsync::dht::NodeSPtr, bool>
 {
-      bool operator()
-          (const boost::shared_ptr<torrentsync::dht::Node>& x
-          ,const boost::shared_ptr<torrentsync::dht::Node>& y ) const
-          {return *x < *y;}
+    bool operator()
+        (const torrentsync::dht::NodeSPtr& x
+        ,const torrentsync::dht::NodeSPtr& y ) const
+            {return *x < *y;}
 };
 }; // std
- 
+

@@ -2,7 +2,9 @@
 
 #include <torrentsync/dht/message/Message.h>
 #include <torrentsync/utils/Buffer.h>
+#include <torrentsync/dht/Node.h>
 #include <boost/optional.hpp>
+
 
 namespace torrentsync
 {
@@ -11,7 +13,7 @@ namespace dht
 
 class NodeData;
 class Node;
-using namespace torrentsync::utils;
+using namespace torrentsync;
 
 namespace message
 {
@@ -31,10 +33,10 @@ public:
      * @param source source address (should be our own address)
      * @param target the target address
      */
-    static const torrentsync::utils::Buffer getMessage( 
-        const torrentsync::utils::Buffer& transactionID,
-        const torrentsync::dht::NodeData& source,
-        const torrentsync::dht::NodeData& target);
+    static const utils::Buffer getMessage( 
+        const utils::Buffer& transactionID,
+        const dht::NodeData& source,
+        const dht::NodeData& target);
 
     /** creates a FindNode message reply
      * @param transactionID the ID
@@ -43,15 +45,14 @@ public:
      * @param yield a function that returns the closest nodes to send 
      *              until an invalid value is returned
      */
-    static const torrentsync::utils::Buffer getMessageReply( 
-        const torrentsync::utils::Buffer& transactionID,
-        const torrentsync::dht::NodeData& source,
-        const torrentsync::dht::NodeData& target,
-        const std::function<boost::optional<boost::shared_ptr<NodeData> >()> yield);
+    static const utils::Buffer getMessageReply( 
+        const utils::Buffer& transactionID,
+        const dht::NodeData& source,
+        const std::function<boost::optional<boost::shared_ptr<Node> >()> yield);
 
-    Buffer getTarget();
+    utils::Buffer getTarget();
 
-    Buffer getNodes();
+    utils::Buffer getNodes();
 };
 
 } /* message */

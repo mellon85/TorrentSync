@@ -179,6 +179,19 @@ const std::list<NodeSPtr> NodeTree::getClosestNodes(
 
     // find bucket
     auto bucket_it = findBucket(data);
+    
+    // check if we have a perfect match
+    const Bucket::const_iterator perfect_match = std::find_if(
+        (*bucket_it)->cbegin(),(*bucket_it)->cend(),
+            [&data](const NodeSPtr& a) { return *a == data; } );
+    
+    if ( perfect_match != (*bucket_it)->cend() )
+    {
+        nodes.push_back(*perfect_match);
+        return nodes;
+    }
+    
+    // in case a perfect match is not found the closest nodes are returned
     if (bucket_it != _buckets.begin())
         --bucket_it; // put it at the left bucket
 
@@ -191,12 +204,11 @@ const std::list<NodeSPtr> NodeTree::getClosestNodes(
     }
 
     auto it = knownNodes.begin();
-    for( size_t i = 0; i < knownNodes.size() && i < 8;  ++i, ++it )
+    for( size_t __i = 0; __i < knownNodes.size() && __i < DHT_FIND_NODE_COUNT;  ++__i, ++it )
     {
         nodes.push_back(*it);
     }
-
-    return std::move(nodes);
+    return nodes;
 }
 
 const NodeData& NodeTree::getTableNode() const noexcept

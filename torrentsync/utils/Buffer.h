@@ -22,6 +22,8 @@ namespace utils
  *  has been encoded in the buffer allocated ! memory to simplify the
  *  freeze functionality.  Can contain only POD data. I didn't develop
  *  it tobe safe if exceptions are thrown in the value_type type.
+ *  The class doesn't need move operations as anyway the object itself shares
+ *  data with other instances.
  */
 template <class value_type_t>
 class BufferImpl

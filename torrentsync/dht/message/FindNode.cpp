@@ -1,7 +1,11 @@
 #include <torrentsync/dht/message/BEncodeEncoder.h>
 #include <torrentsync/dht/NodeData.h>
+#include <torrentsync/dht/Node.h>
 #include <torrentsync/dht/message/FindNode.h>
 #include <torrentsync/utils/Buffer.h>
+#include <torrentsync/dht/DHTConstants.h>
+
+
 
 namespace torrentsync
 {
@@ -32,19 +36,39 @@ FindNode::getMessage(
     return enc.value();
 }
 
-const utils::Buffer
-FindNode::getMessageReply( 
+const utils::Buffer FindNode::getMessageReply( 
     const utils::Buffer& transactionID,
     const dht::NodeData& source,
-    const dht::NodeData& target,
-    const std::function<boost::optional<boost::shared_ptr<NodeData> >()> nodeRetriver)
+    const std::function<boost::optional<dht::NodeSPtr> ()> nodes)
 {
-    throw std::runtime_error("Not Implemented Yet");
+    utils::Buffer nodeData(PACKED_NODE_SIZE*DHT_FIND_NODE_COUNT);
+    
+    size_t bufferIndex = 0;
+    auto it = nodes();
+    while ( !!it )
+    {
+        const utils::Buffer data = (*it)->getPackedNode();
+        assert(bufferIndex + data.size() <= nodeData.size());
+        std::copy(data.cbegin(),data.cend(),nodeData.begin()+bufferIndex);
+        bufferIndex += PACKED_NODE_SIZE;
+        it = nodes(); // take next
+    }
+    nodeData.resize(bufferIndex);
+    
     BEncodeEncoder enc;
+    enc.startDictionary();
+    enc.addElement(Field::Reply);
+    enc.startDictionary();
+    enc.addDictionaryElement(Field::PeerID,source.write());
+    enc.addDictionaryElement(Field::Nodes,nodeData);
+    enc.endDictionary();
+    enc.addDictionaryElement(Field::TransactionID,transactionID);
+    enc.addDictionaryElement(Field::Type,Type::Reply); 
+    enc.endDictionary();
     return enc.value();
 }
 
-Buffer FindNode::getTarget()
+utils::Buffer FindNode::getTarget()
 {
     boost::optional<utils::Buffer> token;
     token = find( Field::Arguments + "/" + Field::Target, data );
@@ -53,7 +77,7 @@ Buffer FindNode::getTarget()
     return *token;
 }
 
-Buffer FindNode::getNodes()
+utils::Buffer FindNode::getNodes()
 {
     boost::optional<utils::Buffer> token;
     token = find( Field::Reply + "/" + Field::Nodes, data );
