@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <torrentsync/dht/message/BEncodeDecoder.h>
 #include <torrentsync/dht/NodeData.h>
 
@@ -63,9 +63,9 @@ public:
      * @throw BEncodeDecoderException in case an error is encountered while
      *  parsing
      */
-    static boost::shared_ptr<Message> parseMessage( std::istream& istream );
-    static boost::shared_ptr<Message> parseMessage( const torrentsync::utils::Buffer& buffer );
-    static boost::shared_ptr<Message> parseMessage( const torrentsync::utils::Buffer& buffer, const size_t size );
+    static std::shared_ptr<Message> parseMessage( std::istream& istream );
+    static std::shared_ptr<Message> parseMessage( const torrentsync::utils::Buffer& buffer );
+    static std::shared_ptr<Message> parseMessage( const torrentsync::utils::Buffer& buffer, const size_t size );
 
     //! Returns the message type. In this way you can cast to the correct
     //! object.

@@ -15,7 +15,7 @@ namespace dht
 class NodeData;
 typedef std::pair<NodeData,NodeData>    Bounds;
 typedef boost::optional<Bounds>         MaybeBounds;
-typedef boost::shared_ptr<NodeData>     NodeDataSPtr;
+typedef std::shared_ptr<NodeData>     NodeDataSPtr;
 class Distance;
 
 //! Basic implementation of a 160 bit data block

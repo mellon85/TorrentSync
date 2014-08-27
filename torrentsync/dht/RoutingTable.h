@@ -8,9 +8,9 @@
 
 #include <torrentsync/dht/Callback.h>
 #include <torrentsync/dht/NodeTree.h>
-#include <torrentsync/utils/Lock.h>
 
 #include <exception>
+#include <mutex>
 #include <map>
 #include <list>
 #include <utility>
@@ -51,7 +51,7 @@ public:
     //! Will return a tcp connection to the target node holder.
     //! @TODO should return a class that manages the swarm of nodes, not
     //!       an address. still missing every parameter.
-    boost::shared_ptr<boost::asio::ip::tcp::socket> lookForNode();
+    std::shared_ptr<boost::asio::ip::tcp::socket> lookForNode();
 
     //! Initializes network sockets binding to the specific endpoint.
     //! May throw exceptions for error
@@ -62,7 +62,7 @@ public:
 
 protected:
     //! Shared pointer containing a timeout timer
-    typedef boost::shared_ptr<boost::asio::deadline_timer> shared_timer;
+    typedef std::shared_ptr<boost::asio::deadline_timer> shared_timer;
 
     //! Initalizes the tables by trying to contact the initial addresses stored
     //! from previous runs. It will try sending ping requests to these nodes.
@@ -155,7 +155,7 @@ private:
     udp::socket _send_socket;
 
     //! Outbout mutex
-    Mutex _send_mutex;
+    std::mutex _send_mutex;
 
     //! Callbacks container.
     //! A multimap is enough as anyway there shouldn't be more than one

@@ -1,11 +1,9 @@
 #pragma once
 
-#include <boost/tuple/tuple.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <tuple>
 #include <ostream>
-
-#include <torrentsync/utils/Lock.h>
-
+#include <mutex>
+#include <memory>
 
 namespace torrentsync
 {
@@ -24,10 +22,10 @@ typedef enum
 
 const std::string& levelToString( const Level );
 
-typedef boost::tuple<
+typedef std::tuple<
     std::ostream*,
     Level,
-    boost::shared_ptr<Mutex> >
+    std::shared_ptr<std::mutex> >
         Sink;
 
 } // level

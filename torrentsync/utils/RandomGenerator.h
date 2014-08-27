@@ -1,7 +1,6 @@
 #pragma once
 
-#include <boost/scoped_ptr.hpp>
-
+#include <memory>
 #include <cstdint>
 
 namespace torrentsync
@@ -21,7 +20,7 @@ protected:
     RandomGenerator();
 
 private:
-    static boost::scoped_ptr<RandomGenerator> generator;
+    static std::unique_ptr<RandomGenerator> generator;
 
 };
 

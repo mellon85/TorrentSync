@@ -1,8 +1,9 @@
 #pragma once
 
-#include <boost/shared_ptr.hpp>
+
 #include <boost/call_traits.hpp>
 
+#include <memory>
 #include <cctype>
 #include <cstring>
 #include <stdexcept>
@@ -236,7 +237,7 @@ private:
     }
 
     //! pointer to the data
-    boost::shared_ptr<intrusive_size_t> _data;
+    std::shared_ptr<intrusive_size_t> _data;
 };
 
 template <class value_type_t>

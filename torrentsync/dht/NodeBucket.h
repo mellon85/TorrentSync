@@ -3,7 +3,7 @@
 #include <torrentsync/dht/NodeData.h>
 #include <torrentsync/dht/Node.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/array.hpp>
 #include <boost/utility.hpp>
 #include <boost/optional.hpp>
@@ -31,7 +31,7 @@ public:
 
     ~NodeBucket();
 
-    typedef boost::array<boost::shared_ptr<Node>, MaxSizeT > NodeList;
+    typedef boost::array<std::shared_ptr<Node>, MaxSizeT > NodeList;
     typedef typename NodeList::const_iterator const_iterator;
     typedef typename NodeList::iterator iterator;
 
@@ -42,7 +42,7 @@ public:
      * @throws std::invalid_argument in case addr is not in the bucket bounds
      */
     bool add(
-        const boost::shared_ptr<Node> addr);
+        const std::shared_ptr<Node> addr);
 
     /** remove a node from the bucket
      * In case the bucket it's already full it will try to remove older bad nodes.
@@ -67,7 +67,7 @@ public:
     void clear();
 
     bool inBounds(
-        const boost::shared_ptr<Node>& addr ) const;
+        const std::shared_ptr<Node>& addr ) const;
     bool inBounds(
         const NodeData& addr ) const;
 
@@ -126,12 +126,12 @@ template <size_t MaxSizeT>
 void NodeBucket<MaxSizeT>::clear()
 {
     std::for_each( begin(), end(), 
-            [](boost::shared_ptr<Node>& t) { assert(t.get()); t.reset();});
+            [](std::shared_ptr<Node>& t) { assert(t.get()); t.reset();});
     addressCount = 0;
 }
 
 template <size_t MaxSizeT>
-bool NodeBucket<MaxSizeT>::add( const boost::shared_ptr<Node> addr )
+bool NodeBucket<MaxSizeT>::add( const std::shared_ptr<Node> addr )
 {
     assert(addr.get());
 
@@ -150,7 +150,7 @@ bool NodeBucket<MaxSizeT>::add( const boost::shared_ptr<Node> addr )
     {
         // find first greater than the current address
         iterator it = std::find_if( begin(), end(),
-            bind1st(std::less<boost::shared_ptr<Node> >(),addr) );
+            bind1st(std::less<std::shared_ptr<Node> >(),addr) );
         std::copy_backward(it,end(),end()+1);
         *it = addr;
         ++addressCount;
@@ -164,7 +164,7 @@ template <size_t MaxSizeT>
 void NodeBucket<MaxSizeT>::removeBad()
 {
     const iterator it = std::remove_if( begin(), end(),
-            [](const boost::shared_ptr<Node>& addr) -> bool {
+            [](const std::shared_ptr<Node>& addr) -> bool {
                 assert(addr.get());
                 return addr->isBad(); }
             );
@@ -173,7 +173,7 @@ void NodeBucket<MaxSizeT>::removeBad()
 
 template <size_t MaxSizeT>
 bool NodeBucket<MaxSizeT>::inBounds(
-        const boost::shared_ptr<Node>& addr ) const
+        const std::shared_ptr<Node>& addr ) const
 {
     assert(addr.get());
     return inBounds(*addr);
@@ -192,21 +192,21 @@ bool NodeBucket<MaxSizeT>::remove(
 {
     for ( size_t it = 0; it < addressCount; ++it)
     {
-        const boost::shared_ptr<Node>& v = _elements[it];
+        const std::shared_ptr<Node>& v = _elements[it];
         assert(v.get());
 
         if (addr == *v)
         {
             if (it+1 == addressCount) 
             {
-                _elements[it] = boost::shared_ptr<Node>();
+                _elements[it] = std::shared_ptr<Node>();
                 --addressCount;
             }
             else
             {
                 std::copy( begin()+it+1, end(), begin()+it);
                 --addressCount;
-                _elements[addressCount] = boost::shared_ptr<Node>();
+                _elements[addressCount] = std::shared_ptr<Node>();
             }
             return true;
         }
@@ -237,7 +237,7 @@ const boost::optional<NodeSPtr> NodeBucket<MaxSizeT>::find(
     const NodeData& addr) const
 {
     const_iterator it = std::find_if( begin(), end(), 
-            [addr](const boost::shared_ptr<Node>& bucket_addr) -> bool {
+            [addr](const std::shared_ptr<Node>& bucket_addr) -> bool {
                 assert(bucket_addr.get());
                 return static_cast<NodeData&>(*bucket_addr) == addr; }
             );

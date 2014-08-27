@@ -3,8 +3,6 @@
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/Node.h>
 
-#include <boost/tuple/tuple.hpp>
-
 #include <functional>
 
 namespace torrentsync
@@ -35,7 +33,7 @@ public:
     //! after 3 minutes a callback is condisered old
     static const size_t TIME_LIMIT;
 
-    typedef boost::tuple<
+    typedef std::tuple<
         const torrentsync::dht::message::Message&,
         torrentsync::dht::Node&> callback_payload_t;
 

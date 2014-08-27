@@ -5,8 +5,6 @@
 #include <torrentsync/dht/NodeData.h>
 #include <torrentsync/dht/Distance.h>
 
-#include <boost/shared_ptr.hpp>
-
 namespace torrentsync
 {
 namespace dht
@@ -81,7 +79,7 @@ protected:
     boost::optional<udp::endpoint> _endpoint;
 };
 
-typedef boost::shared_ptr<Node> NodeSPtr;
+typedef std::shared_ptr<Node> NodeSPtr;
 
 }; // dht
 }; // torrentsync

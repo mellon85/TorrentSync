@@ -48,7 +48,7 @@ public:
     static const utils::Buffer getMessageReply( 
         const utils::Buffer& transactionID,
         const dht::NodeData& source,
-        const std::function<boost::optional<boost::shared_ptr<Node> >()> yield);
+        const std::function<boost::optional<std::shared_ptr<Node> >()> yield);
 
     utils::Buffer getTarget();
 

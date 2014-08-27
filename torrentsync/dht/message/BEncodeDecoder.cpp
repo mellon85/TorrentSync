@@ -1,8 +1,6 @@
 #include <torrentsync/dht/message/BEncodeDecoder.h>
 #include <cassert>
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <boost/iostreams/stream.hpp>
@@ -95,12 +93,12 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                     default:
                         value = readValue(stream);
 
-                        BOOST_FOREACH( const structureStackE& path, structureStack )
+                        std::for_each( structureStack.begin(),structureStack.end(), [&] (const structureStackE& path)
                         {
                             buffer += path.first;
                             if (buffer.size() > 0)
                                 buffer += '/';
-                        }
+                        });
 
                         buffer += key;
                         data.insert(std::make_pair(buffer,value));
@@ -113,12 +111,12 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                     torrentsync::utils::Buffer value;
                     value = readValue(stream);
 
-                    BOOST_FOREACH( const structureStackE& path, structureStack )
+                    std::for_each( structureStack.begin(),structureStack.end(), [&] (const structureStackE& path)
                     {
                         buffer += path.first;
                         if (buffer.size() > 0)
                             buffer += '/';
-                    }
+                    });
 
                     buffer += boost::lexical_cast<std::string>(listCounter);
                     ++listCounter;

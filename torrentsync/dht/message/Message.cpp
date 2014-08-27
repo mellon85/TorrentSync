@@ -43,21 +43,21 @@ namespace bio = boost::iostreams;
 
 typedef bio::stream<bio::array_source> array_stream;
 
-boost::shared_ptr<Message> Message::parseMessage( const torrentsync::utils::Buffer& buffer )
+std::shared_ptr<Message> Message::parseMessage( const torrentsync::utils::Buffer& buffer )
 {
     bio::array_source source(buffer.cbegin(),buffer.cend());
     bio::stream<bio::array_source> in(source);
     return parseMessage(in);
 }
 
-boost::shared_ptr<Message> Message::parseMessage( const torrentsync::utils::Buffer& buffer, const size_t length )
+std::shared_ptr<Message> Message::parseMessage( const torrentsync::utils::Buffer& buffer, const size_t length )
 {
     bio::array_source source(buffer.cbegin(),length);
     bio::stream<bio::array_source> in(source);
     return parseMessage(in);
 }
 
-boost::shared_ptr<Message> Message::parseMessage( std::istream& istream )
+std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
 {
     BEncodeDecoder decoder;
     decoder.parseMessage(istream);
@@ -70,7 +70,7 @@ boost::shared_ptr<Message> Message::parseMessage( std::istream& istream )
     if (!msgType)
         throw MalformedMessageException("Couldn't find message name");
 
-    boost::shared_ptr<Message> message;
+    std::shared_ptr<Message> message;
     if( *msgType == Messages::Ping)
     {
         message.reset(new Ping(decoder.getData()));

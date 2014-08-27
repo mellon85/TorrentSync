@@ -34,7 +34,7 @@ private:
 
     void flush();
 
-    boost::shared_ptr<std::stringstream> _buffer;
+    std::shared_ptr<std::stringstream> _buffer;
 };
 
 template <> LogStream& LogStream::operator<< < logend_t> ( const logend_t& t );

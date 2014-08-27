@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(match_type_fail)
         [&v](boost::optional<Callback::callback_payload_t> data,
              const torrentsync::dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->get<0>().getType().empty() ? 0 : 1;
+            v += std::get<0>(*data).getType().empty() ? 0 : 1;
             },
         torrentsync::dht::message::Type::Reply,
         torrentsync::dht::message::Messages::Ping,
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(match_type_success)
         [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->get<0>().getType().empty() ? 0 : 1; },
+            v += std::get<0>(*data).getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
         buff,
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(match_messagetype_fail)
         [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->get<0>().getType().empty() ? 0 : 1; },
+            v += std::get<0>(*data).getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::FindNode,
         buff,
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(match_node_success)
         [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->get<0>().getType().empty() ? 0 : 1; },
+            v += std::get<0>(*data).getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
         buff,
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(match_node_failure)
         [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->get<0>().getType().empty() ? 0 : 1; },
+            v += std::get<0>(*data).getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
         buff2,
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(match_transaction_success)
         [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->get<0>().getType().empty() ? 0 : 1; },
+            v += std::get<0>(*data).getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
         buff,
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(match_transaction_failure)
         [&v]( boost::optional<Callback::callback_payload_t> data,
               const torrentsync::dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->get<0>().getType().empty() ? 0 : 1; },
+            v += std::get<0>(*data).getType().empty() ? 0 : 1; },
         torrentsync::dht::message::Type::Query,
         torrentsync::dht::message::Messages::Ping,
         buff,

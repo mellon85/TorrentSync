@@ -8,19 +8,19 @@
 #include <iterator>
 #include <vector>
 #include <atomic>
+#include <mutex>
+#include <tuple>
 
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
-#include <boost/assign/list_of.hpp>
 #include <boost/cast.hpp>
 
 //! list of known bootstrap servers for the DHT network
 static const std::list< // domain/ip address, port, needs to be resolved
-    boost::tuple<std::string,unsigned short,bool> > BOOTSTRAP_ADDRESSES =
-        boost::assign::tuple_list_of
-            ("router.bittorrent.com",6881,true)
-            ("router.utorrent.com"  ,6881,true);
+    std::tuple<std::string,unsigned short,bool> > BOOTSTRAP_ADDRESSES =
+            {std::make_tuple("router.bittorrent.com",6881,true),
+             std::make_tuple("router.utorrent.com"  ,6881,true)};
 
 //! number of batches per second while initializing the DHT.
 static const size_t INITIALIZE_PING_BATCH_INTERVAL = static_cast<size_t>(1000/3);
@@ -158,7 +158,7 @@ void RoutingTable::initializeNetwork(
 void RoutingTable::scheduleNextReceive()
 {
     torrentsync::utils::Buffer buff(MESSAGE_BUFFER_SIZE);
-    boost::shared_ptr<boost::asio::ip::udp::endpoint> sender(
+    std::shared_ptr<boost::asio::ip::udp::endpoint> sender(
         new boost::asio::ip::udp::endpoint());
 
     _recv_socket.async_receive_from(
@@ -210,7 +210,7 @@ void RoutingTable::sendMessage(
     // the write handler will ensure that the buffer exists until the
     // end of the send.
     buff.freeze();
-    WriteLock lock(_send_mutex);
+    std::lock_guard<std::mutex> lock(_send_mutex);
 
     const size_t count = send_queue_counter.fetch_add(1);
     if (count < MAX_SEND_QUEUE)
@@ -249,7 +249,7 @@ void RoutingTable::recvMessage(
         bytes_transferred <<  " " << pretty_print(buffer)
         << " e:" << error.message());
 
-    boost::shared_ptr<msg::Message> message;
+    std::shared_ptr<msg::Message> message;
 
     // check for errors
     if (error)
@@ -369,8 +369,8 @@ void RoutingTable::doPing(
 
             if (!!data)
             {
-                data->get<1>().setGood(); // mark the node as good
-                LOG(DEBUG,"Ping handled: " << data->get<1>() );
+                std::get<1>(*data).setGood(); // mark the node as good
+                LOG(DEBUG,"Ping handled: " << std::get<1>(*data) );
             }
         }, msg::Type::Reply, msg::Messages::Ping, destination, transaction);
 
@@ -378,10 +378,10 @@ void RoutingTable::doPing(
     sendMessage( ping, *(destination.getEndpoint()) );
 }
 
-boost::shared_ptr<boost::asio::ip::tcp::socket> RoutingTable::lookForNode()
+std::shared_ptr<boost::asio::ip::tcp::socket> RoutingTable::lookForNode()
 {
     throw std::runtime_error("Not Implemented Yet");
-    boost::shared_ptr<boost::asio::ip::tcp::socket> ret;
+    std::shared_ptr<boost::asio::ip::tcp::socket> ret;
     return ret;
 }
 

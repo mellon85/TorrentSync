@@ -1,5 +1,5 @@
 #include <torrentsync/utils/log/Logger.h>
-#include <torrentsync/utils/Lock.h>
+#include <mutex>
 
 namespace torrentsync
 {
@@ -12,7 +12,7 @@ bool Logger::_forceFlush = false;
 
 Level Logger::_level = WARN;
 
-boost::scoped_ptr<Logger> Logger::_logger;
+std::unique_ptr<Logger> Logger::_logger;
 
 Logger::Logger()
 {
@@ -20,8 +20,8 @@ Logger::Logger()
 
 Logger& Logger::getInstance()
 {
-    static Mutex mutex;
-    WriteLock lock(mutex);
+    static std::mutex mutex;
+    std::lock_guard<std::mutex> lock(mutex);
     if (!_logger.get())
     {
         _logger.reset(new Logger());
@@ -57,7 +57,7 @@ Level Logger::getLogLevel()
 void Logger::addSink( std::ostream* stream, const Level level )
 {
     _sinks.push_back(Sink(stream,level,
-        boost::shared_ptr<Mutex>(new Mutex())));
+        std::shared_ptr<std::mutex>(new std::mutex())));
 }
 
 void Logger::destroy()

@@ -4,9 +4,6 @@
 #include <numeric>
 #include <functional>
 
-#include <boost/foreach.hpp>
-#include <boost/lambda/lambda.hpp>
-
 namespace torrentsync
 {
 namespace dht
@@ -34,7 +31,7 @@ bool NodeTree::addNode( NodeSPtr address )
     if (!address.get())
         throw std::invalid_argument("Node is not set");
 
-    UpgradableLock rlock(mutex);
+    std::lock_guard<std::mutex> lock(mutex);
 
     BucketContainer::const_iterator bucket_it = findBucket(*address);
     assert(bucket_it != _buckets.end());
@@ -45,7 +42,6 @@ bool NodeTree::addNode( NodeSPtr address )
     bool isAdded = bucket->add(address);
     if ( !isAdded && bucket->inBounds(_node) )
     {
-        UpgradedWriteLock wlock(rlock);
         MaybeBuckets maybe_split_buckets = split(bucket_it);
 
         // unsplittable, ignore it
@@ -77,7 +73,7 @@ void NodeTree::removeNode( NodeSPtr address )
     if (!address.get())
         throw std::invalid_argument("Node is not set");
 
-    UpgradableLock rlock(mutex);
+    std::lock_guard<std::mutex> lock(mutex);
 
     BucketContainer::const_iterator bucket_it = findBucket(*address);
 
@@ -89,7 +85,7 @@ void NodeTree::removeNode( NodeSPtr address )
 
 size_t NodeTree::size() const noexcept
 {
-    ReadLock rlock(mutex);
+    std::lock_guard<std::mutex> lock(mutex);
     return std::accumulate(_buckets.begin(), _buckets.end(), static_cast<size_t>(0),
         [](const size_t init,const BucketContainer::key_type& t) -> size_t
             { return init+t->size(); });
@@ -147,11 +143,11 @@ MaybeBuckets NodeTree::split( BucketContainer::const_iterator bucket_it )
 
 void NodeTree::clear() noexcept
 {
-    WriteLock lock(mutex);
+    std::lock_guard<std::mutex> lock(mutex);
     _buckets.clear();
 
     // initialize first bucket
-    boost::shared_ptr<Bucket> bucket(
+    std::shared_ptr<Bucket> bucket(
             new Bucket( NodeData::minValue, NodeData::maxValue));
     _buckets.insert(bucket);
 }
@@ -170,7 +166,7 @@ const std::list<NodeSPtr> NodeTree::getClosestNodes(
     const NodeData& data) const
 {
     std::list<NodeSPtr> nodes;
-    WriteLock lock(mutex);
+    std::lock_guard<std::mutex> lock(mutex);
     
     std::set<NodeSPtr,std::function<bool(const NodeSPtr&,const NodeSPtr&)> > knownNodes(
         [&data]( const NodeSPtr& x, const NodeSPtr& y) {

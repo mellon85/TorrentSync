@@ -13,8 +13,6 @@ class NodeData;
 namespace utils
 {
 
-using namespace boost::mpl;
-
 /**
  * Linearly returns the elements between begin and end iterator.
  * Useful to avoid creating template classes/methods just to pass a pair of

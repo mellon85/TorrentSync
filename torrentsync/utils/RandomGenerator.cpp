@@ -1,10 +1,8 @@
 #include <ctime>
-
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/mersenne_twister.hpp>
+#include <random>
+#include <mutex>
 
 #include <torrentsync/utils/RandomGenerator.h>
-#include <torrentsync/utils/Lock.h>
 
 namespace torrentsync
 {
@@ -25,16 +23,16 @@ public:
     }
 
 private:
-    boost::random::mt19937 gen;
-    boost::random::uniform_int_distribution<uint32_t> dist;
+    std::mt19937 gen;
+    std::uniform_int_distribution<uint32_t> dist;
 };
 
-boost::scoped_ptr<RandomGenerator> RandomGenerator::generator;
+std::unique_ptr<RandomGenerator> RandomGenerator::generator;
 
 RandomGenerator& RandomGenerator::getInstance()
 {
-    static Mutex mutex;      
-    WriteLock lock(mutex);
+    static std::mutex mutex;      
+    std::lock_guard<std::mutex> lock(mutex);
     if (!generator.get())
     {
         generator.reset(new RandomGeneratorImpl());

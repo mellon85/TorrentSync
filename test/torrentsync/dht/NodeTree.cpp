@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999)
             {
                 std::stringstream num;
                 num << a << b << c;
-                addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str())))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_999_to_000)
             {
                 std::stringstream num;
                 num << a << b << c;
-                addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str())))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_cba)
             {
                 std::stringstream num;
                 num << c << b << a;
-                addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str())))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_bca)
             {
                 std::stringstream num;
                 num << b << c << a;
-                addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str())))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_acb)
             {
                 std::stringstream num;
                 num << a << c << b;
-                addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str())))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_cab)
             {
                 std::stringstream num;
                 num << c << a << b;
-                addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str())))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_bac)
             {
                 std::stringstream num;
                 num << b << a << c;
-                addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str())))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -216,15 +216,15 @@ BOOST_AUTO_TEST_CASE(addNode_someRandom)
         {
             bool bad = false;
             NodeSPtr a(new Node(Node::parse(generateRandomNode())));
-            BOOST_FOREACH( const NodeSPtr& it, addresses )
+            std::for_each( addresses.begin(), addresses.end(), [&](const NodeSPtr& it)
             {
                 if (*a == *it)
                 {
                     --j;
                     bad = true;
-                    break;
+                    return;
                 }
-            }
+            });
             if (!bad)
             {
                 addresses.push_back(a);
@@ -255,18 +255,18 @@ BOOST_AUTO_TEST_CASE(addNode_and_find)
              NodeSPtr(new Node(Node::parse(generateRandomNode("04")))),
              NodeSPtr(new Node(Node::parse(generateRandomNode("05"))));
 
-        BOOST_FOREACH( NodeSPtr addr, v )
+        std::for_each( v.begin(), v.end(), [&](const NodeSPtr addr)
         {
             BOOST_REQUIRE_NO_THROW(addNode(addr));
-        }
+        });
 
-        BOOST_FOREACH( const NodeSPtr& addr, v )
+        std::for_each( v.begin(), v.end(), [&](const NodeSPtr addr)
         {
             boost::optional<NodeSPtr> b = getNode(*addr);
             BOOST_CHECK(!!b);
             BOOST_REQUIRE(b.get());
             BOOST_CHECK_EQUAL(**b,*addr);
-        }
+        });
 
         for ( int j = 0; j < TEST_LOOP_COUNT; ++j )
         {
@@ -304,16 +304,16 @@ BOOST_AUTO_TEST_CASE(removeNode_removeSerial)
              NodeSPtr(new Node(Node::parse(generateRandomNode("04")))),
              NodeSPtr(new Node(Node::parse(generateRandomNode("05"))));
 
-        BOOST_FOREACH( NodeSPtr addr, v )
+        std::for_each( v.begin(), v.end(), [&]( const NodeSPtr addr)
         {
             BOOST_REQUIRE_NO_THROW(addNode(addr));
-        }
+        });
         BOOST_REQUIRE_EQUAL(size(),v.size());
 
-        BOOST_FOREACH( NodeSPtr addr, v )
+        std::for_each( v.begin(), v.end(), [&]( const NodeSPtr addr)
         {
             BOOST_REQUIRE_NO_THROW(removeNode(addr));
-        }
+        });
 
         BOOST_REQUIRE_EQUAL(size(),0);
     }
@@ -338,10 +338,10 @@ BOOST_AUTO_TEST_CASE(removeNode_removeRandomOrder)
              NodeSPtr(new Node(Node::parse(generateRandomNode("04")))),
              NodeSPtr(new Node(Node::parse(generateRandomNode("05"))));
 
-        BOOST_FOREACH( NodeSPtr addr, v )
+        std::for_each( v.begin(), v.end(), [&](const NodeSPtr addr)
         {
             BOOST_REQUIRE_NO_THROW(addNode(addr));
-        }
+        });
 
         while ( ! v.empty() )
         {
@@ -373,10 +373,10 @@ BOOST_AUTO_TEST_CASE(removeNode_addAndRemove)
              NodeSPtr(new Node(Node::parse(generateRandomNode("f5")))),
              NodeSPtr(new Node(Node::parse(generateRandomNode("f6"))));
 
-        BOOST_FOREACH( NodeSPtr& a, v)
+        std::for_each( v.begin(), v.end(), [&](const NodeSPtr a)
         {
             BOOST_REQUIRE_NO_THROW(addNode(a));
-        }
+        });
         BOOST_REQUIRE_EQUAL(size(),v.size());
 
         NodeSPtr a(new Node(Node::parse(generateRandomNode("04"))));
@@ -394,10 +394,11 @@ BOOST_AUTO_TEST_CASE(removeNode_addAndRemove)
         BOOST_REQUIRE_NO_THROW(addNode(b));
         BOOST_REQUIRE_EQUAL(size(),v.size()+numberToRemove);
 
-        BOOST_FOREACH( NodeSPtr& a, v )
+        std::for_each( v.begin(), v.end(), [&](const NodeSPtr a)
         {
             BOOST_REQUIRE_NO_THROW(removeNode(a));
-        }
+        });
+
         BOOST_REQUIRE_EQUAL(size(),numberToRemove);
         BOOST_REQUIRE_NO_THROW(removeNode(a));
         BOOST_REQUIRE_NO_THROW(removeNode(b));
@@ -418,10 +419,10 @@ BOOST_AUTO_TEST_CASE(getClosestNode_1)
              NodeSPtr(new Node(Node::parse(generateRandomNode("f1")))),
              NodeSPtr(new Node(Node::parse(generateRandomNode("f2"))));
 
-        BOOST_FOREACH( NodeSPtr& a, v)
+        std::for_each( v.begin(), v.end(), [&](const NodeSPtr addr)
         {
-            BOOST_REQUIRE_NO_THROW(addNode(a));
-        }
+            BOOST_REQUIRE_NO_THROW(addNode(addr));
+        });
         BOOST_REQUIRE_EQUAL(size(),v.size());
 
         std::list<NodeSPtr> nodes = getClosestNodes(Node::parse(generateRandomNode()));
@@ -463,12 +464,12 @@ BOOST_AUTO_TEST_CASE(getClosestNode_2)
         auto max = it + std::min(distance_to_end,std::max((size_t)12,distance_to_begin));
 
         // all elements of nodes should be in this interval
-        BOOST_FOREACH( const NodeSPtr& n, nodes )
+        std::for_each( nodes.begin(), nodes.end(), [&](const NodeSPtr n)
         {
             BOOST_REQUIRE(std::find_if( min, max, [&](const NodeSPtr& p) -> bool {
                     return *p == *n;
                 }) != v.end());
-        }
+        });
         BOOST_REQUIRE_LE(nodes.size(),DHT_FIND_NODE_COUNT);
         
         clear();

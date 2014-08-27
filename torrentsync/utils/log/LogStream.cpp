@@ -1,8 +1,7 @@
 #include <torrentsync/utils/log/LogStream.h>
 #include <torrentsync/utils/log/Logger.h>
 
-#include <boost/foreach.hpp>
-#include "boost/date_time/posix_time/posix_time.hpp"
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace torrentsync
 {
@@ -39,10 +38,10 @@ void LogStream::flush()
 {
     if (Logger::getForceFlush())
     {
-        BOOST_FOREACH( Sink &sink, _sinks )
+        std::for_each( _sinks.begin(), _sinks.end(), [&] (Sink &sink)
         {
-            sink.get<0>()->flush();
-        }
+            std::get<0>(sink)->flush();
+        });
     }
 }
 
@@ -51,14 +50,14 @@ template <> LogStream& LogStream::operator<< < logend_t> ( const logend_t& t )
     if (_buffer.get())
     {
         *_buffer << std::endl;
-        BOOST_FOREACH( Sink &sink, _sinks )
+        std::for_each( _sinks.begin(), _sinks.end(), [&] (Sink &sink)
         {
-            if (sink.get<1>() <= _level)
+            if (std::get<1>(sink) <= _level)
             {
-                WriteLock lock(*sink.get<2>());
-                (*(sink.get<0>())) << _buffer->str();
+                std::lock_guard<std::mutex> lock(* std::get<2>(sink));
+                (*(std::get<0>(sink))) << _buffer->str();
             }
-        }
+        });
         _buffer.reset();
         flush();
     }

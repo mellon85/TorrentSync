@@ -1,4 +1,5 @@
 #include <torrentsync/utils/Buffer.h>
+#include <iostream>
 
 std::ostream& operator<<( std::ostream& stream, const pretty_print& buff )
 {

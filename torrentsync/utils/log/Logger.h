@@ -3,8 +3,9 @@
 #include <torrentsync/utils/log/Log.h>
 #include <torrentsync/utils/log/LogStream.h>
 
-#include <boost/utility.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <mutex>
+
+//#include <boost/utility.hpp>
 
 #define LOG(LEVEL, MSG) torrentsync::utils::log::Logger::getInstance().log(torrentsync::utils::log::LEVEL) << MSG << \
     torrentsync::utils::log::logend;
@@ -45,7 +46,7 @@ private:
     Logger();
 
     //! the logger singleton instance
-    static boost::scoped_ptr<Logger> _logger;
+    static std::unique_ptr<Logger> _logger;
 
     static Level _level;
 

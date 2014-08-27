@@ -3,13 +3,13 @@
 #include <torrentsync/dht/Node.h>
 #include <torrentsync/dht/NodeBucket.h>
 #include <torrentsync/dht/DHTConstants.h>
-#include <torrentsync/utils/Lock.h>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/utility.hpp>
-
+#include <memory>
+#include <mutex>
 #include <set>
 #include <list>
+
+#include <boost/utility.hpp>
 
 namespace torrentsync
 {
@@ -17,8 +17,8 @@ namespace dht
 {
 
 typedef torrentsync::dht::NodeBucket<DHT_K> Bucket;
-typedef boost::shared_ptr<Bucket> BucketSPtr;
-typedef std::set<boost::shared_ptr<Bucket>, bool(*)(const BucketSPtr&,const BucketSPtr&) > BucketContainer;
+typedef std::shared_ptr<Bucket> BucketSPtr;
+typedef std::set<std::shared_ptr<Bucket>, bool(*)(const BucketSPtr&,const BucketSPtr&) > BucketContainer;
 typedef std::pair<BucketSPtr,BucketSPtr> BucketSPtrPair;
 typedef boost::optional<BucketSPtrPair> MaybeBuckets;
  
@@ -65,7 +65,7 @@ public:
  
 protected:
 
-    mutable Mutex mutex; // RW mutex
+    mutable std::mutex mutex;
 
     //! splits, if possible, a bucket in 2 splitting the contents
     MaybeBuckets split( BucketContainer::const_iterator bucket_it );

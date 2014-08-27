@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(reply_perfectMatch)
         boost::asio::ip::udp::endpoint(
              boost::asio::ip::address_v4(0x45454545),0x4747));
     
-    boost::shared_ptr<dht::Node> match(new dht::Node(target.write(),endpoint));
+    std::shared_ptr<dht::Node> match(new dht::Node(target.write(),endpoint));
     
     std::list<dht::NodeSPtr> nodes;
     nodes.push_back(match);
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(reply_multiple)
         boost::asio::ip::udp::endpoint(
              boost::asio::ip::address_v4(0x45454545),0x4747));
     
-    boost::shared_ptr<dht::Node> match(new dht::Node(target.write(),endpoint));
+    std::shared_ptr<dht::Node> match(new dht::Node(target.write(),endpoint));
     
     std::list<dht::NodeSPtr> nodes;
     nodes.push_back(match);
