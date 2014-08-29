@@ -61,5 +61,32 @@ void RoutingTable::handleFindNodeReply(
     LOG(WARN,"find_node reply without a callback. " << message.getID() << "-" << node );
 }
 
+
+void RoutingTable::doPing(
+    dht::Node& destination )
+{
+    assert(!!(destination.getEndpoint()));
+
+    torrentsync::utils::Buffer transaction = newTransaction();
+
+    torrentsync::utils::Buffer ping = msg::Ping::getQuery(
+        transaction,
+        _table.getTableNode());
+
+    registerCallback([&](
+            boost::optional<Callback::callback_payload_t> data,
+            const torrentsync::dht::Callback&             trigger) -> void {
+
+            if (!!data)
+            {
+                std::get<1>(*data).setGood(); // mark the node as good
+                LOG(DEBUG,"Ping handled: " << std::get<1>(*data) );
+            }
+        }, destination, transaction);
+
+    // send ping reply
+    sendMessage( ping, *(destination.getEndpoint()) );
+}
+
 } // dht
 } // torrentsync

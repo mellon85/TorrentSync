@@ -61,12 +61,9 @@ public:
         const udp::endpoint& endpoint);
 
 protected:
-    //! Shared pointer containing a timeout timer
-    typedef std::shared_ptr<boost::asio::deadline_timer> shared_timer;
-
     //! Initalizes the tables by trying to contact the initial addresses stored
     //! from previous runs. It will try sending ping requests to these nodes.
-    void initializeTable( shared_timer timer = shared_timer());
+    void initializeTable();
     
     //! Use a few known addresses to start a connection with the DHT network.
     //! This function must not be called until initialization of the
@@ -122,8 +119,6 @@ private:
     //! @param transactionID optional parameter specifing if the message is awaited from a specific Peer
     void registerCallback(
         const Callback::callback_t& func,
-        const std::string& type,
-        const std::string& messageType,
         const dht::NodeData& source, 
         const utils::Buffer& transactionID);
 
@@ -167,6 +162,14 @@ private:
     //! Number of close nodes found.
     std::atomic<size_t> _close_nodes_count;
 
+    //! Transaction ID counter.
+    std::atomic<uint16_t> _transaction_id;
+    
+    //! Returns a new Transacton ID. Starts with a random value and 
+    //! will increase up to INT16_MAX when it will be reset to 0 and 
+    //! restart.
+    utils::Buffer newTransaction();
+    
     //! ************** Message handlers *****************
 
     //! Handle ping queries.

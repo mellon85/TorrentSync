@@ -13,6 +13,8 @@ namespace dht
 namespace message
 {
 
+using namespace torrentsync;
+
 void BEncodeDecoder::parseMessage( std::istream& stream )
 {
     bool parseEnded = false;
@@ -80,7 +82,7 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                 if (structureStack.back().second == DICTIONARY)
                 {
                     std::string key;
-                    torrentsync::utils::Buffer value;
+                    utils::Buffer value;
                     key = readElement(stream);
 
                     // peek if it's a 'l' or a 'd' (substructure)
@@ -108,8 +110,7 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                 else
                 {
                     assert(structureStack.back().second == LIST);
-                    torrentsync::utils::Buffer value;
-                    value = readValue(stream);
+                    utils::Buffer value = readValue(stream);
 
                     std::for_each( structureStack.begin(),structureStack.end(), [&] (const structureStackE& path)
                     {
@@ -161,15 +162,12 @@ std::string BEncodeDecoder::readElement( std::istream& stream )
     }
 }
 
-torrentsync::utils::Buffer BEncodeDecoder::readValue( std::istream& stream )
+utils::Buffer BEncodeDecoder::readValue( std::istream& stream )
 {
-    
-    int length;
+    size_t length;
 
     stream >> length;
     const char separator = stream.get();
-
-    torrentsync::utils::Buffer buff(length);
 
     if (!stream.good())
         throw BEncodeException("Error in stream while reading an element");
@@ -181,11 +179,13 @@ torrentsync::utils::Buffer BEncodeDecoder::readValue( std::istream& stream )
         throw BEncodeException(msg.str());
     }
 
+    utils::Buffer buffer;
+    buffer.reserve(length);
+    for( size_t __i = 0; __i < length; ++__i )
     {
-        assert(buff.get());
-        stream.read(buff.get(),length);
-        return buff;
+        buffer.push_back(stream.get());
     }
+    return buffer;
 }
 
 } // torrentsync

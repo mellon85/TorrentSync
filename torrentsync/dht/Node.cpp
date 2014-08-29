@@ -26,14 +26,6 @@ Node::Node(
     setGood();
 }
 
-Node Node::parse( const std::string& str )
-{
-    Node node;
-    node.parseString(str);
-    node.setGood();
-    return node;
-}
-
 void Node::setGood() noexcept
 {
     _last_time_good = time(0);
@@ -83,15 +75,17 @@ void Node::read(
         throw std::invalid_argument("Not enough data to parse Peer contact information");
     }
 
+    uint32_t address;
+    uint16_t port;
+    std::copy(begin,begin+sizeof(address),&address);
+
     const boost::asio::ip::address_v4 new_address(
-        ntohl(
-            *(reinterpret_cast<uint32_t const*>(begin))));
+        ntohl(address));
 
-    const uint16_t new_port =
-        ntohs(
-            *(reinterpret_cast<uint16_t const*>(begin+4)));
+    begin += 4;
+    std::copy(begin,begin+sizeof(port),&port);
 
-    _endpoint = udp::endpoint(new_address,new_port);
+    _endpoint = udp::endpoint(new_address,ntohs(port));
 }
 
 utils::Buffer Node::getPackedNode() const

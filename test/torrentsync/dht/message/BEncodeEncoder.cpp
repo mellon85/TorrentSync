@@ -7,6 +7,7 @@
 
 BOOST_AUTO_TEST_SUITE(torrentsync_dht_message_BEncodeEncoder);
 
+using namespace torrentsync;
 using namespace torrentsync::dht::message;
 
 BOOST_AUTO_TEST_CASE(constructor_destructor)
@@ -38,7 +39,8 @@ BOOST_AUTO_TEST_CASE(bep005_ping_example_q)
     c.addDictionaryElement("y","q");
     c.endDictionary();
 
-    BOOST_REQUIRE_EQUAL(c.value(),"d1:ad2:id20:abcdefghij0123456789e1:q4:ping1:t2:aa1:y1:qe");
+    BOOST_REQUIRE(c.value() ==
+        utils::makeBuffer("d1:ad2:id20:abcdefghij0123456789e1:q4:ping1:t2:aa1:y1:qe"));
 }
 
 BOOST_AUTO_TEST_CASE(bep005_ping_example_r)
@@ -54,7 +56,8 @@ BOOST_AUTO_TEST_CASE(bep005_ping_example_r)
     c.addDictionaryElement("y","r");
     c.endDictionary();
 
-    BOOST_REQUIRE_EQUAL(c.value(),"d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re");
+    BOOST_REQUIRE(c.value() ==
+        utils::makeBuffer("d1:rd2:id20:mnopqrstuvwxyz123456e1:t2:aa1:y1:re"));
 }
 
 BOOST_AUTO_TEST_CASE(bep005_find_node_example_q)
@@ -72,7 +75,8 @@ BOOST_AUTO_TEST_CASE(bep005_find_node_example_q)
     c.addDictionaryElement("y","q");
     c.endDictionary();
 
-    BOOST_REQUIRE_EQUAL(c.value(),"d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe");
+    BOOST_REQUIRE(c.value() ==
+        utils::makeBuffer("d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe"));
 }
 
 BOOST_AUTO_TEST_CASE(bep005_find_node_example_r)
@@ -83,13 +87,15 @@ BOOST_AUTO_TEST_CASE(bep005_find_node_example_r)
     c.addElement("r");
     c.startDictionary();
     c.addDictionaryElement("id","0123456789abcdefghij");
-    c.addDictionaryElement("nodes","def456...");
+    c.addDictionaryElement("nodes","0123456789abcdefghij....11");
     c.endDictionary();
     c.addDictionaryElement("t","aa");
     c.addDictionaryElement("y","r");
     c.endDictionary();
 
-    BOOST_REQUIRE_EQUAL(c.value(),"d1:rd2:id20:0123456789abcdefghij5:nodes9:def456...e1:t2:aa1:y1:re");
+    BOOST_REQUIRE(c.value() ==
+        utils::makeBuffer(
+"d1:rd2:id20:0123456789abcdefghij5:nodes26:0123456789abcdefghij....11e1:t2:aa1:y1:re"));
 }
 
 BOOST_AUTO_TEST_SUITE_END();

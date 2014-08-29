@@ -13,6 +13,8 @@ namespace dht
 namespace message
 {
 
+using namespace torrentsync;
+
 namespace Type
 {
     extern const std::string Query;
@@ -48,14 +50,14 @@ public:
     MalformedMessageException( const std::string& what ) : std::runtime_error(what) {}
 };
 
-class Ping;
-
 //! Abstract class representing every message
 class Message
 {
 public:
-    virtual ~Message() {}
+    virtual ~Message() = default;
 
+    //Message( Message&& );
+    
     /*! Parse a generic message and returns an instance of it.
      * This method must be used to parse messages.
      * @param istream the input stream to read from
@@ -64,44 +66,51 @@ public:
      *  parsing
      */
     static std::shared_ptr<Message> parseMessage( std::istream& istream );
-    static std::shared_ptr<Message> parseMessage( const torrentsync::utils::Buffer& buffer );
-    static std::shared_ptr<Message> parseMessage( const torrentsync::utils::Buffer& buffer, const size_t size );
+    static std::shared_ptr<Message> parseMessage( const utils::Buffer& buffer );
+    static std::shared_ptr<Message> parseMessage( const utils::Buffer& buffer, const size_t size );
 
     //! Returns the message type. In this way you can cast to the correct
     //! object.
-    //! @return a member of the Messages namespace
+    //! @return a member of the Messages namespace if it's a query. If it's a reply it will be empty
     //! @throw MalformedMessageException in case the field is not available.
-    const std::string getMessageType() const;
+    const boost::optional<utils::Buffer> getMessageType() const;
 
     //! returns the type of the message
     //! @return a member of Type namespace
     //! @throw MalformedMessageException in case the field is not available.
-    const std::string getType() const;
+    const utils::Buffer getType() const;
  
     //! Returns a buffer containing the transaction ID of the message.
     //! Must be reimplemented in every subclass
     //! @return transaction id
-    torrentsync::utils::Buffer getTransactionID() const;
+    const utils::Buffer getTransactionID() const;
 
     //! returns the node address of the remote node. Must be implemented
     //! by every subclass
     //! @return a NodeData instance
     //! @throw MalformedMessageException in case the data is not available or
     //! the message is an error (it's mandatory otherwise).
-    torrentsync::utils::Buffer getID() const;
-
-protected:
-    //! inline constructor
-    inline Message() {}
-
-    //! Copy constructor
-    inline Message(const DataMap& data) : data(data) {}
-
-    //! Map containing all the data for the message
-    DataMap data;
+    const utils::Buffer getID() const;
 
     //! returns an optional buffer from the data map if found.
-    static boost::optional<torrentsync::utils::Buffer> find(
+    const boost::optional<utils::Buffer> find(
+        const std::string& key) const;
+    
+    //! converts the message to a human readable representation
+    const std::string string() const;
+    
+protected:
+    //! Default constructor
+    Message() = default;
+
+    //! Constructor
+    Message(const DataMap& data);
+
+    //! Map containing all the data for the message
+    DataMap _data;
+
+    //! returns an optional buffer from the data map if found.
+    static const boost::optional<utils::Buffer> find(
         const std::string& key,
         const DataMap& data);
 };
@@ -110,3 +119,4 @@ protected:
 } /* dht */
 } /* torrentsync */
 
+std::ostream& operator<<( std::ostream&, const torrentsync::dht::message::Message& );

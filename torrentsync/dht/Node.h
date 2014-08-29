@@ -26,8 +26,6 @@ public:
         const boost::optional<udp::endpoint>& = boost::optional<udp::endpoint>() );
 
     virtual ~Node() {};
-
-    static Node parse( const std::string& string );
     
     //! marks the address as good/fresh
     void setGood() noexcept;

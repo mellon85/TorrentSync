@@ -1,5 +1,4 @@
 #include <boost/test/unit_test.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <iostream>
 
 #include <torrentsync/utils/Buffer.h>
@@ -11,116 +10,91 @@ using namespace torrentsync::utils;
 BOOST_AUTO_TEST_CASE(initialize_and_destroy)
 {
     Buffer buff1;
-    Buffer buff2(10);
-    Buffer buff3("abcdef");
-    Buffer buff4("abcdef",2);
-
+    Buffer buff2 = makeBuffer("abcdef");
+    Buffer buff4 = makeBuffer("abcdef");
+    buff4.resize(2);
+    
     BOOST_REQUIRE(buff1.empty());
     BOOST_REQUIRE_EQUAL(buff1.size(),0);
     BOOST_REQUIRE(!buff2.empty());
-    BOOST_REQUIRE_EQUAL(buff2.size(),10);
-    BOOST_REQUIRE_EQUAL(buff2.get()[buff2.size()],0);
-    BOOST_REQUIRE(!buff3.empty());
-    BOOST_REQUIRE_EQUAL(buff3.size(),6);
-    BOOST_REQUIRE_EQUAL(buff3.get()[buff3.size()],0);
+    BOOST_REQUIRE_EQUAL(buff2.size(),6);
     BOOST_REQUIRE(!buff4.empty());
     BOOST_REQUIRE_EQUAL(buff4.size(),2);
-    BOOST_REQUIRE_EQUAL(buff4.get()[buff4.size()],0);
 }
 
 BOOST_AUTO_TEST_CASE(no_diff_between_cstr_and_str)
 {
     std::string str("aa");
-    Buffer buff("aa");
+    Buffer buff = makeBuffer("aa");
 
-    BOOST_REQUIRE_EQUAL(buff,str.c_str());
-    BOOST_REQUIRE_EQUAL(buff,str);
+    BOOST_REQUIRE(buff == str);
 }
 
 BOOST_AUTO_TEST_CASE(delete_with_resize)
 {
-    Buffer buff("abc");
+    Buffer buff = makeBuffer("abc");
     buff.resize(2);
-    BOOST_REQUIRE_EQUAL(buff,"ab");
+    BOOST_REQUIRE(buff == "ab");
 }
 
 BOOST_AUTO_TEST_CASE(resize)
 {
-    Buffer buff("abcdefg");
+    Buffer buff = makeBuffer("abcdefg");
 
     buff.resize(2);
-    BOOST_REQUIRE_EQUAL(memcmp("ab",buff.get(),2),0);
+    BOOST_REQUIRE_EQUAL(memcmp("ab",buff.data(),2),0);
     BOOST_REQUIRE(!buff.empty());
     BOOST_REQUIRE_EQUAL(buff.size(),2);
 
     buff.resize(3);
-    BOOST_REQUIRE_EQUAL(memcmp("ab",buff.get(),2),0);
+    BOOST_REQUIRE_EQUAL(memcmp("ab",buff.data(),2),0);
     BOOST_REQUIRE(!buff.empty());
     BOOST_REQUIRE_EQUAL(buff.size(),3);
 
-    buff.get()[2] = 'f';
-    BOOST_REQUIRE_EQUAL(memcmp("abf",buff.get(),3),0);
+    buff[2] = 'f';
+    BOOST_REQUIRE_EQUAL(memcmp("abf",buff.data(),3),0);
 }
 
-BOOST_AUTO_TEST_CASE(freeze)
+BOOST_AUTO_TEST_CASE(parseHex)
 {
-    Buffer x("abdef");
-    Buffer y(x);
+    Buffer buff;
 
-    BOOST_REQUIRE_EQUAL(y,x);
-    BOOST_REQUIRE_EQUAL(y.begin(),x.begin()); // same pointers
+    buff = parseIDFromHex("0000000000000000000000000000000000000000");
 
-    x.freeze();
-    *x.begin() = *x.begin();
-
-    BOOST_REQUIRE_EQUAL(y,x);
-    BOOST_CHECK_PREDICATE( boost::lambda::_1 != boost::lambda::_2, (x.begin())(y.begin()));
+    std::for_each( buff.begin(), buff.end(), [&](uint8_t t ) {
+        BOOST_REQUIRE_EQUAL(t,0);
+    });
+    
+    buff = parseIDFromHex("0000000000000000000000000000000000000001");
+        
+    std::for_each( buff.begin(), buff.begin()+19, [&](uint8_t t ) {
+        BOOST_REQUIRE_EQUAL(t,0);
+    });
+    BOOST_REQUIRE_EQUAL(buff[19],1);
+    
+    buff = parseIDFromHex("0000000000000000000000000000000000000100");   
+    std::for_each( buff.begin(), buff.begin()+18, [&](uint8_t t ) {
+        BOOST_REQUIRE_EQUAL(t,0);
+    });
+    BOOST_REQUIRE_EQUAL(buff[18],1);
+    BOOST_REQUIRE_EQUAL(buff[19],0);
+    
+    buff = parseIDFromHex("0000000000000000000000000000000100000000");   
+    BOOST_REQUIRE_EQUAL(buff[15],1);
+    
+    buff = parseIDFromHex("1000000000000000000000000000001F00000000");   
+    BOOST_REQUIRE_EQUAL(buff[0],0x10);
+    BOOST_REQUIRE_EQUAL(buff[15],0x1F);
 }
 
-BOOST_AUTO_TEST_CASE(diff_constr)
+BOOST_AUTO_TEST_CASE(toString_m)
 {
-    Buffer x("abc");
-    const Buffer y(x);
-    BOOST_REQUIRE_EQUAL(y,x);
-    BOOST_REQUIRE(y.cbegin() == x.cbegin()); // same pointers
-}
+    Buffer buff;
 
-BOOST_AUTO_TEST_CASE(diff_constr2)
-{
-    const Buffer x("abc");
-    Buffer y(x);
-    BOOST_REQUIRE_EQUAL(y,x);
-    //BOOST_REQUIRE(y.cbegin() != x.cbegin()); // same pointers
-}
-
-BOOST_AUTO_TEST_CASE(constructor_equality)
-{
-    std::string content = "abcdefghi";
-
-    Buffer a(content);
-    Buffer b(content.c_str());
-    Buffer c(content.c_str(),content.size());
-    BOOST_REQUIRE_EQUAL(a,b);
-    BOOST_REQUIRE_EQUAL(b,c);
-}
-
-BOOST_AUTO_TEST_CASE(test_zero_size)
-{
-    // to avoid confusin the compiler with 0 as a pointer I have to cast
-    // it.
-    Buffer buff(static_cast<size_t>(0));
-
-    BOOST_REQUIRE_NO_THROW(
-        buff.begin());
-    BOOST_REQUIRE_NO_THROW(
-        buff.end());
-    BOOST_REQUIRE_NO_THROW(
-        buff.cbegin());
-    BOOST_REQUIRE_NO_THROW(
-        buff.cend());
-
-    BOOST_REQUIRE_NO_THROW(
-        BOOST_REQUIRE_EQUAL(buff.begin(),buff.end()));
+    buff = parseIDFromHex("4747474747474747474747474747474747474747");
+    auto str = toString(buff);
+       
+    BOOST_REQUIRE_EQUAL(str,"GGGGGGGGGGGGGGGGGGGG");
 }
 
 BOOST_AUTO_TEST_SUITE_END();

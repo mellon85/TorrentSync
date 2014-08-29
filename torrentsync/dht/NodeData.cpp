@@ -4,10 +4,6 @@
 #include <cctype>
 #include <stdexcept>
 
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/integer_traits.hpp>
-#include <boost/integer.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
@@ -17,36 +13,17 @@
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/utils/log/Logger.h>
 
-namespace
-{
-
-template <size_t N>
-class hexconverter
-{
-public:
-    typedef typename boost::uint_t<N>::fast value_type;
-    value_type value;
-	value_type operator()() { return value; }
-    friend std::istream& operator>>( std::istream& in, hexconverter<N>& out )
-    {
-        in >> std::hex >> out.value;
-	return in;
-    }
-};
-
-typedef hexconverter<32> uint32hex;
-typedef hexconverter<64> uint64hex;
-}; // anonymous namespace
+#include <netinet/in.h>
 
 namespace torrentsync
 {
 namespace dht
 {
 
-const uint32_t NodeData::ADDRESS_STRING_LENGTH = 40;
-const size_t NodeData::addressDataLength = 20;
+const size_t NodeData::ADDRESS_STRING_LENGTH = 40;
+const size_t NodeData::addressDataLength     = 20;
 
-NodeData::NodeData(const torrentsync::utils::Buffer& buff)
+NodeData::NodeData(const utils::Buffer& buff)
 {
     if ( buff.size() != addressDataLength) 
     {
@@ -54,16 +31,16 @@ NodeData::NodeData(const torrentsync::utils::Buffer& buff)
         msg << "NodeData expects " << addressDataLength << " byte as address";
         throw std::invalid_argument(msg.str());
     }
-    
-    const uint32_t * const data = reinterpret_cast<const uint32_t*>(buff.get());
-    
-    p1 = data[0];
+
+    const uint32_t * const data = reinterpret_cast<const uint32_t*>(&buff[0]);
+
+    p1 = htonl(data[0]);
     p1 <<= 32;
-    p1 |= data[1];
-    p2 =  data[2];
+    p1 |= htonl(data[1]);
+    p2 =  htonl(data[2]);
     p2 <<= 32;
-    p2 |= data[3];
-    p3 =  data[4];
+    p2 |= htonl(data[3]);
+    p3 =  htonl(data[4]);
 }
 
 NodeData::~NodeData()
@@ -79,23 +56,10 @@ Distance&& NodeData::operator^( const NodeData& addr ) const noexcept
     return std::move(ret);
 }
 
-void NodeData::parseString( const std::string& str )
-{
-    if (str.length() != 40 ||
-            !std::all_of(str.begin(),str.end(), ::isxdigit))
-    {
-        std::string msg = "Invalid argument: "; msg += str;
-        throw std::invalid_argument(msg);
-    }
-
-	p1 = boost::lexical_cast<uint64hex>(str.substr(0,16))();
-	p2 = boost::lexical_cast<uint64hex>(str.substr(16,16))();
-	p3 = boost::lexical_cast<uint32hex>(str.substr(32))();
-}
-
 const std::string NodeData::string() const
 {
     std::ostringstream ss;
+    
     ss << std::hex;
     ss.width(16); ss.fill('0'); ss << p1;
     ss.width(16); ss.fill('0'); ss << p2;
@@ -103,10 +67,10 @@ const std::string NodeData::string() const
     return ss.str();
 }
 
-const NodeData NodeData::minValue =
-    NodeData::parse("0000000000000000000000000000000000000000");
-const NodeData NodeData::maxValue =
-    NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+const NodeData NodeData::minValue(
+    utils::Buffer({0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}));
+const NodeData NodeData::maxValue(
+    utils::Buffer({0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}));
 
 MaybeBounds NodeData::splitInHalf(
     const NodeData& low,
@@ -177,8 +141,8 @@ const NodeData NodeData::getRandom()
 }
 
 void NodeData::read(
-    torrentsync::utils::Buffer::const_iterator begin,
-    const torrentsync::utils::Buffer::const_iterator end  )
+    utils::Buffer::const_iterator begin,
+    const utils::Buffer::const_iterator end  )
 {
     if ( end < begin || (static_cast<size_t>((end-begin)) < addressDataLength) )
     {
@@ -211,37 +175,31 @@ void NodeData::read(
 
 torrentsync::utils::Buffer NodeData::write() const
 {
-    torrentsync::utils::Buffer buff(addressDataLength);
+    torrentsync::utils::Buffer buff;
+    buff.reserve(20);
     
-    buff.get()[0]  = p1 >> 56 & 0xFF; 
-    buff.get()[1]  = p1 >> 48 & 0xFF;
-    buff.get()[2]  = p1 >> 40 & 0xFF;
-    buff.get()[3]  = p1 >> 32 & 0xFF;
-    buff.get()[4]  = p1 >> 24 & 0xFF;
-    buff.get()[5]  = p1 >> 16 & 0xFF;
-    buff.get()[6]  = p1 >>  8 & 0xFF;
-    buff.get()[7]  = p1 >>  0 & 0xFF;
-    buff.get()[8]  = p2 >> 56 & 0xFF;
-    buff.get()[9]  = p2 >> 48 & 0xFF;
-    buff.get()[10] = p2 >> 40 & 0xFF;
-    buff.get()[11] = p2 >> 32 & 0xFF;
-    buff.get()[12] = p2 >> 24 & 0xFF;
-    buff.get()[13] = p2 >> 16 & 0xFF;
-    buff.get()[14] = p2 >>  8 & 0xFF;
-    buff.get()[15] = p2 >>  0 & 0xFF;
-    buff.get()[16] = p3 >> 24 & 0xFF;
-    buff.get()[17] = p3 >> 16 & 0xFF;
-    buff.get()[18] = p3 >>  8 & 0xFF;
-    buff.get()[19] = p3 >>  0 & 0xFF;
+    buff.push_back(p1 >> 56 & 0xFF);
+    buff.push_back(p1 >> 48 & 0xFF);
+    buff.push_back(p1 >> 40 & 0xFF);
+    buff.push_back(p1 >> 32 & 0xFF);
+    buff.push_back(p1 >> 24 & 0xFF);
+    buff.push_back(p1 >> 16 & 0xFF);
+    buff.push_back(p1 >>  8 & 0xFF);
+    buff.push_back(p1 >>  0 & 0xFF);
+    buff.push_back(p2 >> 56 & 0xFF);
+    buff.push_back(p2 >> 48 & 0xFF);
+    buff.push_back(p2 >> 40 & 0xFF);
+    buff.push_back(p2 >> 32 & 0xFF);
+    buff.push_back(p2 >> 24 & 0xFF);
+    buff.push_back(p2 >> 16 & 0xFF);
+    buff.push_back(p2 >>  8 & 0xFF);
+    buff.push_back(p2 >>  0 & 0xFF);
+    buff.push_back(p3 >> 24 & 0xFF);
+    buff.push_back(p3 >> 16 & 0xFF);
+    buff.push_back(p3 >>  8 & 0xFF);
+    buff.push_back(p3 >>  0 & 0xFF);
 
     return buff;
-}
-
-NodeData NodeData::parse( const std::string& str )
-{
-    NodeData data;
-    data.parseString(str);
-    return data;
 }
 
 std::ostream& operator<<( std::ostream& out, const NodeData& data )

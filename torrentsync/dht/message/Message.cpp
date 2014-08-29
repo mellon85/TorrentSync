@@ -5,6 +5,8 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
 
+#include <map>
+
 namespace torrentsync
 {
 namespace dht
@@ -43,16 +45,26 @@ namespace bio = boost::iostreams;
 
 typedef bio::stream<bio::array_source> array_stream;
 
-std::shared_ptr<Message> Message::parseMessage( const torrentsync::utils::Buffer& buffer )
+//! constructor
+Message::Message(const DataMap& data) : _data(data)
 {
-    bio::array_source source(buffer.cbegin(),buffer.cend());
-    bio::stream<bio::array_source> in(source);
-    return parseMessage(in);
 }
 
-std::shared_ptr<Message> Message::parseMessage( const torrentsync::utils::Buffer& buffer, const size_t length )
+/*
+Message::Message( Message&& message )
 {
-    bio::array_source source(buffer.cbegin(),length);
+    _data = std::move(message._data);
+}
+*/
+
+std::shared_ptr<Message> Message::parseMessage( const utils::Buffer& buffer )
+{
+    return parseMessage(buffer,buffer.size());
+}
+
+std::shared_ptr<Message> Message::parseMessage( const utils::Buffer& buffer, const size_t length )
+{
+    bio::array_source source(reinterpret_cast<const char*>(buffer.data()),length);
     bio::stream<bio::array_source> in(source);
     return parseMessage(in);
 }
@@ -60,86 +72,119 @@ std::shared_ptr<Message> Message::parseMessage( const torrentsync::utils::Buffer
 std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
 {
     BEncodeDecoder decoder;
-    decoder.parseMessage(istream);
+    try
+    {
+        decoder.parseMessage(istream);
+    }
+    catch( const BEncodeException& e )
+    {
+        std::stringstream ss;
+        ss << "Couldn't parse message: " << e.what();
+        throw MalformedMessageException(ss.str());
+    }
     
     auto type = find( Field::Type, decoder.getData() );
     if (!type)
         throw MalformedMessageException("Couldn't find message type");
 
-    auto msgType = find( *type == Type::Query ? Field::Query : Field::Reply, decoder.getData() );
-    if (!msgType)
-        throw MalformedMessageException("Couldn't find message name");
-
     std::shared_ptr<Message> message;
-    if( *msgType == Messages::Ping)
+    if (*type == Type::Query)
     {
-        message.reset(new Ping(decoder.getData()));
-        return message;
+        auto msgType = find(Field::Query, decoder.getData() );
+        if (!msgType)
+            throw MalformedMessageException("Couldn't find message name");
+        
+        if( *msgType == Messages::Ping)
+        {
+            message.reset(new Ping(decoder.getData()));
+        }
+        else if ( *msgType == Messages::FindNode )
+        {
+            message.reset(new FindNode(decoder.getData()));
+        }
+        else
+        {
+            throw MalformedMessageException("Unknown message name");
+        }
     }
-    else if ( *msgType == Messages::FindNode )
+    else
     {
-        message.reset(new FindNode(decoder.getData()));
-        return message;
-    } else
-    {
-        throw MalformedMessageException("Unknown message name");
+        //@TODO use validators to verify the message or 
+        // create classes for the replies.
+        message.reset(new Message(decoder.getData()));
     }
+    return message;
 }
 
-const std::string Message::getMessageType() const
+const boost::optional<utils::Buffer> Message::getMessageType() const
 {
-    std::string type = getType();
-    auto msgType = find( type == Type::Query ? Field::Query : Field::Reply, data );
-    if (!msgType)
-        throw MalformedMessageException("Couldn't find message name");
-    return msgType->get();
+    return find(Field::Query);
 }
 
-const std::string Message::getType() const
+const utils::Buffer Message::getType() const
 {
-    boost::optional<torrentsync::utils::Buffer> type;
-    type = find( Field::Type, data );
+    auto type = find( Field::Type );
     if (!type)
         throw MalformedMessageException("Couldn't find message type");
-    return type->get();
+    return *type;
 }
 
-torrentsync::utils::Buffer Message::getTransactionID() const
+const utils::Buffer Message::getTransactionID() const
 {
-    boost::optional<torrentsync::utils::Buffer> token;
-    token = find( Field::TransactionID, data );
+    auto token = find( Field::TransactionID);
     if (!token)
         throw MalformedMessageException("Couldn't find token");
     return *token;
 }
 
-torrentsync::utils::Buffer Message::getID() const
+const utils::Buffer Message::getID() const
 {
     const std::string path =
         (getType() == Type::Reply ? Field::Reply : Field::Arguments) 
             + "/" + Field::PeerID;
-    boost::optional<torrentsync::utils::Buffer> id;
-    id = find(path,data);
+    auto id = find(path);
     if (!id)
         throw MalformedMessageException("Couldn't find peer id");
     return *id;
 }
 
-boost::optional<torrentsync::utils::Buffer> Message::find(
+const boost::optional<utils::Buffer> Message::find(
+    const std::string& key) const
+{
+    return find(key,_data);
+}
+
+const std::string Message::string() const
+{
+    std::stringstream message;
+    std::for_each( _data.begin(), _data.end(), [&](
+        const DataMap::value_type& t)
+    {
+        message << t.first << ":" << pretty_print(t.second) << std::endl;
+    });
+    return message.str();
+}
+
+const boost::optional<utils::Buffer> Message::find(
     const std::string& key,
     const DataMap& data)
 {
-    boost::optional<torrentsync::utils::Buffer> ret;
-
+    boost::optional<utils::Buffer> ret;
     DataMap::const_iterator it = data.find(key); 
     if ( it != data.end() )
     {
         ret = it->second;
     }
-
     return ret;
 }
 
 } /* message */
 } /* dht */
 } /* torrentsync */
+
+std::ostream& operator<<(
+    std::ostream& stream,
+    const torrentsync::dht::message::Message& message)
+{
+    return stream << message.string();
+}

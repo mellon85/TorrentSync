@@ -10,11 +10,12 @@
 BOOST_AUTO_TEST_SUITE(torrentsync_dht_message_BEncodeDecoder);
 
 using namespace torrentsync::dht::message;
+using namespace torrentsync;
 
 #define TEST_FIELD(key,value) { \
     BOOST_REQUIRE(map.find(key) != map.end()); \
     BOOST_REQUIRE(map.find(key)->second == \
-        torrentsync::utils::Buffer(value));}
+        utils::makeBuffer(value));}
 
 BOOST_AUTO_TEST_CASE(constructor_destructor)
 {
@@ -41,6 +42,9 @@ BOOST_AUTO_TEST_CASE(parse_oneElementDictionary)
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
     const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),1);
+
+    auto t = map.find("a")->second;
+    auto b = utils::makeBuffer("b");
     TEST_FIELD("a","b");
 }
 
@@ -149,7 +153,6 @@ BOOST_AUTO_TEST_CASE(parse_listWithList)
     TEST_FIELD("3/0","b");
     TEST_FIELD("3/1","ce");
 }
-
 BOOST_AUTO_TEST_CASE(parse_error)
 {
     std::istringstream str("aaaaa");
@@ -158,6 +161,7 @@ BOOST_AUTO_TEST_CASE(parse_error)
 
     BOOST_REQUIRE_THROW(decoder.parseMessage(str),BEncodeException);
 }
+
 
 BOOST_AUTO_TEST_CASE(parse_error2)
 {

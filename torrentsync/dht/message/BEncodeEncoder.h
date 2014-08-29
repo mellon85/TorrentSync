@@ -16,6 +16,8 @@ namespace dht
 namespace message
 {
 
+using namespace torrentsync;
+
 //! root is always a dictionary
 class BEncodeEncoder
 {
@@ -24,12 +26,23 @@ class BEncodeEncoder
     BEncodeEncoder() : used_bytes(0), result(1024) {}
 
     void addElement(
-        const torrentsync::utils::Buffer& v );
+        const std::string& v );
 
     void addDictionaryElement(
-        const torrentsync::utils::Buffer& k,
-        const torrentsync::utils::Buffer& v );
+        const std::string& k,
+        const std::string& v );
+    
+    void addElement(
+        const utils::Buffer& v );
 
+    void addDictionaryElement(
+        const utils::Buffer& k,
+        const utils::Buffer& v );
+
+    void addDictionaryElement(
+        const std::string& k,
+        const utils::Buffer& v);
+        
     template <class T>
     void addList( const T begin, const T end )
     {
@@ -47,9 +60,17 @@ class BEncodeEncoder
     void startDictionary() { checkAndExpand(1); result[used_bytes++] = 'd'; }
     void endDictionary() { lastKey.clear(); checkAndExpand(1); result[used_bytes++] = 'e'; }
 
-    torrentsync::utils::Buffer value() const { result.resize(used_bytes); return result; } // copy to a buffer and pass it back..
+    utils::Buffer value() const { result.resize(used_bytes); return result; } // copy to a buffer and pass it back..
 
 private:
+
+    template <class It>
+    void addElement( It begin, const It end);
+
+    template <class It, class It2>
+    void addDictionaryElement(
+        It  begin1, const It  end1,
+        It2 begin2, const It2 end2 );
 
     size_t used_bytes;
     
@@ -61,9 +82,9 @@ private:
         }
     }
 
-    mutable torrentsync::utils::Buffer result;
+    mutable utils::Buffer result;
 
-    torrentsync::utils::Buffer lastKey;
+    utils::Buffer lastKey;
 };
 
 

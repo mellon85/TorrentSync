@@ -71,7 +71,7 @@ const utils::Buffer FindNode::getMessageReply(
 utils::Buffer FindNode::getTarget()
 {
     boost::optional<utils::Buffer> token;
-    token = find( Field::Arguments + "/" + Field::Target, data );
+    token = find( Field::Arguments + "/" + Field::Target );
     if (!token)
         throw MalformedMessageException("Couldn't find token");
     return *token;
@@ -80,7 +80,7 @@ utils::Buffer FindNode::getTarget()
 utils::Buffer FindNode::getNodes()
 {
     boost::optional<utils::Buffer> token;
-    token = find( Field::Reply + "/" + Field::Nodes, data );
+    token = find( Field::Reply + "/" + Field::Nodes );
     if (!token)
         throw MalformedMessageException("Couldn't find token");
     return *token;

@@ -26,12 +26,13 @@ struct less<torrentsync::dht::NodeBucket<Size> >
 BOOST_AUTO_TEST_SUITE(torrentsync_dht_NodeBucket);
 
 using namespace torrentsync::dht;
+using namespace torrentsync;
 using namespace boost::assign;
 
 BOOST_AUTO_TEST_CASE(constructor)
 {
-    NodeData lowbound  = NodeData(NodeData::parse("0000000000000000000000000000000000000000"));
-    NodeData highbound = NodeData(NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
+    NodeData lowbound  = NodeData(utils::parseIDFromHex("0000000000000000000000000000000000000000"));
+    NodeData highbound = NodeData(utils::parseIDFromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
     NodeBucket<8> bucket(lowbound,highbound);
 
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -42,7 +43,7 @@ BOOST_AUTO_TEST_CASE(constructor)
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         const std::string str = generateRandomNode();
-        std::shared_ptr<Node> addr(new Node(Node::parse(str)));
+        std::shared_ptr<Node> addr(new Node(utils::parseIDFromHex(str)));
         BOOST_REQUIRE_EQUAL(true,bucket.inBounds(addr));
     }
 
@@ -55,8 +56,8 @@ BOOST_AUTO_TEST_CASE(constructor)
 
 BOOST_AUTO_TEST_CASE(outside)
 {
-    NodeData lowbound  = NodeData(NodeData::parse("0000000000000000000000000000000000000000"));
-    NodeData highbound = NodeData(NodeData::parse("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
+    NodeData lowbound  = NodeData(utils::parseIDFromHex("0000000000000000000000000000000000000000"));
+    NodeData highbound = NodeData(utils::parseIDFromHex("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
     NodeBucket<8> bucket(lowbound,highbound);
 
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -67,7 +68,7 @@ BOOST_AUTO_TEST_CASE(outside)
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::string str = generateRandomNode("F");
-        std::shared_ptr<Node> addr(new Node(Node::parse(str)));
+        std::shared_ptr<Node> addr(new Node(utils::parseIDFromHex(str)));
         BOOST_REQUIRE_EQUAL(false,bucket.inBounds(addr));
     }
 
@@ -79,8 +80,8 @@ BOOST_AUTO_TEST_CASE(outside)
 
 BOOST_AUTO_TEST_CASE(inside)
 {
-    NodeData lowbound  = NodeData(NodeData::parse("0000000000000000000000000000000000000000"));
-    NodeData highbound = NodeData(NodeData::parse("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
+    NodeData lowbound  = NodeData(utils::parseIDFromHex("0000000000000000000000000000000000000000"));
+    NodeData highbound = NodeData(utils::parseIDFromHex("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
     NodeBucket<2> bucket(lowbound,highbound);
     
     BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
@@ -91,7 +92,7 @@ BOOST_AUTO_TEST_CASE(inside)
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::string str = generateRandomNode("000002003400");
-        std::shared_ptr<Node> addr(new Node(Node::parse(str)));
+        std::shared_ptr<Node> addr(new Node(utils::parseIDFromHex(str)));
         BOOST_REQUIRE_EQUAL(true,bucket.inBounds(addr));
     }
 
@@ -103,10 +104,10 @@ BOOST_AUTO_TEST_CASE(inside)
 
 BOOST_AUTO_TEST_CASE(bucket_ordering)
 {
-    NodeData a1   = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData a2   = NodeData::parse("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF");
-    NodeData a3   = NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
-    NodeData a2_1 = NodeData::parse("0000020034010000000000000000000000000000");
+    NodeData a1   = utils::parseIDFromHex("0000000000000000000000000000000000000000");
+    NodeData a2   = utils::parseIDFromHex("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData a3   = utils::parseIDFromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData a2_1 = utils::parseIDFromHex("0000020034010000000000000000000000000000");
     
     BOOST_REQUIRE(a1 <= a2);
     BOOST_REQUIRE(a2 <= a3);
@@ -119,8 +120,8 @@ BOOST_AUTO_TEST_CASE(bucket_ordering)
 
 BOOST_AUTO_TEST_CASE(add_remove)
 {
-    NodeData bot = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData top = NodeData::parse("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData bot = utils::parseIDFromHex("0000000000000000000000000000000000000000");
+    NodeData top = utils::parseIDFromHex("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
@@ -130,10 +131,10 @@ BOOST_AUTO_TEST_CASE(add_remove)
 
         for( int i = 0; i < 10; ++i)
         {
-            std::shared_ptr<Node> a = std::shared_ptr<Node>(new Node(Node::parse(generateRandomNode("0"))));
+            std::shared_ptr<Node> a = std::shared_ptr<Node>(new Node(utils::parseIDFromHex(generateRandomNode("0"))));
             addresses.push_back(a);
             BOOST_REQUIRE_NO_THROW(BOOST_REQUIRE(bucket.add(a)));
-            std::shared_ptr<Node> f = std::shared_ptr<Node>(new Node(Node::parse(generateRandomNode("F"))));
+            std::shared_ptr<Node> f = std::shared_ptr<Node>(new Node(utils::parseIDFromHex(generateRandomNode("F"))));
             BOOST_REQUIRE_THROW(bucket.add(f),std::invalid_argument);
 
             std::for_each( addresses.begin(), addresses.end(), [&] (const std::shared_ptr<Node>& va)
@@ -142,7 +143,7 @@ BOOST_AUTO_TEST_CASE(add_remove)
             });
             BOOST_REQUIRE_EQUAL(bucket.size(),i+1);
         }
-        std::shared_ptr<Node> a = std::shared_ptr<Node>(new Node(Node::parse(generateRandomNode("0"))));
+        std::shared_ptr<Node> a = std::shared_ptr<Node>(new Node(utils::parseIDFromHex(generateRandomNode("0"))));
         BOOST_REQUIRE_EQUAL(false,bucket.add(a));
         BOOST_REQUIRE_EQUAL(bucket.size(),10);
 
@@ -175,10 +176,10 @@ BOOST_AUTO_TEST_CASE(add_remove)
     }
 }
 
-class FakeNode : public torrentsync::dht::Node
+class FakeNode : public Node
 {
 public:
-    FakeNode( const std::string& str ) { parseString(str); }
+    FakeNode( const std::string& str ) : Node( utils::parseIDFromHex(str)) {}
     
     time_t& getTime() { return Node::_last_time_good; }
     size_t& getLastUnansweredQueries() { return Node::_last_unanswered_queries; }
@@ -186,8 +187,8 @@ public:
 
 BOOST_AUTO_TEST_CASE(removeBad)
 {
-    NodeData bot = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData top = NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData bot = utils::parseIDFromHex("0000000000000000000000000000000000000000");
+    NodeData top = utils::parseIDFromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
@@ -230,8 +231,8 @@ BOOST_AUTO_TEST_CASE(removeBad)
 
 BOOST_AUTO_TEST_CASE(removeBad_2)
 {
-    NodeData bot = NodeData(NodeData::parse("0000000000000000000000000000000000000000"));
-    NodeData top = NodeData(NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
+    NodeData bot = NodeData(utils::parseIDFromHex("0000000000000000000000000000000000000000"));
+    NodeData top = NodeData(utils::parseIDFromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
 
     for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
@@ -275,16 +276,16 @@ BOOST_AUTO_TEST_CASE(removeBad_2)
 
 BOOST_AUTO_TEST_CASE(addIsSorted)
 {
-    NodeData bot = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData top = NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData bot = utils::parseIDFromHex("0000000000000000000000000000000000000000");
+    NodeData top = utils::parseIDFromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     std::vector<Node> addresses;
     addresses += 
-        Node::parse("0000000000000000000000000000000000000001"),
-        Node::parse("0000000000000000000000000000000000000002"),
-        Node::parse("00000000000000000000000000F0000000000000"),
-        Node::parse("00000000000000000000F0000000000000000000"),
-        Node::parse("0000000000000000F00000000000000000000000");
+        utils::parseIDFromHex("0000000000000000000000000000000000000001"),
+        utils::parseIDFromHex("0000000000000000000000000000000000000002"),
+        utils::parseIDFromHex("00000000000000000000000000F0000000000000"),
+        utils::parseIDFromHex("00000000000000000000F0000000000000000000"),
+        utils::parseIDFromHex("0000000000000000F00000000000000000000000");
 
     std::vector<Node> sorted_addresses = addresses;
 
@@ -307,15 +308,15 @@ BOOST_AUTO_TEST_CASE(addIsSorted)
 
 BOOST_AUTO_TEST_CASE(addIsSortedRandom)
 {
-    NodeData bot = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData top = NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData bot = utils::parseIDFromHex("0000000000000000000000000000000000000000");
+    NodeData top = utils::parseIDFromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     for( int loop = 0; loop < TEST_LOOP_COUNT; ++loop )
     {
         std::vector<Node> addresses;
         for( int i = 0; i < 10; ++i)
         {
-            addresses.push_back(Node::parse(generateRandomNode()));
+            addresses.push_back(utils::parseIDFromHex(generateRandomNode()));
         }
         std::vector<Node> sorted_addresses = addresses;
         std::sort(sorted_addresses.begin(),sorted_addresses.end());
@@ -337,15 +338,15 @@ BOOST_AUTO_TEST_CASE(addIsSortedRandom)
 
 BOOST_AUTO_TEST_CASE(add_and_find)
 {
-    NodeData bot = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData top = NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData bot = utils::parseIDFromHex("0000000000000000000000000000000000000000");
+    NodeData top = utils::parseIDFromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     std::vector<Node> addresses;
-    addresses += Node::parse("0000000000000000000000000000000000000001"),
-                 Node::parse("0000000000000000000000000000000000000002"),
-                 Node::parse("00000000000000000000000000F0000000000000"),
-                 Node::parse("00000000000000000000F0000000000000000000"),
-                 Node::parse("0000000000000000F00000000000000000000000");
+    addresses += utils::parseIDFromHex("0000000000000000000000000000000000000001"),
+                 utils::parseIDFromHex("0000000000000000000000000000000000000002"),
+                 utils::parseIDFromHex("00000000000000000000000000F0000000000000"),
+                 utils::parseIDFromHex("00000000000000000000F0000000000000000000"),
+                 utils::parseIDFromHex("0000000000000000F00000000000000000000000");
 
     std::vector<Node> sorted_addresses = addresses;
 
@@ -367,7 +368,7 @@ BOOST_AUTO_TEST_CASE(add_and_find)
         for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
         {
             boost::optional<NodeSPtr> b = bucket.find(
-                    Node::parse(generateRandomNode("F")));
+                    utils::parseIDFromHex(generateRandomNode("F")));
             BOOST_CHECK(!b);
         }
     } while(std::next_permutation(addresses.begin(),addresses.end()));
@@ -375,15 +376,15 @@ BOOST_AUTO_TEST_CASE(add_and_find)
 
 BOOST_AUTO_TEST_CASE(addRandom_and_find)
 {
-    NodeData bot = NodeData::parse("0000000000000000000000000000000000000000");
-    NodeData top = NodeData::parse("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    NodeData bot = utils::parseIDFromHex("0000000000000000000000000000000000000000");
+    NodeData top = utils::parseIDFromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
     for( int loop = 0; loop < TEST_LOOP_COUNT; ++loop )
     {
         std::vector<Node> addresses;
         for( int i = 0; i < 10; ++i)
         {
-            addresses.push_back(Node::parse(generateRandomNode()));
+            addresses.push_back(utils::parseIDFromHex(generateRandomNode()));
         }
         std::vector<Node> sorted_addresses = addresses;
         std::sort(sorted_addresses.begin(),sorted_addresses.end());
@@ -404,7 +405,7 @@ BOOST_AUTO_TEST_CASE(addRandom_and_find)
         for ( int i = 0; i < TEST_LOOP_COUNT; ++i )
         {
             boost::optional<NodeSPtr> b = bucket.find(
-                    Node::parse(generateRandomNode("F")));
+                    utils::parseIDFromHex(generateRandomNode("F")));
             BOOST_CHECK(!b);
         }
     }

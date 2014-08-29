@@ -21,11 +21,7 @@ namespace message
 
 typedef std::unordered_map<std::string,torrentsync::utils::Buffer> DataMap;
 
-class BEncodeException : public std::runtime_error
-{
-public:
-    BEncodeException( const std::string& reason ) : std::runtime_error(reason) {}
-};
+typedef std::runtime_error BEncodeException;
 
 //! Decoder for a bencoded message
 class BEncodeDecoder

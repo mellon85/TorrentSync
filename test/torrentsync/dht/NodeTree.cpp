@@ -8,13 +8,14 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
 
+using namespace torrentsync;
+
 namespace
 {
 class NodeTreeFixture : public torrentsync::dht::NodeTree
 {
 public:
-    NodeTreeFixture() : NodeTree(
-        torrentsync::dht::NodeData::parse(generateRandomNode())) {}
+    NodeTreeFixture() : NodeTree(utils::parseIDFromHex(generateRandomNode())) {}
 };
 };
 
@@ -25,71 +26,71 @@ using namespace boost::assign;
 
 BOOST_AUTO_TEST_CASE(addNode_oneSplit_toUp)
 {
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("00")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("00")))));
     BOOST_REQUIRE_EQUAL(size(),1);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("01")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("01")))));
     BOOST_REQUIRE_EQUAL(size(),2);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("02")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("02")))));
     BOOST_REQUIRE_EQUAL(size(),3);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("03")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("03")))));
     BOOST_REQUIRE_EQUAL(size(),4);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f0")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f0")))));
     BOOST_REQUIRE_EQUAL(size(),5);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f1")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f1")))));
     BOOST_REQUIRE_EQUAL(size(),6);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f2")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f2")))));
     BOOST_REQUIRE_EQUAL(size(),7);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f3")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f3")))));
     BOOST_REQUIRE_EQUAL(size(),8);
     BOOST_REQUIRE_EQUAL(getBucketsCount(),1);
 
     BOOST_REQUIRE_THROW(addNode(
                 NodeSPtr()),std::invalid_argument);
 
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f4")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f4")))));
     BOOST_REQUIRE_EQUAL(size(),9);
     BOOST_REQUIRE_EQUAL(getBucketsCount(),2);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f5")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f5")))));
     BOOST_REQUIRE_EQUAL(size(),10);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f6")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f6")))));
     BOOST_REQUIRE_EQUAL(size(),11);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("04")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("04")))));
     BOOST_REQUIRE_EQUAL(size(),12);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("05")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("05")))));
     BOOST_REQUIRE_EQUAL(size(),13);
     BOOST_REQUIRE_EQUAL(getBucketsCount(),2);
 }
 
 BOOST_AUTO_TEST_CASE(addNode_oneSplit_toLower)
 {
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("00")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("00")))));
     BOOST_REQUIRE_EQUAL(size(),1);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("01")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("01")))));
     BOOST_REQUIRE_EQUAL(size(),2);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("02")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("02")))));
     BOOST_REQUIRE_EQUAL(size(),3);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("03")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("03")))));
     BOOST_REQUIRE_EQUAL(size(),4);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f0")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f0")))));
     BOOST_REQUIRE_EQUAL(size(),5);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f1")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f1")))));
     BOOST_REQUIRE_EQUAL(size(),6);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f2")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f2")))));
     BOOST_REQUIRE_EQUAL(size(),7);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f3")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f3")))));
     BOOST_REQUIRE_EQUAL(size(),8);
     BOOST_REQUIRE_EQUAL(getBucketsCount(),1);
 
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("04")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("04")))));
     BOOST_REQUIRE_EQUAL(size(),9);
     BOOST_REQUIRE_EQUAL(getBucketsCount(),2);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("05")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("05")))));
     BOOST_REQUIRE_EQUAL(size(),10);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("06")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("06")))));
     BOOST_REQUIRE_EQUAL(size(),11);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f4")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f4")))));
     BOOST_REQUIRE_EQUAL(size(),12);
-    addNode(NodeSPtr(new Node(Node::parse(generateRandomNode("f5")))));
+    addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f5")))));
     BOOST_REQUIRE_EQUAL(size(),13);
     BOOST_REQUIRE_EQUAL(getBucketsCount(),2);
 }
@@ -104,7 +105,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999)
             {
                 std::stringstream num;
                 num << a << b << c;
-                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -120,7 +121,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_999_to_000)
             {
                 std::stringstream num;
                 num << a << b << c;
-                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -136,7 +137,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_cba)
             {
                 std::stringstream num;
                 num << c << b << a;
-                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -152,7 +153,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_bca)
             {
                 std::stringstream num;
                 num << b << c << a;
-                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -168,7 +169,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_acb)
             {
                 std::stringstream num;
                 num << a << c << b;
-                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -184,7 +185,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_cab)
             {
                 std::stringstream num;
                 num << c << a << b;
-                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -200,7 +201,7 @@ BOOST_AUTO_TEST_CASE(addNode_inARow_000_to_999_bac)
             {
                 std::stringstream num;
                 num << b << a << c;
-                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(Node::parse(generateRandomNode(num.str()))))));
+                BOOST_REQUIRE_NO_THROW(addNode(NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode(num.str()))))));
             }
         }
     }
@@ -215,7 +216,7 @@ BOOST_AUTO_TEST_CASE(addNode_someRandom)
         for( size_t j = 0; j < count; j++ )
         {
             bool bad = false;
-            NodeSPtr a(new Node(Node::parse(generateRandomNode())));
+            NodeSPtr a(new Node(utils::parseIDFromHex(generateRandomNode())));
             std::for_each( addresses.begin(), addresses.end(), [&](const NodeSPtr& it)
             {
                 if (*a == *it)
@@ -241,19 +242,19 @@ BOOST_AUTO_TEST_CASE(addNode_and_find)
     for( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::vector<NodeSPtr> v;
-        v += NodeSPtr(new Node(Node::parse(generateRandomNode("00")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("01")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("02")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("03")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f0")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f1")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f2")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f3")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f4")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f5")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f6")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("04")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("05"))));
+        v += NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("00")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("01")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("02")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("03")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f0")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f1")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f2")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f3")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f4")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f5")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f6")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("04")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("05"))));
 
         std::for_each( v.begin(), v.end(), [&](const NodeSPtr addr)
         {
@@ -271,7 +272,7 @@ BOOST_AUTO_TEST_CASE(addNode_and_find)
         for ( int j = 0; j < TEST_LOOP_COUNT; ++j )
         {
             boost::optional<NodeSPtr> b = getNode(
-                   NodeData::parse(generateRandomNode("b")));
+                   utils::parseIDFromHex(generateRandomNode("b")));
             BOOST_CHECK(!b);
         }
 
@@ -290,19 +291,19 @@ BOOST_AUTO_TEST_CASE(removeNode_removeSerial)
     for( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::vector<NodeSPtr> v;
-        v += NodeSPtr(new Node(Node::parse(generateRandomNode("00")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("01")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("02")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("03")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f0")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f1")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f2")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f3")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f4")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f5")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f6")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("04")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("05"))));
+        v += NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("00")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("01")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("02")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("03")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f0")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f1")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f2")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f3")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f4")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f5")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f6")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("04")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("05"))));
 
         std::for_each( v.begin(), v.end(), [&]( const NodeSPtr addr)
         {
@@ -324,19 +325,19 @@ BOOST_AUTO_TEST_CASE(removeNode_removeRandomOrder)
     for( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::vector<NodeSPtr> v;
-        v += NodeSPtr(new Node(Node::parse(generateRandomNode("00")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("01")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("02")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("03")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f0")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f1")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f2")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f3")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f4")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f5")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f6")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("04")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("05"))));
+        v += NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("00")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("01")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("02")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("03")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f0")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f1")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f2")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f3")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f4")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f5")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f6")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("04")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("05"))));
 
         std::for_each( v.begin(), v.end(), [&](const NodeSPtr addr)
         {
@@ -361,17 +362,17 @@ BOOST_AUTO_TEST_CASE(removeNode_addAndRemove)
     for( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::vector<NodeSPtr> v;
-        v += NodeSPtr(new Node(Node::parse(generateRandomNode("00")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("01")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("02")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("03")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f0")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f1")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f2")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f3")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f4")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f5")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f6"))));
+        v += NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("00")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("01")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("02")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("03")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f0")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f1")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f2")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f3")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f4")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f5")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f6"))));
 
         std::for_each( v.begin(), v.end(), [&](const NodeSPtr a)
         {
@@ -379,8 +380,8 @@ BOOST_AUTO_TEST_CASE(removeNode_addAndRemove)
         });
         BOOST_REQUIRE_EQUAL(size(),v.size());
 
-        NodeSPtr a(new Node(Node::parse(generateRandomNode("04"))));
-        NodeSPtr b(new Node(Node::parse(generateRandomNode("05"))));
+        NodeSPtr a(new Node(utils::parseIDFromHex(generateRandomNode("04"))));
+        NodeSPtr b(new Node(utils::parseIDFromHex(generateRandomNode("05"))));
 
         const int numberToRemove = 2;
         for( int j = 0; j < numberToRemove; ++j )
@@ -411,13 +412,13 @@ BOOST_AUTO_TEST_CASE(getClosestNode_1)
     for( int i = 0; i < TEST_LOOP_COUNT; ++i )
     {
         std::vector<NodeSPtr> v;
-        v += NodeSPtr(new Node(Node::parse(generateRandomNode("00")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("01")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("02")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("03")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f0")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f1")))),
-             NodeSPtr(new Node(Node::parse(generateRandomNode("f2"))));
+        v += NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("00")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("01")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("02")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("03")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f0")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f1")))),
+             NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode("f2"))));
 
         std::for_each( v.begin(), v.end(), [&](const NodeSPtr addr)
         {
@@ -425,7 +426,7 @@ BOOST_AUTO_TEST_CASE(getClosestNode_1)
         });
         BOOST_REQUIRE_EQUAL(size(),v.size());
 
-        std::list<NodeSPtr> nodes = getClosestNodes(Node::parse(generateRandomNode()));
+        std::list<NodeSPtr> nodes = getClosestNodes(utils::parseIDFromHex(generateRandomNode()));
         BOOST_REQUIRE_LE(nodes.size(),DHT_FIND_NODE_COUNT);
         clear();
     }
@@ -438,14 +439,14 @@ BOOST_AUTO_TEST_CASE(getClosestNode_2)
         std::vector<NodeSPtr> v;
         for( size_t _t = 0; _t < 1000; ++_t )
         {
-            NodeSPtr n = NodeSPtr(new Node(Node::parse(generateRandomNode())));
+            NodeSPtr n = NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode())));
             if (addNode(n))
                 v += n;
         }
         BOOST_REQUIRE_EQUAL(size(),v.size());
 
         // take a random address and get the close nodes
-        Node addr = Node::parse(generateRandomNode());
+        Node addr = utils::parseIDFromHex(generateRandomNode());
         std::list<NodeSPtr> nodes = getClosestNodes(addr);
 
         // sort the nodes for easy search
@@ -483,7 +484,7 @@ BOOST_AUTO_TEST_CASE(getClosestNode_perfectmatch)
         std::vector<NodeSPtr> v;
         for( size_t _t = 0; _t < 1000; ++_t )
         {
-            NodeSPtr n = NodeSPtr(new Node(Node::parse(generateRandomNode())));
+            NodeSPtr n = NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode())));
             if (addNode(n))
                 v += n;
         }

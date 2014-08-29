@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <memory>
 
 #include <torrentsync/utils/Buffer.h>
 
@@ -31,12 +32,6 @@ public:
     //! constructor expects to receive a buffer with the binary data to parse
     NodeData(const torrentsync::utils::Buffer&);
 
-    //! Parse a string from an hexadecimal string. useful for storing
-    //! readable data in the code (and unit test).
-    //! @param str the string with the hexadecimal representation [0-9A-F]{40}
-    //! @return the parsed NodeData
-    static NodeData parse( const std::string& str );
-
     //! Destructor
     ~NodeData();
 	
@@ -52,8 +47,8 @@ public:
     static const NodeData minValue;
     static const NodeData maxValue;
 
-	static const uint32_t ADDRESS_STRING_LENGTH;
-	static const uint32_t ADDRESS_BITS;
+	static const size_t ADDRESS_STRING_LENGTH;
+	static const size_t ADDRESS_BITS;
 
     static MaybeBounds splitInHalf(const NodeData& low, const NodeData& high);
 
@@ -78,9 +73,7 @@ public:
     // distance operator
     Distance&& operator^( const NodeData& addr ) const noexcept;
 
-protected:
-
-    void parseString( const std::string& str );
+private:
 
     // not using std::bitset for lack of comparing operators
     // but complicates splitInHalf

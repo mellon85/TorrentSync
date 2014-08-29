@@ -27,6 +27,8 @@ class Message;
  *
  **/
 
+using namespace torrentsync;
+
 class Callback
 {
 public:
@@ -34,30 +36,27 @@ public:
     static const size_t TIME_LIMIT;
 
     typedef std::tuple<
-        const torrentsync::dht::message::Message&,
-        torrentsync::dht::Node&> callback_payload_t;
+        const dht::message::Message&,
+        dht::Node&> callback_payload_t;
 
     //! type of the callback
     typedef std::function<void (
             boost::optional<callback_payload_t>,
-            const torrentsync::dht::Callback&)> callback_t;
+            const dht::Callback&)> callback_t;
 
     //! Constructor
     //! @param callback         Callback to call
-    //! @param messageType      Filter by message type 
     //! @param source           Filter by the source address
     //! @param transactionID    Filter by transaction ID
     Callback(
         const callback_t& callback,
-        const std::string& type,
-        const std::string& messageType,
-        const torrentsync::dht::NodeData& source,
-        const torrentsync::utils::Buffer& transactionID);
+        const dht::NodeData& source,
+        const utils::Buffer& transactionID);
 
     //! Calls the callback function
     void call(
-        const torrentsync::dht::message::Message&,
-        torrentsync::dht::Node& ) const;
+        const dht::message::Message&,
+        dht::Node& ) const;
 
     void timeout() const;
 
@@ -67,24 +66,18 @@ public:
 
     //! verifies if the callback respects the filters set
     bool verifyConstraints(
-        const torrentsync::dht::message::Message& message ) const;
+        const dht::message::Message& message ) const;
 
 private:
 
     //! callback function to call
     callback_t _callback;
 
-    //! filter condition for type (mandatory)
-    std::string _type;
-
-    //! filter condition for message type (mandatory)
-    std::string _messageType;
-
     //! filter condition for source address
-    torrentsync::dht::NodeData _source;
+    dht::NodeData _source;
 
     //! filter condition for transaction it
-    torrentsync::utils::Buffer _transactionID;
+    utils::Buffer _transactionID;
     
     //! creation time, to filter out old callbacks
     time_t _creation_time;

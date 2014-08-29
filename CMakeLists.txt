@@ -80,7 +80,6 @@ add_library(TorrentSync SHARED ${SOURCES})
 find_package(Boost
     COMPONENTS
     serialization
-    thread
     system
     date_time
     regex

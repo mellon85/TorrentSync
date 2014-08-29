@@ -1,3 +1,8 @@
+Current target:
+
+Implementing working DHT as of BEP 005
+Later on BEP 32,42
+
 TorrentSync
 ===========
 
@@ -5,8 +10,10 @@ Needed components
 
 Torrent DHT implementation to find nodes
   * Routing table
+    partially done
   * Protocol implementation
-  * Bootstrap modes
+    partially done
+  * Bootstrap via cache
 
 Transport system
   * Metadata synchronization protocol
@@ -20,8 +27,8 @@ Files
   * File changes notification systems interface
 
 Glue stuff together
-  * Minimal app for development testing
-
+  * Main app
+    
 Additional stuff
   * NAT, UPNP
   * Hole punching systems
@@ -32,6 +39,9 @@ Ongoing
 
 Torrent DHT implementation to find nodes
   * Messages implementation
+    done:
+        find_node
+        ping
 
 Done
 ====
@@ -42,8 +52,10 @@ Automation
 
 Torrent DHT implementation to find nodes
   * Routing Table internal structure 
-
-
+  * Bootstrap via fixed nodes
+  
+Glue stuff together
+  * Minimal app for development testing
 
 Needed build Packages
 ===============
