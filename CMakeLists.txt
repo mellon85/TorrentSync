@@ -89,12 +89,14 @@ if (NOT ${Boost_FOUND})
     message(FATAL_ERROR "Boost not found")
 endif()
 
+set(TEST_BOOST_LIBS
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
+    ${Boost_REGEX_LIBRARIES})
 set(COMMON_BOOST_LIBS
     ${Boost_SERIALIZATION_LIBRARIES}
     ${Boost_THREAD_LIBRARIES}
     ${Boost_SYSTEM_LIBRARIES}
-    ${Boost_DATE_TIME_LIBRARIES}
-    ${Boost_REGEX_LIBRARIES})
+    ${Boost_DATE_TIME_LIBRARIES})
 include_directories(${Boost_INCLUDE_DIRS})
 
 # main executable
@@ -126,8 +128,8 @@ target_link_libraries(TorrentSyncExecutable
 target_link_libraries(unittest
     TorrentSync
     ${COMMON_BOOST_LIBS}
+    ${TEST_BOOST_LIBS}
     ${COMMON_LIBS}
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
     )
 
 add_custom_target(doxygen doxygen doxygen.config)
