@@ -34,7 +34,7 @@ public:
 
     //! Destructor
     ~NodeData();
-	
+
     inline bool operator==( const NodeData& addr ) const;
     inline bool operator!=( const NodeData& addr ) const;
     inline bool operator< ( const NodeData& addr ) const;
@@ -47,8 +47,8 @@ public:
     static const NodeData minValue;
     static const NodeData maxValue;
 
-	static const size_t ADDRESS_STRING_LENGTH;
-	static const size_t ADDRESS_BITS;
+    static const size_t ADDRESS_STRING_LENGTH;
+    static const size_t ADDRESS_BITS;
 
     static MaybeBounds splitInHalf(const NodeData& low, const NodeData& high);
 
@@ -71,7 +71,7 @@ public:
     static const size_t addressDataLength;
 
     // distance operator
-    Distance&& operator^( const NodeData& addr ) const noexcept;
+    Distance operator^( const NodeData& addr ) const noexcept;
 
 private:
 

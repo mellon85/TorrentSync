@@ -47,13 +47,13 @@ NodeData::~NodeData()
 {
 }
 
-Distance&& NodeData::operator^( const NodeData& addr ) const noexcept
+Distance NodeData::operator^( const NodeData& addr ) const noexcept
 {
     Distance ret;
     ret.p1 = p1 ^ addr.p1;
     ret.p2 = p2 ^ addr.p2;
     ret.p3 = p3 ^ addr.p3;
-    return std::move(ret);
+    return ret;
 }
 
 const std::string NodeData::string() const
