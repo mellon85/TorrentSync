@@ -12,8 +12,8 @@ const size_t Callback::TIME_LIMIT = 3*60;
 
 Callback::Callback(
     const callback_t& callback,
-    const torrentsync::dht::NodeData& source,
-    const torrentsync::utils::Buffer& transactionID ) :
+    const boost::optional<dht::NodeData>& source,
+    const utils::Buffer& transactionID ) :
         _callback(callback),
         _source(source),
         _transactionID(transactionID),
@@ -26,9 +26,9 @@ bool Callback::isOld() const
    return difftime(time(NULL),_creation_time) > TIME_LIMIT;
 }
 
-bool Callback::verifyConstraints( const torrentsync::dht::message::Message& message ) const
+bool Callback::verifyConstraints( const dht::message::Message& message ) const
 {
-    if ( _source != message.getID() )
+    if ( !!_source && *_source != message.getID() )
         return false;
     
     if ( !(_transactionID == message.getTransactionID()) )
@@ -38,17 +38,33 @@ bool Callback::verifyConstraints( const torrentsync::dht::message::Message& mess
 }
 
 void Callback::call(
-    const torrentsync::dht::message::Message& m,
-    torrentsync::dht::Node& node) const
+    const dht::message::Message& m,
+    dht::Node& node) const
 {
     _callback(
-        callback_payload_t(m,node),*this);
+        payload_type(m,node),*this);
 }
 
 void Callback::timeout() const
 {
     _callback(
-        boost::optional<callback_payload_t>(), *this);
+        boost::optional<payload_type>(), *this);
+}
+
+bool Callback::operator==( const Callback& c ) const
+{
+    const bool equality = _transactionID == c._transactionID;
+    if (equality)
+    {
+        assert( _source == c._source);
+        assert( _creation_time == c._creation_time);
+    }
+    return equality;
+}
+
+bool Callback::operator<=( const Callback& c ) const
+{
+    return _transactionID <= c._transactionID;
 }
 
 } // dht

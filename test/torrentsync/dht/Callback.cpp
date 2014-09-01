@@ -31,10 +31,10 @@ BOOST_AUTO_TEST_CASE(match_node_success)
     int v = 0;
 
     Callback call(
-        [&v]( boost::optional<Callback::callback_payload_t> data,
+        [&v]( boost::optional<Callback::payload_type> data,
               const dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += std::get<0>(*data).getType().empty() ? 0 : 1; },
+            v += data->message.getType().empty() ? 0 : 1; },
         buff,
         transaction);
 
@@ -53,11 +53,11 @@ BOOST_AUTO_TEST_CASE(match_node_failure)
     utils::Buffer buff2 = utils::makeBuffer("G000GGG0HHHHHHHHIIII");
 
     Callback call(
-        [&v]( boost::optional<Callback::callback_payload_t> data,
+        [&v]( boost::optional<Callback::payload_type> data,
               const dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += std::get<0>(*data).getType().empty() ? 0 : 1; },
-        buff2,
+            v += data->message.getType().empty() ? 0 : 1; },
+        dht::NodeData(buff2),
         transaction);
         
 
@@ -72,10 +72,10 @@ BOOST_AUTO_TEST_CASE(match_transaction_success)
     int v = 0;
 
     Callback call(
-        [&v]( boost::optional<Callback::callback_payload_t> data,
+        [&v]( boost::optional<Callback::payload_type> data,
               const dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += std::get<0>(*data).getType().empty() ? 0 : 1; },
+            v += data->message.getType().empty() ? 0 : 1; },
         buff,
         transaction);
 
@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE(match_transaction_failure)
     auto transaction2 = utils::makeBuffer("a2");
 
     Callback call(
-        [&v]( boost::optional<Callback::callback_payload_t> data,
+        [&v]( boost::optional<Callback::payload_type> data,
               const dht::Callback& c) -> void {
             BOOST_REQUIRE(!!data);
-            v += std::get<0>(*data).getType().empty() ? 0 : 1; },
+            v += data->message.getType().empty() ? 0 : 1; },
         buff,
         transaction2);
 

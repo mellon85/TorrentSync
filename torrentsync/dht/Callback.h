@@ -25,6 +25,7 @@ class Message;
  *  to a more generic place in case it's needed by other parts of the
  *  applications.
  *
+ *  Callback object default order is based on the transaction ID
  **/
 
 using namespace torrentsync;
@@ -35,13 +36,14 @@ public:
     //! after 3 minutes a callback is condisered old
     static const size_t TIME_LIMIT;
 
-    typedef std::tuple<
-        const dht::message::Message&,
-        dht::Node&> callback_payload_t;
+    typedef struct T {
+        T(const dht::message::Message& m,dht::Node& n) : message(m), node(n) {}
+        const dht::message::Message& message;
+        dht::Node&                   node; } payload_type;
 
     //! type of the callback
     typedef std::function<void (
-            boost::optional<callback_payload_t>,
+            boost::optional<payload_type>,
             const dht::Callback&)> callback_t;
 
     //! Constructor
@@ -50,9 +52,20 @@ public:
     //! @param transactionID    Filter by transaction ID
     Callback(
         const callback_t& callback,
-        const dht::NodeData& source,
+        const boost::optional<dht::NodeData>& source,
         const utils::Buffer& transactionID);
 
+    Callback( const Callback& ) = default;
+    Callback( Callback&& ) = default;
+    
+    bool operator==( const Callback& ) const;
+
+    bool operator<=( const Callback& ) const;
+
+    Callback& operator=( Callback&& ) = default;
+    
+    Callback& operator=( const Callback& ) = default;
+    
     //! Calls the callback function
     void call(
         const dht::message::Message&,
@@ -74,14 +87,13 @@ private:
     callback_t _callback;
 
     //! filter condition for source address
-    dht::NodeData _source;
+    boost::optional<dht::NodeData> _source;
 
     //! filter condition for transaction it
     utils::Buffer _transactionID;
     
     //! creation time, to filter out old callbacks
     time_t _creation_time;
-
 };
 
 }; // dht

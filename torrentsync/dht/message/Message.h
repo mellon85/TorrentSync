@@ -56,7 +56,9 @@ class Message
 public:
     virtual ~Message() = default;
 
-    //Message( Message&& );
+    Message( Message&& ) = default;
+    
+    Message( const Message& ) = default;
     
     /*! Parse a generic message and returns an instance of it.
      * This method must be used to parse messages.
@@ -65,16 +67,14 @@ public:
      * @throw BEncodeDecoderException in case an error is encountered while
      *  parsing
      */
-    static std::shared_ptr<Message> parseMessage( std::istream& istream );
-    static std::shared_ptr<Message> parseMessage( const utils::Buffer& buffer );
-    static std::shared_ptr<Message> parseMessage( const utils::Buffer& buffer, const size_t size );
-
-    //! Returns the message type. In this way you can cast to the correct
-    //! object.
-    //! @return a member of the Messages namespace if it's a query. If it's a reply it will be empty
-    //! @throw MalformedMessageException in case the field is not available.
-    const boost::optional<utils::Buffer> getMessageType() const;
-
+    static std::shared_ptr<Message> parseMessage(
+        std::istream& istream );
+    static std::shared_ptr<Message> parseMessage(
+        const utils::Buffer& buffer );
+    static std::shared_ptr<Message> parseMessage(
+        const utils::Buffer& buffer,
+        const size_t size );
+        
     //! returns the type of the message
     //! @return a member of Type namespace
     //! @throw MalformedMessageException in case the field is not available.
@@ -99,11 +99,14 @@ public:
     //! converts the message to a human readable representation
     const std::string string() const;
     
+    //! move assignment
+    Message& operator=( Message&& ) = default;
+    
 protected:
     //! Default constructor
     Message() = default;
 
-    //! Constructor
+    //! Constructor 
     Message(const DataMap& data);
 
     //! Map containing all the data for the message

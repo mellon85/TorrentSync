@@ -26,8 +26,17 @@ static const size_t INITIALIZE_PING_BATCH_SIZE = 5;
 
 namespace message
 {
+namespace query
+{
 class Ping;
 class FindNode;
+};
+namespace reply
+{
+class Ping;
+class FindNode;
+};
+class Query;
 class Message;
 };
 
@@ -42,7 +51,7 @@ public:
     RoutingTable(
         boost::asio::io_service& io_service);
 
-    virtual ~RoutingTable();
+    virtual ~RoutingTable() = default;
 
     //! @return DHT table endpoint
     udp::endpoint getEndpoint() const;
@@ -59,7 +68,7 @@ public:
     //! @throws boost::system::system_error throw in case of error
     void initializeNetwork(
         const udp::endpoint& endpoint);
-
+    
 protected:
     //! Initalizes the tables by trying to contact the initial addresses stored
     //! from previous runs. It will try sending ping requests to these nodes.
@@ -99,9 +108,6 @@ protected:
     //! configure the io_service actions to receive messages
     void scheduleNextReceive();
 
-    //! sends a ping message to the destination node (and setup a callback to receive).
-    void doPing( dht::Node& destination );
-
 private:
 
     //! returns the most specific callback, and will be removed from the
@@ -119,8 +125,8 @@ private:
     //! @param transactionID optional parameter specifing if the message is awaited from a specific Peer
     void registerCallback(
         const Callback::callback_t& func,
-        const dht::NodeData& source, 
-        const utils::Buffer& transactionID);
+        const utils::Buffer& transactionID,
+        const boost::optional<dht::NodeData>& source = boost::optional<dht::NodeData>());
 
     //! Node table
     NodeTree _table;
@@ -156,7 +162,7 @@ private:
     //! A multimap is enough as anyway there shouldn't be more than one
     //! request at the same time (even though it may happen).
     std::multimap<
-        dht::NodeData,
+        utils::Buffer,
         dht::Callback> _callbacks;
 
     //! Number of close nodes found.
@@ -165,8 +171,8 @@ private:
     //! Transaction ID counter.
     std::atomic<uint16_t> _transaction_id;
     
-    //! Returns a new Transacton ID. Starts with a random value and 
-    //! will increase up to INT16_MAX when it will be reset to 0 and 
+    //! Returns a new Transacton ID. Starts with a random value and
+    //! will increase up to INT16_MAX when it will be reset to 0 and
     //! restart.
     utils::Buffer newTransaction();
     
@@ -174,7 +180,7 @@ private:
 
     //! Handle ping queries.
     void handlePingQuery(
-        const dht::message::Ping&,
+        const dht::message::query::Ping&,
         const dht::Node&);
 
     /** Handle ping reply
@@ -183,12 +189,12 @@ private:
      * nome to the known nodes or to mark it as a good node.
      */
     void handlePingReply(
-        const dht::message::Ping&,
+        const dht::message::reply::Ping&,
         const dht::Node&);
 
     //! Handle find_node queries.
     void handleFindNodeQuery(
-        const dht::message::FindNode&,
+        const dht::message::query::FindNode&,
         const dht::Node&);
 
     /** Handle find_node replies
@@ -196,9 +202,11 @@ private:
      * belong to a use case not randomly received.
      */
     void handleFindNodeReply(
-        const dht::message::FindNode&,
+        const dht::message::reply::FindNode&,
         const dht::Node&);
 
+    //! sends a ping message to the destination node (and setup a callback to receive).
+    void doPing( dht::Node& destination );
 };
 
 template <class Archive>

@@ -1,12 +1,12 @@
 #include <torrentsync/utils/log/Logger.h>
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/RoutingTable.h>
-#include <torrentsync/dht/message/Ping.h>
-#include <torrentsync/dht/message/FindNode.h>
+#include <torrentsync/dht/message/query/Ping.h>
+#include <torrentsync/dht/message/query/FindNode.h>
+#include <torrentsync/dht/message/reply/Ping.h>
+#include <torrentsync/dht/message/reply/FindNode.h>
 #include <torrentsync/dht/Callback.h>
 #include <torrentsync/utils/Yield.h>
-
-#include <boost/cast.hpp>
 
 #include <exception> // for not implemented stuff
 
@@ -19,27 +19,27 @@ using namespace torrentsync;
 namespace msg = dht::message;
 
 void RoutingTable::handlePingQuery(
-    const dht::message::Ping& ping,
+    const dht::message::query::Ping& ping,
     const dht::Node&          node)
 {
     assert(!!(node.getEndpoint()));
     
     // send ping reply
-    sendMessage( msg::Ping::getReply(
+    sendMessage( msg::reply::Ping::make(
                     ping.getTransactionID(), _table.getTableNode()),
                  *(node.getEndpoint()) );
 }
 
 //! Handle ping reply.
 void RoutingTable::handlePingReply(
-    const dht::message::Ping& message,
+    const dht::message::reply::Ping& message,
     const dht::Node& node)
 {
     LOG(DEBUG,"Ping Reply received " << message.getID() << " " << node);
 }
 
 void RoutingTable::handleFindNodeQuery(
-    const dht::message::FindNode& message,
+    const dht::message::query::FindNode& message,
     const dht::Node& node)
 {
     LOG(DEBUG,"Find Query received " << message.getID() << " " << node);
@@ -47,7 +47,7 @@ void RoutingTable::handleFindNodeQuery(
 
     auto nodes = _table.getClosestNodes(node);
     sendMessage(
-        msg::FindNode::getMessageReply(
+        msg::reply::FindNode::make(
             message.getTransactionID(),
             _table.getTableNode(),
             utils::makeYield<dht::NodeSPtr>(nodes.cbegin(),nodes.cend()).function()),
@@ -55,12 +55,11 @@ void RoutingTable::handleFindNodeQuery(
 }
 
 void RoutingTable::handleFindNodeReply(
-    const dht::message::FindNode& message,
+    const dht::message::reply::FindNode& message,
     const dht::Node& node)
 {
     LOG(WARN,"find_node reply without a callback. " << message.getID() << "-" << node );
 }
-
 
 void RoutingTable::doPing(
     dht::Node& destination )
@@ -69,20 +68,20 @@ void RoutingTable::doPing(
 
     torrentsync::utils::Buffer transaction = newTransaction();
 
-    torrentsync::utils::Buffer ping = msg::Ping::getQuery(
+    torrentsync::utils::Buffer ping = msg::query::Ping::make(
         transaction,
         _table.getTableNode());
 
     registerCallback([&](
-            boost::optional<Callback::callback_payload_t> data,
-            const torrentsync::dht::Callback&             trigger) -> void {
+            boost::optional<Callback::payload_type> data,
+            const torrentsync::dht::Callback&       trigger) {
 
             if (!!data)
             {
-                std::get<1>(*data).setGood(); // mark the node as good
-                LOG(DEBUG,"Ping handled: " << std::get<1>(*data) );
+                data->node.setGood(); // mark the node as good
+                LOG(DEBUG,"Ping handled: " << data->node );
             }
-        }, destination, transaction);
+        }, transaction, destination);
 
     // send ping reply
     sendMessage( ping, *(destination.getEndpoint()) );

@@ -1,6 +1,6 @@
 #include <torrentsync/dht/message/Message.h>
-#include <torrentsync/dht/message/Ping.h>
-#include <torrentsync/dht/message/FindNode.h>
+#include <torrentsync/dht/message/query/Ping.h>
+#include <torrentsync/dht/message/query/FindNode.h>
 
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -50,19 +50,14 @@ Message::Message(const DataMap& data) : _data(data)
 {
 }
 
-/*
-Message::Message( Message&& message )
-{
-    _data = std::move(message._data);
-}
-*/
-
 std::shared_ptr<Message> Message::parseMessage( const utils::Buffer& buffer )
 {
     return parseMessage(buffer,buffer.size());
 }
 
-std::shared_ptr<Message> Message::parseMessage( const utils::Buffer& buffer, const size_t length )
+std::shared_ptr<Message> Message::parseMessage(
+    const utils::Buffer& buffer,
+    const size_t length )
 {
     bio::array_source source(reinterpret_cast<const char*>(buffer.data()),length);
     bio::stream<bio::array_source> in(source);
@@ -96,11 +91,11 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
         
         if( *msgType == Messages::Ping)
         {
-            message.reset(new Ping(decoder.getData()));
+            message.reset(new query::Ping(decoder.getData()));
         }
         else if ( *msgType == Messages::FindNode )
         {
-            message.reset(new FindNode(decoder.getData()));
+            message.reset(new query::FindNode(decoder.getData()));
         }
         else
         {
@@ -114,11 +109,6 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
         message.reset(new Message(decoder.getData()));
     }
     return message;
-}
-
-const boost::optional<utils::Buffer> Message::getMessageType() const
-{
-    return find(Field::Query);
 }
 
 const utils::Buffer Message::getType() const
