@@ -16,8 +16,7 @@ using namespace torrentsync;
 
 Ping::Ping(const DataMap& dataMap) : dht::message::Reply(dataMap)
 {
-    if (!find(Field::Reply + "/" + Field::PeerID))
-        throw MalformedMessageException("Missing Peer ID in Ping Reply");
+    check();
 }
 
 const utils::Buffer Ping::make( 
@@ -34,6 +33,22 @@ const utils::Buffer Ping::make(
     enc.addDictionaryElement(Field::Type,Type::Reply);
     enc.endDictionary();
     return enc.value();
+}
+
+Ping::Ping( Message&& m ) : Reply(m)
+{
+    check();
+}
+
+Ping::Ping( const Message& m ) : Reply(m)
+{
+    check();
+}
+
+void Ping::check() const
+{
+    if (!find(Field::Reply + "/" + Field::PeerID))
+        throw MalformedMessageException("Missing Peer ID in Ping Reply");
 }
 
 } /* query */

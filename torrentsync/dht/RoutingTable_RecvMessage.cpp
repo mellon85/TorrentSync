@@ -41,7 +41,7 @@ void RoutingTable::recvMessage(
     // parse the message
     try
     {
-        message = msg::Message::parseMessage(buffer,bytes_transferred);
+        message = msg::Message::parseMessage(buffer);
         LOG(DEBUG, "RoutingTable * message parsed: \n" << *message);
     }
     catch ( const msg::MalformedMessageException& e )
@@ -51,7 +51,7 @@ void RoutingTable::recvMessage(
     }
 
     
-    const auto type     = message->getType();
+    const auto type = message->getType();
 
     // fetch the node from the tree table
     boost::optional<NodeSPtr> node = _table.getNode( message->getID() );

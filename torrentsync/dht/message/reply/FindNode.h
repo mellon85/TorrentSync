@@ -5,6 +5,8 @@
 #include <torrentsync/dht/Node.h>
 #include <boost/optional.hpp>
 
+#include <vector>
+
 namespace torrentsync
 {
 namespace dht
@@ -27,9 +29,13 @@ public:
     FindNode(const DataMap& dataMap);
 
     FindNode(FindNode&&) = default;
+
+    FindNode( Message&& );
+
+    FindNode( const Message& );
     
     //! Destructor
-    virtual ~FindNode() {}
+    virtual ~FindNode() = default;
 
     /** creates a FindNode message reply
      * @param transactionID the ID
@@ -43,10 +49,14 @@ public:
         const dht::NodeData& source,
         const std::function<boost::optional<std::shared_ptr<Node> >()> yield);
 
-    //! returns the nodes field
-    utils::Buffer getNodes();
+    //! returns the parsed nodes
+    std::vector<dht::NodeSPtr> getNodes() const;
     
     FindNode& operator=( FindNode&& ) = default;
+
+private:
+
+    void check() const;
 };
 
 } /* reply */

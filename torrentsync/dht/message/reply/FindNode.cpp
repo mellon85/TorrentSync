@@ -17,11 +17,8 @@ namespace reply
 using namespace torrentsync;
 
 FindNode::FindNode(const DataMap& dataMap) : dht::message::Reply(dataMap)
-{ 
-    if (!find(Field::Reply + "/" + Field::PeerID))
-        throw MalformedMessageException("Missing nodes in find_node reply");
-    if (!find(Field::Reply + "/" + Field::Nodes))
-        throw MalformedMessageException("Missing nodes in find_node reply");
+{
+    check();
 }
 
 const utils::Buffer FindNode::make( 
@@ -54,11 +51,39 @@ const utils::Buffer FindNode::make(
     return enc.value();
 }
 
-utils::Buffer FindNode::getNodes()
+std::vector<dht::NodeSPtr> FindNode::getNodes() const
 {
     auto token = find( Field::Reply + "/" + Field::Nodes );
     assert(!!token);
-    return *token;
+
+    const utils::Buffer& buff = *token;
+
+    std::vector<dht::NodeSPtr> nodes;
+    
+    for( auto it = buff.begin(); it+PACKED_NODE_SIZE <= buff.end(); it += PACKED_NODE_SIZE )
+    {
+        nodes.push_back(NodeSPtr(new Node(it,it+PACKED_NODE_SIZE)));
+    }
+   
+    return nodes;
+}
+
+void FindNode::check() const
+{
+    if (!find(Field::Reply + "/" + Field::PeerID))
+        throw MalformedMessageException("Missing nodes in find_node reply");
+    if (!find(Field::Reply + "/" + Field::Nodes))
+        throw MalformedMessageException("Missing nodes in find_node reply");
+}
+
+FindNode::FindNode( Message&& m ) : Reply(m)
+{
+    check();
+}
+
+FindNode::FindNode( const Message& m ) : Reply(m)
+{
+    check();
 }
 
 } /* reply */

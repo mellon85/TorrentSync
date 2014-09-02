@@ -102,11 +102,16 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
             throw MalformedMessageException("Unknown message name");
         }
     }
-    else
+    else if (*type == Type::Reply)
     {
         //@TODO use validators to verify the message or 
         // create classes for the replies.
         message.reset(new Message(decoder.getData()));
+    }
+    else
+    {
+        assert(*type == Type::Error);
+        //! @TODO error message parsing
     }
     return message;
 }

@@ -132,7 +132,28 @@ BOOST_AUTO_TEST_CASE(is_Good_Bad_Questionale)
     BOOST_REQUIRE_EQUAL(isGood(),false);
     BOOST_REQUIRE_EQUAL(isQuestionable(),false);
     BOOST_REQUIRE_EQUAL(isBad(),true);
-}	
+}
+
+BOOST_AUTO_TEST_CASE(serialization)
+{
+    const utils::Buffer buff = utils::parseIDFromHex(generateRandomNode());
+    dht::NodeData nodedata(buff);
+    
+    boost::asio::ip::udp::endpoint endpoint(
+        boost::asio::ip::udp::endpoint(
+             boost::asio::ip::address_v4(0x44454647),0x4445));
+    
+    dht::Node node1(nodedata.write(),endpoint);
+    auto data = node1.getPackedNode();
+    
+    dht::Node node2(data.begin(), data.end());
+    
+    BOOST_CHECK_EQUAL(node2.getEndpoint()->port(), 0x4445);
+    BOOST_CHECK_EQUAL(node2.getEndpoint()->address().to_v4().to_ulong(), 0x44454647);
+    BOOST_CHECK(buff == node1.write());
+    BOOST_CHECK(buff == node2.write());
+    BOOST_CHECK(data == node2.getPackedNode());
+}
 
 BOOST_AUTO_TEST_SUITE_END();
 

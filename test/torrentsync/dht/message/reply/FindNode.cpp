@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(reply_perfectMatch)
     const std::string id2("4848484848484848484848484848484848484848");
     const auto transaction = utils::makeBuffer("aa");
     
-    auto buff = utils::makeBuffer("d1:rd2:id20:GGGGGGGGGGGGGGGGGGGG5:nodes26:HHHHHHHHHHHHHHHHHHHHEEEEGGe1:t2:aa1:y1:re");
+    auto buff = utils::makeBuffer("d1:rd2:id20:GGGGGGGGGGGGGGGGGGGG5:nodes26:HHHHHHHHHHHHHHHHHHHHGGEEDFe1:t2:aa1:y1:re");
     
     dht::NodeData source(utils::parseIDFromHex(id1));
     dht::NodeData target(utils::parseIDFromHex(id2));
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(reply_perfectMatch)
     // 0x4747 => 'GG', 0x45454545 => 'EEEE'
     boost::optional<boost::asio::ip::udp::endpoint> endpoint(
         boost::asio::ip::udp::endpoint(
-             boost::asio::ip::address_v4(0x45454545),0x4747));
+             boost::asio::ip::address_v4(0x45454747),0x4644));
     
     std::shared_ptr<dht::Node> match(new dht::Node(target.write(),endpoint));
     
@@ -41,39 +41,50 @@ BOOST_AUTO_TEST_CASE(reply_perfectMatch)
             transaction,
             source,
             utils::makeYield(nodes.cbegin(),nodes.cend()).function()));
-            
+
     BOOST_REQUIRE(ret == buff);
     
-    const auto m = dht::message::Message::parseMessage(ret);
+    const auto m = dht::message::Message::parseMessage(ret);    
     BOOST_REQUIRE(!!m);
-    BOOST_REQUIRE(m->getType() == Type::Reply);
-    BOOST_REQUIRE(m->getTransactionID() == transaction);
+    BOOST_CHECK(m->getType() == Type::Reply);
+    BOOST_CHECK(m->getTransactionID() == transaction);
+
+    const reply::FindNode find_node(*m);
+    std::vector<dht::NodeSPtr> peers;
+    BOOST_REQUIRE_NO_THROW(peers = find_node.getNodes());
+    BOOST_REQUIRE_EQUAL(peers.size(),nodes.size());
+    BOOST_CHECK(find_node.getType() == Type::Reply);
+    BOOST_CHECK(find_node.getTransactionID() == transaction);
+    
+    BOOST_REQUIRE(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH"));
+    BOOST_REQUIRE_EQUAL(peers[0]->getEndpoint()->address().to_v4().to_ulong(), 0x45454747);
+    BOOST_REQUIRE_EQUAL(peers[0]->getEndpoint()->port(), 0x4644);
 }
 
 BOOST_AUTO_TEST_CASE(reply_multiple)
 {
     const std::string id1("4747474747474747474747474747474747474747");
     const std::string id2("4848484848484848484848484848484848484848");
+    const std::string id3("4141414141414141414141414141414141414141");
+    const std::string id4("4242424242424242424242424242424242424242");
     const auto transaction = utils::makeBuffer("aa");
     
-    auto buff = utils::makeBuffer("d1:rd2:id20:GGGGGGGGGGGGGGGGGGGG5:nodes78:HHHHHHHHHHHHHHHHHHHHEEEEGGHHHHHHHHHHHHHHHHHHHHEEEEGGHHHHHHHHHHHHHHHHHHHHEEEEGGe1:t2:aa1:y1:re");
+    auto buff = utils::makeBuffer("d1:rd2:id20:GGGGGGGGGGGGGGGGGGGG5:nodes78:HHHHHHHHHHHHHHHHHHHHGGEEDFAAAAAAAAAAAAAAAAAAAAGGEEDFBBBBBBBBBBBBBBBBBBBBGGEEDFe1:t2:aa1:y1:re");
     
     dht::NodeData source(utils::parseIDFromHex(id1));
-    dht::NodeData target(utils::parseIDFromHex(id2));
+    dht::NodeData target1(utils::parseIDFromHex(id2));
+    dht::NodeData target2(utils::parseIDFromHex(id3));
+    dht::NodeData target3(utils::parseIDFromHex(id4));
     
-    // 0x4747 => 'GG', 0x45454545 => 'EEEE'
     boost::optional<boost::asio::ip::udp::endpoint> endpoint(
         boost::asio::ip::udp::endpoint(
-             boost::asio::ip::address_v4(0x45454545),0x4747));
-    
-    std::shared_ptr<dht::Node> match;
-    
-    BOOST_REQUIRE_NO_THROW(match.reset(new dht::Node(target.write(),endpoint)));
+             boost::asio::ip::address_v4(0x45454747),0x4644));
     
     std::list<dht::NodeSPtr> nodes;
-    nodes.push_back(match);
-    nodes.push_back(match);
-    nodes.push_back(match);
+    BOOST_REQUIRE_NO_THROW(
+    nodes.push_back(dht::NodeSPtr(new dht::Node(target1.write(),endpoint)));
+    nodes.push_back(dht::NodeSPtr(new dht::Node(target2.write(),endpoint)));
+    nodes.push_back(dht::NodeSPtr(new dht::Node(target3.write(),endpoint))); );
 
     utils::Buffer ret;
     BOOST_REQUIRE_NO_THROW(
@@ -81,13 +92,32 @@ BOOST_AUTO_TEST_CASE(reply_multiple)
             transaction,
             source,
             utils::makeYield(nodes.cbegin(),nodes.cend()).function()));
-            
+
     BOOST_REQUIRE(ret == buff);
     
     const auto m = dht::message::Message::parseMessage(ret);
     BOOST_REQUIRE(!!m);
-    BOOST_REQUIRE(m->getType() == Type::Reply);
-    BOOST_REQUIRE(m->getTransactionID() == transaction);
+    BOOST_CHECK(m->getType() == Type::Reply);
+    BOOST_CHECK(m->getTransactionID() == transaction);
+    
+    const reply::FindNode find_node(*m);
+    std::vector<dht::NodeSPtr> peers;
+    BOOST_REQUIRE_NO_THROW(peers = find_node.getNodes());
+    BOOST_REQUIRE_EQUAL(peers.size(),nodes.size());
+    BOOST_CHECK(find_node.getType() == Type::Reply);
+    BOOST_CHECK(find_node.getTransactionID() == transaction);
+    
+    BOOST_CHECK(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH"));
+    BOOST_CHECK_EQUAL(peers[0]->getEndpoint()->address().to_v4().to_ulong(), 0x45454747);
+    BOOST_CHECK_EQUAL(peers[0]->getEndpoint()->port(), 0x4644);
+    
+    BOOST_CHECK(peers[1]->write() == utils::makeBuffer("AAAAAAAAAAAAAAAAAAAA"));
+    BOOST_CHECK_EQUAL(peers[1]->getEndpoint()->address().to_v4().to_ulong(), 0x45454747);
+    BOOST_CHECK_EQUAL(peers[1]->getEndpoint()->port(), 0x4644);
+    
+    BOOST_CHECK(peers[2]->write() == utils::makeBuffer("BBBBBBBBBBBBBBBBBBBB"));
+    BOOST_CHECK_EQUAL(peers[2]->getEndpoint()->address().to_v4().to_ulong(), 0x45454747);
+    BOOST_CHECK_EQUAL(peers[2]->getEndpoint()->port(), 0x4644);
 }
 
 BOOST_AUTO_TEST_SUITE_END();

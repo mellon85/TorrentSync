@@ -11,6 +11,7 @@ namespace dht
 {
 
 #define PACKED_NODE_SIZE 26
+#define PEERDATALENGTH 6
 
 using boost::asio::ip::udp;
 
@@ -25,7 +26,16 @@ public:
         const torrentsync::utils::Buffer&,
         const boost::optional<udp::endpoint>& = boost::optional<udp::endpoint>() );
 
-    virtual ~Node() {};
+    Node(
+        utils::Buffer::const_iterator begin,
+        utils::Buffer::const_iterator end);
+    
+    Node( Node&& ) = default;
+    
+    Node& operator=(Node&&) = default;
+    
+    Node& operator=(const Node&) = default;
+    virtual ~Node() = default;
     
     //! marks the address as good/fresh
     void setGood() noexcept;
@@ -54,8 +64,8 @@ public:
     //! @param end the beginning of the data in the iterator
     //! @throws std::invalid_argument in case the data is not correct
     void read(
-        torrentsync::utils::Buffer::const_iterator begin,
-        torrentsync::utils::Buffer::const_iterator end);
+        utils::Buffer::const_iterator begin,
+        utils::Buffer::const_iterator end);
 
     /** Returns a packed representation of the node
      * 20-byte id followed by network order bytes representing the ipv4 address 
@@ -65,7 +75,7 @@ public:
     virtual utils::Buffer getPackedNode() const;
     
 protected:
-    Node() {};
+    Node();
 
     //! the last time the node was set as good
     time_t _last_time_good;

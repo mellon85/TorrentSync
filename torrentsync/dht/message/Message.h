@@ -101,7 +101,7 @@ public:
     
     //! move assignment
     Message& operator=( Message&& ) = default;
-    
+
 protected:
     //! Default constructor
     Message() = default;

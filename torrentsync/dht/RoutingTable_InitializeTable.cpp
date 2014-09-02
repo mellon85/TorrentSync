@@ -2,6 +2,7 @@
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/RoutingTable.h>
 #include <torrentsync/dht/message/query/FindNode.h>
+#include <torrentsync/dht/message/reply/FindNode.h>
 
 #include <iterator>
 #include <vector>
@@ -87,13 +88,25 @@ void RoutingTable::initializeTable()
 
                         if (!!data)
                         {
-                            auto nodes = data->message.find(msg::Field::Reply+"/"+msg::Field::Nodes);
-                            if(!nodes)
+                            try
                             {
-                                LOG(ERROR,"find_node reply missing node informations" << data->message);
+                                const msg::reply::FindNode& find_node = dynamic_cast<const msg::reply::FindNode&>(data->message);
+                                auto nodes = find_node.getNodes();
+                                std::for_each( nodes.begin(), nodes.end(),
+                                    [&]( const dht::NodeSPtr& t )
+                                {
+                                    if (!!t->getEndpoint())
+                                        _initial_addresses.push_front(*t->getEndpoint());
+                                    _table.addNode(NodeSPtr(t));
+                                });
                             }
-                           // put all the nodes received at the front of _initial_addresses
-                           // _close_nodes_count must be incremented as necessary
+                            catch(  std::bad_cast& e )
+                            {
+                                LOG(WARN, "A message different from find node received");
+                                return;
+                            }
+                            // put all the nodes received at the front of _initial_addresses
+                            // _close_nodes_count must be incremented as necessary
                         }
                     }, transaction);
 

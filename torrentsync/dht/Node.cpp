@@ -10,9 +10,13 @@ namespace dht
 
 const time_t Node::good_interval              = 15 * 60;  // 15 minutes
 const size_t Node::allowed_unanswered_queries = 10;
-#define PEERDATALENGTH 6
 
-Node::Node( const Node& addr )
+Node::Node()
+{
+    setGood();
+}
+
+Node::Node( const Node& addr ) : Node()
 {
     *this = addr;
     setGood();
@@ -21,9 +25,16 @@ Node::Node( const Node& addr )
 Node::Node(
     const torrentsync::utils::Buffer& data,
     const boost::optional<udp::endpoint>& endpoint ) :
-     NodeData(data), _endpoint(endpoint)
+      NodeData(data), _endpoint(endpoint)
 {
     setGood();
+}
+
+Node::Node(
+    utils::Buffer::const_iterator begin,
+    utils::Buffer::const_iterator end) : Node()
+{
+    read(begin,end);
 }
 
 void Node::setGood() noexcept
@@ -77,13 +88,19 @@ void Node::read(
 
     uint32_t address;
     uint16_t port;
-    std::copy(begin,begin+sizeof(address),&address);
-
+    
+    for( size_t _i = 0; _i < sizeof(uint32_t); ++_i )
+    {
+        address <<= 8;
+        address += *begin++;
+    }
+    
     const boost::asio::ip::address_v4 new_address(
         ntohl(address));
-
-    begin += 4;
-    std::copy(begin,begin+sizeof(port),&port);
+    
+    port = *begin++;
+    port <<= 8;
+    port += *begin++;
 
     _endpoint = udp::endpoint(new_address,ntohs(port));
 }
@@ -93,17 +110,19 @@ utils::Buffer Node::getPackedNode() const
     assert(!!_endpoint);
     
     utils::Buffer buff = NodeData::write();
-    
-    buff.resize(PACKED_NODE_SIZE);
-    
-    const std::array<uint8_t, 4> networkOrderAddress = _endpoint->address().to_v4().to_bytes();
-    const uint16_t portNetworkOrder    = htons(_endpoint->port());
+    buff.reserve(PACKED_NODE_SIZE);
 
-    for( int i = 0; i < 4; ++i)
-        buff[20+i] = networkOrderAddress[i];
-    buff[24] = static_cast<uint8_t>(portNetworkOrder & 0xFF);
-    buff[25] = static_cast<uint8_t>(portNetworkOrder >> 8);
-    
+    auto networkOrderAddress        = htonl(_endpoint->address().to_v4().to_ulong());
+    const uint16_t portNetworkOrder = htons(_endpoint->port());
+
+    buff.push_back(networkOrderAddress >> 24);
+    buff.push_back(networkOrderAddress >> 16);
+    buff.push_back(networkOrderAddress >> 8);
+    buff.push_back(networkOrderAddress);
+
+    buff.push_back(portNetworkOrder >> 8);
+    buff.push_back(portNetworkOrder);
+
     return buff;
 }
 

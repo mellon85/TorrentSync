@@ -24,8 +24,12 @@ public:
     
     Ping( Ping&& ) = default;
     
+    Ping( Message&& );
+
+    Ping( const Message& );
+    
     //! Destructor
-    virtual ~Ping() {}
+    virtual ~Ping() = default;
 
     //! creates a Ping message
     //! @param transactionID the ID
@@ -35,6 +39,10 @@ public:
         const dht::NodeData& address);
 
     Ping& operator=( Ping&& ) = default;
+
+private:
+    
+    void check() const;
 };
  
 } /* query */
