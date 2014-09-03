@@ -25,6 +25,17 @@ BOOST_AUTO_TEST_CASE(check_lexicographic_order)
     BOOST_REQUIRE_THROW(c.addDictionaryElement("b","b"), std::logic_error);
 }
 
+BOOST_AUTO_TEST_CASE(add_integer)
+{
+    BEncodeEncoder c;
+
+    c.startList();
+    c.addInteger(12);
+    c.endList();
+
+    BOOST_REQUIRE(c.value() == utils::makeBuffer("li12ee"));
+}
+
 BOOST_AUTO_TEST_CASE(bep005_ping_example_q)
 {
     BEncodeEncoder c;

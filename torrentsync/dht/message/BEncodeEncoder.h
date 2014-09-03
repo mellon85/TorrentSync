@@ -25,6 +25,7 @@ class BEncodeEncoder
 
     BEncodeEncoder() : used_bytes(0), result(1024) {}
 
+
     void addElement(
         const std::string& v );
 
@@ -42,7 +43,9 @@ class BEncodeEncoder
     void addDictionaryElement(
         const std::string& k,
         const utils::Buffer& v);
-        
+
+    void addInteger( uint64_t );
+
     template <class T>
     void addList( const T begin, const T end )
     {
@@ -74,13 +77,7 @@ private:
 
     size_t used_bytes;
     
-    void checkAndExpand( const size_t add )
-    {
-        if( used_bytes+add > result.size() )
-        {
-            result.resize(((result.size()/1024)+1)*1024);
-        }
-    }
+    void checkAndExpand( const size_t add );
 
     mutable utils::Buffer result;
 

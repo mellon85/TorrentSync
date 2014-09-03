@@ -14,33 +14,6 @@ namespace dht
 namespace message
 {
 
-namespace Type
-{
-    const std::string Query     = "q";
-    const std::string Reply     = "r";
-    const std::string Error     = "e";
-};
-
-namespace Field
-{
-    const std::string PeerID        = "id";
-    const std::string TransactionID = "t";
-    const std::string Type          = "y";
-    const std::string Reply         = "r";
-    const std::string Query         = "q";
-    const std::string ErrorType     = "e";
-    const std::string Arguments     = "a";
-
-    const std::string Target        = "target";
-    const std::string Nodes         = "nodes";
-};
-
-namespace Messages
-{
-    const std::string Ping     = "ping";
-    const std::string FindNode = "find_node";
-};
-
 namespace bio = boost::iostreams;
 
 typedef bio::stream<bio::array_source> array_stream;
@@ -75,19 +48,22 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
     {
         std::stringstream ss;
         ss << "Couldn't parse message: " << e.what();
-        throw MalformedMessageException(ss.str());
+        throw MalformedMessageException(ss.str(),
+                ErrorType::protocolError);
     }
     
     auto type = find( Field::Type, decoder.getData() );
     if (!type)
-        throw MalformedMessageException("Couldn't find message type");
+        throw MalformedMessageException("Couldn't find message type",
+                ErrorType::protocolError);
 
     std::shared_ptr<Message> message;
     if (*type == Type::Query)
     {
         auto msgType = find(Field::Query, decoder.getData() );
         if (!msgType)
-            throw MalformedMessageException("Couldn't find message name");
+            throw MalformedMessageException("Couldn't find message name",
+                    ErrorType::protocolError);
         
         if( *msgType == Messages::Ping)
         {
@@ -97,9 +73,11 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
         {
             message.reset(new query::FindNode(decoder.getData()));
         }
-        else
+        else // @TODO must send methodUnknown error message back
+             // not a malformed message.
         {
-            throw MalformedMessageException("Unknown message name");
+            throw MalformedMessageException("Unknown message name",
+                    ErrorType::methodUnknownError);
         }
     }
     else if (*type == Type::Reply)
@@ -108,10 +86,14 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
         // create classes for the replies.
         message.reset(new Message(decoder.getData()));
     }
+    else if (*type == Type::Error)
+    {
+        message.reset(new Message(decoder.getData()));
+    }
     else
     {
-        assert(*type == Type::Error);
-        //! @TODO error message parsing
+        throw MalformedMessageException("Unknown message type",
+                ErrorType::protocolError);
     }
     return message;
 }
@@ -120,7 +102,8 @@ const utils::Buffer Message::getType() const
 {
     auto type = find( Field::Type );
     if (!type)
-        throw MalformedMessageException("Couldn't find message type");
+        throw MalformedMessageException("Couldn't find message type",
+                ErrorType::protocolError);
     return *type;
 }
 
@@ -128,7 +111,8 @@ const utils::Buffer Message::getTransactionID() const
 {
     auto token = find( Field::TransactionID);
     if (!token)
-        throw MalformedMessageException("Couldn't find token");
+        throw MalformedMessageException("Couldn't find token",
+                ErrorType::protocolError);
     return *token;
 }
 
@@ -139,7 +123,8 @@ const utils::Buffer Message::getID() const
             + "/" + Field::PeerID;
     auto id = find(path);
     if (!id)
-        throw MalformedMessageException("Couldn't find peer id");
+        throw MalformedMessageException("Couldn't find peer id",
+                ErrorType::protocolError);
     return *id;
 }
 

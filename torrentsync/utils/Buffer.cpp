@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include <boost/lexical_cast.hpp>
 
 namespace torrentsync
 {
@@ -13,6 +14,11 @@ Buffer makeBuffer( const std::string& str)
     return Buffer(str.cbegin(),str.cend());
 }
 
+Buffer makeBuffer( const uint64_t& v )
+{
+    const std::string str = boost::lexical_cast<std::string>(v);
+    return Buffer(str.cbegin(),str.cend());
+}
 
 std::string toString( const Buffer& buff )
 {

@@ -48,7 +48,8 @@ Ping::Ping( const Message& m ) : Reply(m)
 void Ping::check() const
 {
     if (!find(Field::Reply + "/" + Field::PeerID))
-        throw MalformedMessageException("Missing Peer ID in Ping Reply");
+        throw MalformedMessageException("Missing Peer ID in Ping Reply",
+                ErrorType::protocolError);
 }
 
 } /* query */

@@ -47,11 +47,13 @@ set(SOURCES
     torrentsync/dht/RoutingTable_RecvMessage.cpp
     torrentsync/dht/message/BEncodeDecoder.cpp
     torrentsync/dht/message/BEncodeEncoder.cpp
+    torrentsync/dht/message/Constants.cpp
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Query.cpp
     torrentsync/dht/message/query/FindNode.cpp
     torrentsync/dht/message/query/Ping.cpp
     torrentsync/dht/message/Reply.cpp
+    torrentsync/dht/message/reply/Error.cpp
     torrentsync/dht/message/reply/FindNode.cpp
     torrentsync/dht/message/reply/Ping.cpp
     torrentsync/utils/Buffer.cpp
@@ -71,6 +73,7 @@ set(SOURCES_UT
     test/torrentsync/dht/message/BEncodeEncoder.cpp
     test/torrentsync/dht/message/query/Ping.cpp
     test/torrentsync/dht/message/query/FindNode.cpp
+    test/torrentsync/dht/message/reply/Error.cpp
     test/torrentsync/dht/message/reply/Ping.cpp
     test/torrentsync/dht/message/reply/FindNode.cpp
     test/torrentsync/utils/Buffer.cpp

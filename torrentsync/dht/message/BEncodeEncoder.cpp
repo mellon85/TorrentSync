@@ -45,6 +45,19 @@ void BEncodeEncoder::addElement( const utils::Buffer& v )
     addElement(v.cbegin(),v.cend());
 }
 
+void BEncodeEncoder::addInteger( uint64_t v )
+{
+    const size_t digits = ceil(log10(v));
+
+    checkAndExpand(digits+2);
+    *(result.begin()+used_bytes++) = 'i';
+
+    const auto str = boost::lexical_cast<std::string>(v);
+    std::copy(str.cbegin(),str.cend(),result.begin()+used_bytes);
+    used_bytes += digits;
+    *(result.begin()+used_bytes++) = 'e';
+}
+
 template <class It>
 void BEncodeEncoder::addElement(
     It begin,
@@ -74,7 +87,7 @@ void BEncodeEncoder::addDictionaryElement(
     It  begin1, const It  end1,
     It2 begin2, const It2 end2 )
 {
-  // test key correctness with lexicographical_compare in an assert
+    // test key correctness with lexicographical_compare in an assert
     if (!lastKey.empty() && std::lexicographical_compare(begin1,end1,lastKey.cbegin(),lastKey.cend()))
         throw std::logic_error("Violating lexicographic order constraint in dictionary");
 
@@ -82,6 +95,14 @@ void BEncodeEncoder::addDictionaryElement(
     addElement(begin2,end2);
     
     lastKey = utils::Buffer(begin1,end1);
+}
+
+void BEncodeEncoder::checkAndExpand( const size_t add )
+{
+    if( used_bytes+add > result.size() )
+    {
+        result.resize(((result.size()/1024)+1)*1024);
+    }
 }
 
 } // torrentsync

@@ -8,6 +8,7 @@
 
 #include <torrentsync/dht/Callback.h>
 #include <torrentsync/dht/NodeTree.h>
+#include <torrentsync/dht/message/Constants.h>
 
 #include <exception>
 #include <mutex>
@@ -176,6 +177,15 @@ private:
     //! restart.
     utils::Buffer newTransaction();
     
+    /**
+     * Sends an error message to the specified endpoint.
+     * It is used to return an error message in case a query can't be
+     * fulfilled.
+     */
+    void sendError(
+            udp::endpoint&,
+            dht::message::ErrorType::error_type);
+
     //! ************** Message handlers *****************
 
     //! Handle ping queries.

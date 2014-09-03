@@ -1,10 +1,11 @@
 #pragma once
 
 #include <string>
-
 #include <memory>
+
 #include <torrentsync/dht/message/BEncodeDecoder.h>
 #include <torrentsync/dht/NodeData.h>
+#include <torrentsync/dht/message/Constants.h>
 
 namespace torrentsync
 {
@@ -13,42 +14,20 @@ namespace dht
 namespace message
 {
 
-using namespace torrentsync;
-
-namespace Type
-{
-    extern const std::string Query;
-    extern const std::string Reply;
-    extern const std::string Error;
-};
-
-namespace Field
-{
-    // general
-    extern const std::string PeerID;
-    extern const std::string TransactionID;
-    extern const std::string Type;
-    extern const std::string Query;
-    extern const std::string Reply;
-    extern const std::string ErrorType;
-    extern const std::string Arguments;
-
-    // find_node
-    extern const std::string Target;
-    extern const std::string Nodes;
-};
-
-namespace Messages
-{
-    extern const std::string Ping;
-    extern const std::string FindNode;
-};
-
 class MalformedMessageException : public std::runtime_error
 {
 public:
-    MalformedMessageException( const std::string& what ) : std::runtime_error(what) {}
+    MalformedMessageException(
+            const std::string& what,
+            ErrorType::error_type error ) : std::runtime_error(what), _error(error) {}
+
+    ErrorType::error_type errorType() const { return _error; }
+
+private:
+    ErrorType::error_type _error;
 };
+
+using namespace torrentsync;
 
 //! Abstract class representing every message
 class Message
@@ -64,8 +43,10 @@ public:
      * This method must be used to parse messages.
      * @param istream the input stream to read from
      * @return a shared pointer with the message
-     * @throw BEncodeDecoderException in case an error is encountered while
-     *  parsing
+     * @throw MalformedMessageException in case the message was not
+     * parsed or missed mantatory parts.
+     * @throw MethodUnknownException in case the query received is of an
+     * unknown type.
      */
     static std::shared_ptr<Message> parseMessage(
         std::istream& istream );

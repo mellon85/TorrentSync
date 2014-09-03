@@ -74,17 +74,18 @@ BOOST_AUTO_TEST_CASE(parse_dictionary)
 
 BOOST_AUTO_TEST_CASE(parse_list)
 {
-    std::istringstream str("l1:a2:bb2:yy4:plple");
+    std::istringstream str("l1:a2:bb2:yy4:plpli1ee");
 
     BEncodeDecoder decoder;
 
     BOOST_REQUIRE_NO_THROW(decoder.parseMessage(str));
     const DataMap& map = decoder.getData();
-    BOOST_REQUIRE_EQUAL(map.size(),4);
+    BOOST_REQUIRE_EQUAL(map.size(),5);
     TEST_FIELD("0","a");
     TEST_FIELD("1","bb");
     TEST_FIELD("2","yy");
     TEST_FIELD("3","plpl");
+    TEST_FIELD("4",1);
 }
 
 BOOST_AUTO_TEST_CASE(parse_dictionaryWithList)

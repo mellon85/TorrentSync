@@ -4,7 +4,6 @@
 #include <torrentsync/dht/message/query/Ping.h>
 #include <torrentsync/dht/message/query/FindNode.h>
 #include <torrentsync/dht/Callback.h>
-#include <torrentsync/utils/Yield.h>
 
 #include <exception> // for not implemented stuff
 
@@ -47,10 +46,10 @@ void RoutingTable::recvMessage(
     catch ( const msg::MalformedMessageException& e )
     {
         LOG(ERROR, "RoutingTable * message parsing failed: " << pretty_print(buffer) << " e:" << e.what());
+        // @TODO send malformed message error
         return;
     }
 
-    
     const auto type = message->getType();
 
     // fetch the node from the tree table

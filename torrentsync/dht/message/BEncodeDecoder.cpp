@@ -6,6 +6,8 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
 
+#include <iostream>
+
 namespace torrentsync
 {
 namespace dht
@@ -81,9 +83,8 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
 
                 if (structureStack.back().second == DICTIONARY)
                 {
-                    std::string key;
+                    std::string key = readElement(stream);
                     utils::Buffer value;
-                    key = readElement(stream);
 
                     // peek if it's a 'l' or a 'd' (substructure)
                     switch (stream.peek())
@@ -138,9 +139,8 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
 
 std::string BEncodeDecoder::readElement( std::istream& stream )
 {
-    
-    int length;
 
+    int length;
     stream >> length;
     const char buff = stream.get();
 
@@ -164,28 +164,48 @@ std::string BEncodeDecoder::readElement( std::istream& stream )
 
 utils::Buffer BEncodeDecoder::readValue( std::istream& stream )
 {
-    size_t length;
-
-    stream >> length;
-    const char separator = stream.get();
-
-    if (!stream.good())
-        throw BEncodeException("Error in stream while reading an element");
-
-    if (separator != ':')
+    if (stream.peek() == 'i')
     {
-        std::stringstream msg;
-        msg << "Malformed message - expecting separator : but found " << separator;
-        throw BEncodeException(msg.str());
-    }
+        char delimiter;
+        stream >> delimiter;
+        assert(delimiter == 'i');
 
-    utils::Buffer buffer;
-    buffer.reserve(length);
-    for( size_t __i = 0; __i < length; ++__i )
-    {
-        buffer.push_back(stream.get());
+        // encoded integer value
+        uint64_t value;
+        stream >> value;
+
+        stream >> delimiter;
+        if (delimiter != 'e')
+        {
+            throw BEncodeException("Missing integer terminator");
+        }
+        return utils::makeBuffer(value);
     }
-    return buffer;
+    else
+    {
+        size_t length;
+
+        stream >> length;
+        const char separator = stream.get();
+
+        if (!stream.good())
+            throw BEncodeException("Error in stream while reading an element");
+
+        if (separator != ':')
+        {
+            std::stringstream msg;
+            msg << "Malformed message - expecting separator : but found " << separator;
+            throw BEncodeException(msg.str());
+        }
+
+        utils::Buffer buffer;
+        buffer.reserve(length);
+        for( size_t __i = 0; __i < length; ++__i )
+        {
+            buffer.push_back(stream.get());
+        }
+        return buffer;
+    }
 }
 
 } // torrentsync

@@ -4,6 +4,7 @@
 #include <torrentsync/dht/RoutingTable.h>
 
 #include <torrentsync/dht/message/Message.h>
+#include <torrentsync/dht/message/Constants.h>
 
 #include <iterator>
 #include <vector>
@@ -160,6 +161,13 @@ utils::Buffer RoutingTable::newTransaction()
     buff.push_back(value);
     buff.push_back(value>>8);
     return buff;
+}
+
+void RoutingTable::sendError(
+        udp::endpoint& ip,
+        dht::message::ErrorType::error_type err)
+{
+    //! @TODO send error message
 }
 
 }; // dht
