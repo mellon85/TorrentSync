@@ -118,7 +118,7 @@ const utils::Buffer Message::getTransactionID() const
 
 const utils::Buffer Message::getID() const
 {
-    const std::string path =
+    const utils::Buffer path =
         (getType() == Type::Reply ? Field::Reply : Field::Arguments) 
             + "/" + Field::PeerID;
     auto id = find(path);
@@ -129,7 +129,7 @@ const utils::Buffer Message::getID() const
 }
 
 const boost::optional<utils::Buffer> Message::find(
-    const std::string& key) const
+    const utils::Buffer& key) const
 {
     return find(key,_data);
 }
@@ -146,7 +146,7 @@ const std::string Message::string() const
 }
 
 const boost::optional<utils::Buffer> Message::find(
-    const std::string& key,
+    const utils::Buffer& key,
     const DataMap& data)
 {
     boost::optional<utils::Buffer> ret;

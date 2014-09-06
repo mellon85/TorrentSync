@@ -24,7 +24,7 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
     data.clear();
     structureStack.clear();
     structureStack.reserve(2); // should be enough for every KRPC
-    std::string last_token;
+    utils::Buffer last_token;
 
     while ( !stream.eof() && !parseEnded )
     {
@@ -41,9 +41,8 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
             case 'l':
                 stream.ignore();
                 if (listCounter > 0)
-                {
-                    last_token = boost::lexical_cast<std::string>(listCounter);
-                }
+                    last_token = utils::makeBuffer(listCounter);
+
                 listCounter = 0;
                 structureStack.push_back(std::make_pair(last_token,LIST));
                 break;
@@ -52,7 +51,7 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                 stream.ignore();
                 if (structureStack.size() <= 0)
                     throw BEncodeException("Malformed message - end not in a structure");
-                
+
                 listCounter = 0;
                 if (structureStack.size() > 0 && structureStack.back().second == LIST)
                 {
@@ -64,7 +63,8 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                     {
                         try
                         {
-                            listCounter = boost::lexical_cast<int>(structureStack.back().first)+1;
+                            const utils::Buffer& data = structureStack.back().first;
+                            listCounter = boost::lexical_cast<int>(std::string(data.cbegin(),data.cend()))+1;
                         } catch (...) { listCounter = 0; }
                     }
                 }
@@ -78,12 +78,12 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
             default:
                 if (structureStack.empty())
                     throw BEncodeException("Malformed message - no structure found");
-                std::string buffer;
+                utils::Buffer buffer;
                 buffer.reserve(16);
 
                 if (structureStack.back().second == DICTIONARY)
                 {
-                    std::string key = readElement(stream);
+                    utils::Buffer key = readElement(stream);
                     utils::Buffer value;
 
                     // peek if it's a 'l' or a 'd' (substructure)
@@ -96,13 +96,7 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                     default:
                         value = readValue(stream);
 
-                        std::for_each( structureStack.begin(),structureStack.end(), [&] (const structureStackE& path)
-                        {
-                            buffer += path.first;
-                            if (buffer.size() > 0)
-                                buffer += '/';
-                        });
-
+                        buffer = appendPath();
                         buffer += key;
                         data.insert(std::make_pair(buffer,value));
                         break;
@@ -113,14 +107,10 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                     assert(structureStack.back().second == LIST);
                     utils::Buffer value = readValue(stream);
 
-                    std::for_each( structureStack.begin(),structureStack.end(), [&] (const structureStackE& path)
-                    {
-                        buffer += path.first;
-                        if (buffer.size() > 0)
-                            buffer += '/';
-                    });
+                    buffer = appendPath();
 
-                    buffer += boost::lexical_cast<std::string>(listCounter);
+                    auto counter = utils::makeBuffer(listCounter);
+                    buffer += counter;
                     ++listCounter;
                     data.insert(std::make_pair(buffer,value));
                 }
@@ -137,7 +127,21 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
     }
 }
 
-std::string BEncodeDecoder::readElement( std::istream& stream )
+utils::Buffer BEncodeDecoder::appendPath()
+{
+    utils::Buffer buff;
+    buff.reserve(16);
+    std::for_each( structureStack.begin(),structureStack.end(), [&] (const structureStackE& path)
+    {
+        //buff.insert(buff.end(),path.first.cbegin(),path.first.cend());
+        buff += path.first;
+        if (buff.size() > 0)
+            buff.push_back('/');
+    });
+    return buff;
+}
+
+utils::Buffer BEncodeDecoder::readElement( std::istream& stream )
 {
 
     int length;
@@ -158,7 +162,7 @@ std::string BEncodeDecoder::readElement( std::istream& stream )
         char string[length+1];
         stream.read(string,length);
         string[length] = '\0';
-        return string;
+        return utils::makeBuffer(string);
     }
 }
 
@@ -166,14 +170,13 @@ utils::Buffer BEncodeDecoder::readValue( std::istream& stream )
 {
     if (stream.peek() == 'i')
     {
-        char delimiter;
-        stream >> delimiter;
-        assert(delimiter == 'i');
+        stream.ignore();
 
         // encoded integer value
         uint64_t value;
         stream >> value;
 
+        char delimiter;
         stream >> delimiter;
         if (delimiter != 'e')
         {

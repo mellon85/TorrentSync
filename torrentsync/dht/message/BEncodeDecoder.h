@@ -1,7 +1,7 @@
 #pragma once
 
 #include <list>
-#include <unordered_map>
+#include <map>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -19,7 +19,9 @@ namespace dht
 namespace message
 {
 
-typedef std::unordered_map<std::string,torrentsync::utils::Buffer> DataMap;
+using namespace torrentsync;
+
+typedef std::map<utils::Buffer,utils::Buffer> DataMap;
 
 typedef std::runtime_error BEncodeException;
 
@@ -41,17 +43,22 @@ public:
     const DataMap& getData() const noexcept { return data; }
 
     boost::optional<
-        torrentsync::utils::Buffer> find( const std::string& key ) const;
+        utils::Buffer> find( const utils::Buffer& key ) const;
 
 private:
     //! parse a single element from the stream
-    std::string readElement( std::istream& stream );
+    utils::Buffer readElement( std::istream& stream );
 
     //! parse a single value from the stream
-    torrentsync::utils::Buffer readValue( std::istream& stream );
+    utils::Buffer readValue( std::istream& stream );
+
+    typedef enum {
+        DICTIONARY = 0,
+        LIST
+    } structure_t;
 
     //! Stack entry
-    typedef std::pair<std::string,bool> structureStackE;
+    typedef std::pair<utils::Buffer,structure_t> structureStackE;
 
     //! Stack to use while parsing
     std::vector<structureStackE> structureStack;
@@ -59,11 +66,7 @@ private:
     //! Container of all the parsed data
     DataMap data;
 
-    typedef enum {
-        DICTIONARY = 0,
-        LIST
-    } structure_t;
-
+    utils::Buffer appendPath();
 };
 
 } // torrentsync

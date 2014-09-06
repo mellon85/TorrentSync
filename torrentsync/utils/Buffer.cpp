@@ -101,3 +101,37 @@ std::ostream& operator<<(
     return stream;
 }
 
+torrentsync::utils::Buffer operator+(
+    const torrentsync::utils::Buffer& a,
+    const torrentsync::utils::Buffer& b)
+{
+    torrentsync::utils::Buffer buff = a;
+    buff += b;
+    return buff;
+}
+
+torrentsync::utils::Buffer operator+(
+    const torrentsync::utils::Buffer& a,
+    const std::string& b)
+{
+    torrentsync::utils::Buffer buff = a;
+    buff += b;
+    return buff;
+}
+
+torrentsync::utils::Buffer& operator+=(
+    torrentsync::utils::Buffer& a,
+    const torrentsync::utils::Buffer& b)
+{
+    a.insert(a.end(),b.cbegin(),b.cend());
+    return a;
+}
+
+torrentsync::utils::Buffer& operator+=(
+    torrentsync::utils::Buffer& a,
+    const std::string& b)
+{
+    a.insert(a.end(),b.cbegin(),b.cend());
+    return a;
+}
+

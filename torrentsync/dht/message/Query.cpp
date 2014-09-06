@@ -14,7 +14,7 @@ Query::Query(const DataMap& data) : Message(data)
 
 const utils::Buffer Query::getMessageType() const
 {
-    const std::string path = Type::Query;
+    const auto path = Type::Query;
     auto id = find(path);
     if (!id)
         throw MalformedMessageException("Couldn't find message type",

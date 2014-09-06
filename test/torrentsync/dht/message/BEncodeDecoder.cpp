@@ -13,8 +13,8 @@ using namespace torrentsync::dht::message;
 using namespace torrentsync;
 
 #define TEST_FIELD(key,value) { \
-    BOOST_REQUIRE(map.find(key) != map.end()); \
-    BOOST_REQUIRE(map.find(key)->second == \
+    BOOST_REQUIRE(map.find(utils::makeBuffer(key)) != map.end()); \
+    BOOST_REQUIRE(map.find(utils::makeBuffer(key))->second == \
         utils::makeBuffer(value));}
 
 BOOST_AUTO_TEST_CASE(constructor_destructor)
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(parse_oneElementDictionary)
     const DataMap& map = decoder.getData();
     BOOST_REQUIRE_EQUAL(map.size(),1);
 
-    auto t = map.find("a")->second;
+    auto t = map.find(utils::makeBuffer("a"))->second;
     auto b = utils::makeBuffer("b");
     TEST_FIELD("a","b");
 }

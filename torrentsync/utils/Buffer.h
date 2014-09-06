@@ -2,7 +2,7 @@
 #include <vector>
 #include <cstdint>
 #include <string>
-
+#include <algorithm>
 
 namespace torrentsync
 {
@@ -16,7 +16,8 @@ Buffer makeBuffer( const uint64_t& );
 
 std::string toString( const Buffer& );
 
-const torrentsync::utils::Buffer parseIDFromHex( const std::string& str );
+const Buffer parseIDFromHex( const std::string& str );
+
 
 }; // utils
 }; // torrentsync
@@ -36,3 +37,20 @@ struct pretty_print
 };
 
 std::ostream& operator<<( std::ostream& stream, const pretty_print& buff );
+
+torrentsync::utils::Buffer operator+(
+    const torrentsync::utils::Buffer&,
+    const torrentsync::utils::Buffer&);
+
+torrentsync::utils::Buffer operator+(
+    const torrentsync::utils::Buffer&,
+    const std::string&);
+
+torrentsync::utils::Buffer& operator+=(
+    torrentsync::utils::Buffer&,
+    const torrentsync::utils::Buffer&);
+
+torrentsync::utils::Buffer& operator+=(
+    torrentsync::utils::Buffer&,
+    const std::string&);
+

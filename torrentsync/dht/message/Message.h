@@ -75,7 +75,7 @@ public:
 
     //! returns an optional buffer from the data map if found.
     const boost::optional<utils::Buffer> find(
-        const std::string& key) const;
+        const utils::Buffer& key) const;
     
     //! converts the message to a human readable representation
     const std::string string() const;
@@ -95,7 +95,7 @@ protected:
 
     //! returns an optional buffer from the data map if found.
     static const boost::optional<utils::Buffer> find(
-        const std::string& key,
+        const utils::Buffer& key,
         const DataMap& data);
 };
 
