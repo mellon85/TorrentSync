@@ -85,7 +85,7 @@ find_package(Threads)
 set(COMMON_LIBS ${CMAKE_THREAD_LIBS_INIT})
 
 # common source code lib
-add_library(TorrentSync SHARED ${SOURCES})
+add_library(TorrentSync STATIC ${SOURCES})
 
 # boost
 find_package(Boost
