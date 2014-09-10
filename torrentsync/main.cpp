@@ -1,5 +1,6 @@
 #include <torrentsync/utils/log/Logger.h>
 #include <torrentsync/App.h>
+#include <iostream>
 
 using namespace torrentsync::utils::log;
 

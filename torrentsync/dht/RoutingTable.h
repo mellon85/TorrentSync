@@ -69,12 +69,30 @@ public:
     //! @throws boost::system::system_error throw in case of error
     void initializeNetwork(
         const udp::endpoint& endpoint);
-    
+
 protected:
+
+    //! Sends a message to the specified address
+    //! It will send it asynchronously putting them in a queue of at
+    //! most MAX_SEND_QUEUE length.
+    //! @throws boost::system::system_error
+    virtual void sendMessage(
+        const utils::Buffer&,
+        const udp::endpoint& addr);
+
+    //! @TODO
+    virtual void recvMessage(
+        const boost::system::error_code& error,
+        utils::Buffer buffer,
+        std::size_t bytes_transferred,
+        const boost::asio::ip::udp::endpoint& sender);
+
+private:
+
     //! Initalizes the tables by trying to contact the initial addresses stored
     //! from previous runs. It will try sending ping requests to these nodes.
     void initializeTable();
-    
+
     //! Use a few known addresses to start a connection with the DHT network.
     //! This function must not be called until initialization of the
     //! table has not finished.
@@ -88,28 +106,11 @@ protected:
     //! - clean timedout callbacks.
     void tableMaintenance();
 
-    //! Sends a message to the specified address
-    //! It will send it asynchronously putting them in a queue of at
-    //! most MAX_SEND_QUEUE length.
-    //! @throws boost::system::system_error
-    virtual void sendMessage(
-        const utils::Buffer&,
-        const udp::endpoint& addr);
-
-    //! @TODO
-    void recvMessage(
-        const boost::system::error_code& error,
-        utils::Buffer buffer,
-        std::size_t bytes_transferred,
-        const boost::asio::ip::udp::endpoint& sender);
-
     //! list of address to populate the table with
     std::list<boost::asio::ip::udp::endpoint> _initial_addresses;
 
     //! configure the io_service actions to receive messages
     void scheduleNextReceive();
-
-private:
 
     //! returns the most specific callback, and will be removed from the
     //! callbacks.
@@ -171,20 +172,24 @@ private:
 
     //! Transaction ID counter.
     std::atomic<uint16_t> _transaction_id;
-    
+
     //! Returns a new Transacton ID. Starts with a random value and
     //! will increase up to INT16_MAX when it will be reset to 0 and
     //! restart.
     utils::Buffer newTransaction();
-    
+
     /**
      * Sends an error message to the specified endpoint.
      * It is used to return an error message in case a query can't be
      * fulfilled.
+     * @param ip the address to send it to
+     * @param transaction the transaction to relate the error to a query
+     * @param error the error type
      */
     void sendError(
-            udp::endpoint&,
-            dht::message::ErrorType::error_type);
+        const udp::endpoint& ip,
+        const utils::Buffer& transaction,
+        const dht::message::ErrorType::error_type error);
 
     //! ************** Message handlers *****************
 

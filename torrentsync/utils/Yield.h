@@ -22,36 +22,37 @@ template <typename Iterator, typename OutputType = void>
 class Yield
 {
 public:
-    typedef Iterator                              iterator_type;
+    typedef Iterator iterator_type;
     typedef typename iterator_type::value_type    in_type;
 
     typedef typename std::conditional<
         std::is_same<OutputType,void>::value,
             in_type, OutputType>::type            value_type;
-    
+
     typedef typename boost::optional<value_type>  return_type;
     typedef typename std::function<return_type()> function_type;
-    
-    static_assert( std::is_convertible<in_type,value_type>::value, "input type not convertible to output type");
 
-    Yield( Iterator begin, Iterator end ) : _begin(begin), _end(end) {}
-    
+    static_assert( std::is_convertible<in_type,value_type>::value,
+            "input type not convertible to output type");
+
+    Yield( iterator_type begin,   iterator_type end )   : _begin(begin), _end(end) {}
+
     return_type operator()()
     {
         return _begin != _end ? return_type(static_cast<value_type>(*_begin++)) : return_type();
     }
-    
+
     function_type function()
     {
         return [&] { return (*this)(); };
     }
-    
+
 private:
     iterator_type _begin, _end;
 };
 
 template <typename OutputType = void, typename Iterator>
-auto makeYield( Iterator begin, Iterator end ) -> Yield<Iterator,OutputType>
+Yield<Iterator,OutputType> makeYield( Iterator begin, Iterator end )
 {
     return Yield<Iterator,OutputType>(begin,end);
 }

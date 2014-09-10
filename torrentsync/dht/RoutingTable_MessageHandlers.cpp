@@ -5,6 +5,7 @@
 #include <torrentsync/dht/message/query/FindNode.h>
 #include <torrentsync/dht/message/reply/Ping.h>
 #include <torrentsync/dht/message/reply/FindNode.h>
+#include <torrentsync/dht/message/reply/Error.h>
 #include <torrentsync/dht/Callback.h>
 #include <torrentsync/utils/Yield.h>
 
@@ -85,6 +86,15 @@ void RoutingTable::doPing(
 
     // send ping reply
     sendMessage( ping, *(destination.getEndpoint()) );
+}
+
+void RoutingTable::sendError(
+    const udp::endpoint& ip,
+    const utils::Buffer& transaction,
+    const dht::message::ErrorType::error_type err)
+{
+    utils::Buffer error = msg::reply::Error::make( transaction, err );
+    sendMessage(error,ip);
 }
 
 } // dht

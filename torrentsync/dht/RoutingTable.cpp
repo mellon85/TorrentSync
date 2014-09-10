@@ -72,14 +72,14 @@ void RoutingTable::scheduleNextReceive()
     std::shared_ptr<boost::asio::ip::udp::endpoint> sender(
         new boost::asio::ip::udp::endpoint());
 
-    LOG(DEBUG,"Scheduling receive"); 
-    
+    LOG(DEBUG,"Scheduling receive");
+
     _recv_socket.async_receive_from(
             boost::asio::buffer(*buff,MESSAGE_BUFFER_SIZE),
             *sender,
             [&,sender,buff] (
                   const boost::system::error_code& error,
-                  std::size_t bytes_transferred) -> void 
+                  std::size_t bytes_transferred) -> void
                 {
                 utils::Finally([&](){scheduleNextReceive();});
                 recvMessage(error,*buff,bytes_transferred,*sender);
@@ -161,13 +161,6 @@ utils::Buffer RoutingTable::newTransaction()
     buff.push_back(value);
     buff.push_back(value>>8);
     return buff;
-}
-
-void RoutingTable::sendError(
-        udp::endpoint& ip,
-        dht::message::ErrorType::error_type err)
-{
-    //! @TODO send error message
 }
 
 }; // dht

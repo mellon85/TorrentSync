@@ -1,6 +1,9 @@
 #include <torrentsync/dht/message/Message.h>
 #include <torrentsync/dht/message/query/Ping.h>
 #include <torrentsync/dht/message/query/FindNode.h>
+#include <torrentsync/dht/message/reply/Error.h>
+#include <torrentsync/dht/message/reply/Ping.h>
+#include <torrentsync/dht/message/reply/FindNode.h>
 
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -88,7 +91,7 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
     }
     else if (*type == Type::Error)
     {
-        message.reset(new Message(decoder.getData()));
+        message.reset(new reply::Error(decoder.getData()));
     }
     else
     {

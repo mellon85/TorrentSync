@@ -29,7 +29,7 @@ public:
 
 BOOST_FIXTURE_TEST_SUITE(torrentsync_dht_RoutingTable,MockRoutingTable);
 
-
+/*
 BOOST_AUTO_TEST_CASE(initializing_addresses)
 {
     _initial_addresses.push_back(boost::asio::ip::udp::endpoint());
@@ -55,5 +55,5 @@ BOOST_AUTO_TEST_CASE(initializing_addresses2)
     _service.run_one();
     BOOST_REQUIRE_EQUAL( 1, _initial_addresses.size() );
 }
-
+*/
 BOOST_AUTO_TEST_SUITE_END();
