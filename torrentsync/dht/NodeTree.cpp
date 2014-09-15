@@ -2,7 +2,7 @@
 
 #include <exception>
 #include <numeric>
-#include <functional>
+#include <algorithm>
 
 namespace torrentsync
 {
@@ -117,7 +117,7 @@ MaybeBuckets NodeTree::split( BucketContainer::const_iterator bucket_it )
 
     BucketSPtr lower_bucket(new Bucket(bucket->getLowerBound(),bounds->first));
     BucketSPtr upper_bucket(new Bucket(bounds->second,bucket->getUpperBound()));
-    
+
     // split addresses in buckets
     for( Bucket::const_iterator it = bucket->cbegin(); it != bucket->cend(); ++it)
     {
@@ -133,7 +133,7 @@ MaybeBuckets NodeTree::split( BucketContainer::const_iterator bucket_it )
     }
 
     assert(upper_bucket->size() + lower_bucket->size() == bucket->size());
- 
+
     _buckets.erase(bucket_it);
     _buckets.insert(upper_bucket);
     _buckets.insert(lower_bucket);
@@ -167,7 +167,7 @@ const std::list<NodeSPtr> NodeTree::getClosestNodes(
 {
     std::list<NodeSPtr> nodes;
     std::lock_guard<std::mutex> lock(mutex);
-    
+
     std::set<NodeSPtr,std::function<bool(const NodeSPtr&,const NodeSPtr&)> > knownNodes(
         [&data]( const NodeSPtr& x, const NodeSPtr& y) {
             return (*x ^ data) <= (*y ^ data);
@@ -175,18 +175,18 @@ const std::list<NodeSPtr> NodeTree::getClosestNodes(
 
     // find bucket
     auto bucket_it = findBucket(data);
-    
+
     // check if we have a perfect match
     const Bucket::const_iterator perfect_match = std::find_if(
         (*bucket_it)->cbegin(),(*bucket_it)->cend(),
             [&data](const NodeSPtr& a) { return *a == data; } );
-    
+
     if ( perfect_match != (*bucket_it)->cend() )
     {
         nodes.push_back(*perfect_match);
         return nodes;
     }
-    
+
     // in case a perfect match is not found the closest nodes are returned
     if (bucket_it != _buckets.begin())
         --bucket_it; // put it at the left bucket
@@ -215,6 +215,20 @@ const NodeData& NodeTree::getTableNode() const noexcept
 size_t NodeTree::getBucketsCount() const noexcept
 {
     return _buckets.size();
+}
+
+void NodeTree::for_each( std::function<void (const Node&)> f )
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    //@TODO make it is a recursive lock
+
+    for ( const auto &b : _buckets )
+    {
+        for ( const auto &n : *b )
+        {
+            f(*n);
+        }
+    };
 }
 
 }; // dht

@@ -8,8 +8,6 @@
 
 #include <iterator>
 #include <vector>
-#include <atomic>
-#include <mutex>
 #include <tuple>
 
 #include <boost/asio.hpp>
@@ -35,6 +33,7 @@ RoutingTable::RoutingTable(
           _io_service(io_service),
           _recv_socket(io_service),
           _send_socket(io_service),
+          _send_queue_counter(0),
           _close_nodes_count(0),
           _transaction_id(rand()) // initialize with a random value
 {
@@ -120,13 +119,11 @@ void RoutingTable::sendMessage(
     const utils::Buffer& buff,
     const udp::endpoint& addr)
 {
-    static std::atomic<size_t> send_queue_counter(0);
-
     // the write handler will ensure that the buffer exists until the
     // end of the send.
     std::lock_guard<std::mutex> lock(_send_mutex);
 
-    const size_t count = send_queue_counter.fetch_add(1);
+    const size_t count = _send_queue_counter++;
     if (count < MAX_SEND_QUEUE)
     {
         _recv_socket.async_send_to(
@@ -135,13 +132,13 @@ void RoutingTable::sendMessage(
             [=] (
                   const boost::system::error_code& error,
                   std::size_t bytes_transferred) -> void 
-                { send_queue_counter--;
+                { _send_queue_counter--;
                   LOG(DEBUG,"RoutingTable * Sent to " << addr << " " <<
                     bytes_transferred << "/" << buff.size() << " e:" <<
                     error.message() << " buffer:" << pretty_print(buff)); });
     } else {
         LOG(DEBUG,"RoutingTable * dropped to " << addr << " " << " buffer:"<<buff);
-        send_queue_counter--;
+        _send_queue_counter--;
     }
 }
 

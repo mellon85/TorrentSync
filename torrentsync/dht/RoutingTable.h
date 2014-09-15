@@ -135,7 +135,7 @@ private:
 
     //! Serialization friend class
     friend class boost::serialization::access;
-    
+
     //! Split the serialization in 2 different steps
     BOOST_SERIALIZATION_SPLIT_MEMBER();
 
@@ -157,8 +157,15 @@ private:
     //! Outbound socket 
     udp::socket _send_socket;
 
+    //! Counter of the number of messages to be sent in the queue
+    size_t _send_queue_counter;
+
     //! Outbout mutex
     std::mutex _send_mutex;
+
+    //! Initialization mutex to avoid race condition when serializing
+    //! the initializer list.
+    std::mutex _initializer_mutex;
 
     //! Callbacks container.
     //! A multimap is enough as anyway there shouldn't be more than one
@@ -167,8 +174,9 @@ private:
         utils::Buffer,
         dht::Callback> _callbacks;
 
-    //! Number of close nodes found.
-    std::atomic<size_t> _close_nodes_count;
+    //! Number of close nodes found. (synchronized with
+    // _initializer_mutex)
+    size_t _close_nodes_count;
 
     //! Transaction ID counter.
     std::atomic<uint16_t> _transaction_id;
@@ -229,9 +237,19 @@ void RoutingTable::save( Archive &ar, const unsigned int version) const
 {
     if (version <= 0)
     {
+        std::lock_guard<std::mutex> lock(_initializer_mutex);
+
         ar << _table.size();
+        // serialize addresses in _table
+
+        // serialize addresses in _initial_addresses
+        std::for_each( _initial_addresses.cbegin(),
+                       _initial_addresses.cend(),
+                       [&]( const boost::asio::ip::udp::endpoint& element ) {
+           ar << element;
+        });
+
         throw std::runtime_error("Not Implemented Yet");
-        // @TODO
     }
 }
 

@@ -80,12 +80,12 @@ public:
     inline const_iterator cbegin() const { return _elements.begin(); }
     inline const_iterator cend()   const { return _elements.begin()+addressCount; }
 
+    inline iterator begin()       { return _elements.begin(); }
+    inline iterator end()         { return _elements.begin()+addressCount; }
+
     std::ostream& string( std::ostream& out ) const;
 
 private:
-    
-    inline iterator begin()       { return _elements.begin(); }
-    inline iterator end()         { return _elements.begin()+addressCount; }
 
     NodeData low;
     NodeData high;
@@ -133,8 +133,7 @@ void NodeBucket<MaxSizeT>::clear()
 template <size_t MaxSizeT>
 bool NodeBucket<MaxSizeT>::add( const std::shared_ptr<Node> addr )
 {
-    assert(addr.get());
-
+    assert(addr);
     if (*addr > high || *addr < low)
     {
         throw std::invalid_argument("The address can't stay in this Bucket: "

@@ -39,13 +39,15 @@ using namespace torrentsync;
 void RoutingTable::initializeTable()
 {
     using timer_t = boost::asio::deadline_timer;
-     std::shared_ptr<timer_t> timer(new timer_t(_io_service,
+    std::shared_ptr<timer_t> timer(new timer_t(_io_service,
         boost::posix_time::milliseconds(INITIALIZE_PING_BATCH_INTERVAL)));
 
     LOG(DEBUG, "RoutingTable * Register initializeTable timer");
     timer->async_wait(
         [&,timer] (const boost::system::error_code& e) {
                 using namespace boost::asio;
+
+                std::lock_guard<std::mutex> lock(_initializer_mutex);
 
                 LOG(DEBUG, "RoutingTable * " << _initial_addresses.size() <<
                                 " initializing addresses");
@@ -66,7 +68,7 @@ void RoutingTable::initializeTable()
 
                 for( size_t i = 0; 
                     i < INITIALIZE_PING_BATCH_SIZE && !_initial_addresses.empty(); ++i )
-                {   
+                {
                     // copy to local and remove from list
                     const auto endpoint = _initial_addresses.front();
                     _initial_addresses.pop_front();
@@ -74,14 +76,14 @@ void RoutingTable::initializeTable()
                     LOG(DEBUG, "RoutingTable * initializing ping with " << endpoint);
 
                     const auto transaction = newTransaction();
-                    
+
                     // create and send the message
                     const utils::Buffer msg =
                         dht::message::query::FindNode::make(
                             transaction,
                             _table.getTableNode(),
                             _table.getTableNode());
-                    
+
                     registerCallback([&](
                         boost::optional<Callback::payload_type> data,
                         const dht::Callback& trigger) {
@@ -90,15 +92,14 @@ void RoutingTable::initializeTable()
                         {
                             try
                             {
-                                const msg::reply::FindNode& find_node = dynamic_cast<const msg::reply::FindNode&>(data->message);
+                                const auto& find_node = dynamic_cast<const msg::reply::FindNode&>(data->message);
                                 auto nodes = find_node.getNodes();
-                                std::for_each( nodes.begin(), nodes.end(),
-                                    [&]( const dht::NodeSPtr& t )
+                                for( const dht::NodeSPtr& t : nodes )
                                 {
                                     if (!!t->getEndpoint())
                                         _initial_addresses.push_front(*t->getEndpoint());
                                     _table.addNode(NodeSPtr(t));
-                                });
+                                }
                             }
                             catch(  std::bad_cast& e )
                             {
@@ -132,14 +133,13 @@ void RoutingTable::bootstrap()
                 "have initial addresses");
         return;
     }
-    
+
     LOG(INFO,"RoutingTable * Proceeding with boostrap procedure from " <<
             "known nodes; count: " << _table.size() << ", needed: " << _close_nodes_count);
 
     udp::resolver resolver(_io_service);
 
-    std::for_each( BOOTSTRAP_ADDRESSES.begin(), BOOTSTRAP_ADDRESSES.end(),
-        [&](const std::pair<std::string,std::string>& addr)
+    for ( const std::pair<std::string,std::string>& addr : BOOTSTRAP_ADDRESSES )
     {
         LOG(DEBUG,"Bootstrapping with "<<addr.first<<":"<<addr.second);
         boost::system::error_code error;
@@ -152,7 +152,7 @@ void RoutingTable::bootstrap()
             _initial_addresses.push_back(iterator->endpoint());
             ++iterator;
         }
-    });
+    }
 }
 
 }; // dht

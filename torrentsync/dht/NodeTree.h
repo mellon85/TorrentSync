@@ -8,6 +8,7 @@
 #include <mutex>
 #include <set>
 #include <list>
+#include <functional>
 
 #include <boost/utility.hpp>
 
@@ -38,7 +39,7 @@ public:
 
     //! destructor
     ~NodeTree();
- 
+
     //! Add an address to the tree
     bool addNode( NodeSPtr address );
 
@@ -62,7 +63,10 @@ public:
     //! find the closest (DHT_FIND_NODE_COUNT) addresses to this address we know
     const std::list<NodeSPtr> getClosestNodes(
         const NodeData& data) const;
- 
+
+    //! for each node call the function to do something with the nodes
+    void for_each( std::function<void (const Node&)> );
+
 protected:
 
     mutable std::mutex mutex;
@@ -88,7 +92,6 @@ private:
 
     //! address used as the center of the tree
     const NodeData _node;
-
 };
 
 }; // dht

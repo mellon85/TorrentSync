@@ -35,7 +35,8 @@ public:
     static_assert( std::is_convertible<in_type,value_type>::value,
             "input type not convertible to output type");
 
-    Yield( iterator_type begin,   iterator_type end )   : _begin(begin), _end(end) {}
+    Yield( iterator_type begin, iterator_type end ) :
+        _begin(begin), _end(end) {}
 
     return_type operator()()
     {
