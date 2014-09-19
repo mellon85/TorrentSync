@@ -69,7 +69,7 @@ public:
 
 protected:
 
-    mutable std::mutex mutex;
+    mutable std::recursive_mutex _mutex;
 
     //! splits, if possible, a bucket in 2 splitting the contents
     MaybeBuckets split( BucketContainer::const_iterator bucket_it );

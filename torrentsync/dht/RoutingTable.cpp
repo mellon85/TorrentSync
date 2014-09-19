@@ -9,6 +9,7 @@
 #include <iterator>
 #include <vector>
 #include <tuple>
+#include <memory>
 
 #include <boost/asio.hpp>
 #include <boost/cast.hpp>
@@ -68,8 +69,7 @@ void RoutingTable::scheduleNextReceive()
     std::shared_ptr<utils::Buffer> buff(
         new utils::Buffer);
     buff->assign(MESSAGE_BUFFER_SIZE,0); // assign buffer size
-    std::shared_ptr<boost::asio::ip::udp::endpoint> sender(
-        new boost::asio::ip::udp::endpoint());
+    auto sender = std::make_shared<boost::asio::ip::udp::endpoint>();
 
     LOG(DEBUG,"Scheduling receive");
 
