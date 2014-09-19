@@ -35,7 +35,7 @@ const utils::Buffer Ping::make(
     return enc.value();
 }
 
-Ping::Ping( Message&& m ) : Reply(m)
+Ping::Ping( Message&& m ) : Reply(std::move(m))
 {
     check();
 }

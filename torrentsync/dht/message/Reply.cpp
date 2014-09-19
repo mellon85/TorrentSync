@@ -15,7 +15,7 @@ Reply::Reply( const DataMap& data ) : Message(data)
 {
 }
 
-Reply::Reply( Message&& m ) : Message(m)
+Reply::Reply( Message&& m ) : Message(std::move(m))
 {
 }
 

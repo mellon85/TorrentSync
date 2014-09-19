@@ -80,7 +80,7 @@ void FindNode::check() const
                 ErrorType::protocolError);
 }
 
-FindNode::FindNode( Message&& m ) : Reply(m)
+FindNode::FindNode( Message&& m ) : Reply(std::move(m))
 {
     check();
 }
