@@ -43,7 +43,7 @@ void RoutingTable::recvMessage(
         message = msg::Message::parseMessage(buffer);
         LOG(DEBUG, "RoutingTable * message parsed: \n" << *message);
     }
-    catch ( const msg::MalformedMessageException& e )
+    catch ( const msg::MessageException& e )
     {
         LOG(ERROR, "RoutingTable * message parsing failed: " << pretty_print(buffer) << " e:" << e.what());
         // @TODO send malformed message error
@@ -104,7 +104,7 @@ void RoutingTable::recvMessage(
             {
                 LOG(ERROR, " RoutingTable * A message was mis-interpreted! " << message << " Report this bug! ");
             }
-            catch ( const dht::message::MalformedMessageException& e )
+            catch ( const dht::message::MessageException& e )
             {
                 LOG(ERROR, " RoutingTable * malformed message: " << message);
             }
@@ -118,7 +118,8 @@ void RoutingTable::recvMessage(
         }
         else if ( type == msg::Type::Error )
         {
-            // @TODO implement error handling
+            // same be behaviour as a Reply without a callback
+            LOG(WARN, "RoutingTable * received unexpected error: \n" << *message << " " << sender);
         }
         else 
         {

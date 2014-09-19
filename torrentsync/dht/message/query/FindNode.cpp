@@ -19,7 +19,7 @@ using namespace torrentsync;
 FindNode::FindNode(const DataMap& dataMap) : Query(dataMap)
 {
     if (!find( Field::Arguments + "/" + Field::Target ))
-        throw MalformedMessageException("Couldn't find Target",
+        throw MessageException("Couldn't find Target",
                 ErrorType::protocolError);
 }
 

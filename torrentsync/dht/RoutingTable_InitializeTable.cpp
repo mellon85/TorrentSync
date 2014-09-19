@@ -90,6 +90,12 @@ void RoutingTable::initializeTable()
 
                         if (!!data)
                         {
+                            if (data->message.getType() == msg::Type::Error)
+                            {
+                                LOG(DEBUG,"Error returned in initialization: " << data->message);
+                                return;
+                            }
+
                             try
                             {
                                 const auto& find_node = dynamic_cast<const msg::reply::FindNode&>(data->message);

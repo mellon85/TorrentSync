@@ -14,10 +14,10 @@ namespace dht
 namespace message
 {
 
-class MalformedMessageException : public std::runtime_error
+class MessageException : public std::runtime_error
 {
 public:
-    MalformedMessageException(
+    MessageException(
             const std::string& what,
             ErrorType::error_type error ) : std::runtime_error(what), _error(error) {}
 
@@ -43,7 +43,7 @@ public:
      * This method must be used to parse messages.
      * @param istream the input stream to read from
      * @return a shared pointer with the message
-     * @throw MalformedMessageException in case the message was not
+     * @throw MessageException in case the message was not
      * parsed or missed mantatory parts.
      * @throw MethodUnknownException in case the query received is of an
      * unknown type.
@@ -58,7 +58,7 @@ public:
         
     //! returns the type of the message
     //! @return a member of Type namespace
-    //! @throw MalformedMessageException in case the field is not available.
+    //! @throw MessageException in case the field is not available.
     const utils::Buffer getType() const;
  
     //! Returns a buffer containing the transaction ID of the message.
@@ -69,7 +69,7 @@ public:
     //! returns the node address of the remote node. Must be implemented
     //! by every subclass
     //! @return a NodeData instance
-    //! @throw MalformedMessageException in case the data is not available or
+    //! @throw MessageException in case the data is not available or
     //! the message is an error (it's mandatory otherwise).
     const utils::Buffer getID() const;
 

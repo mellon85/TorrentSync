@@ -29,7 +29,7 @@ public:
     //! Returns the message type. In this way you can cast to the correct
     //! object.
     //! @return a member of the Querys namespace if it's a query. If it's a reply it will be empty
-    //! @throw MalformedQueryException in case the field is not available.
+    //! @throw MessageException in case the field is not available.
     const utils::Buffer getMessageType() const;
 
     Query& operator=( Query&& ) = default;

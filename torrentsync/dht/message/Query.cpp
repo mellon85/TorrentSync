@@ -17,7 +17,7 @@ const utils::Buffer Query::getMessageType() const
     const auto path = Type::Query;
     auto id = find(path);
     if (!id)
-        throw MalformedMessageException("Couldn't find message type",
+        throw MessageException("Couldn't find message type",
                 ErrorType::protocolError);
     return *id;
 }

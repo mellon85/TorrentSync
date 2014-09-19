@@ -17,7 +17,7 @@ using namespace torrentsync;
 Ping::Ping(const DataMap& dataMap) : dht::message::Query(dataMap)
 {
     if (!find(Field::Arguments + "/" + Field::PeerID))
-        throw MalformedMessageException("Missing Peer ID in Ping Reply",
+        throw MessageException("Missing Peer ID in Ping Reply",
                 ErrorType::protocolError);
 }
 

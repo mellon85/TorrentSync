@@ -51,13 +51,13 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
     {
         std::stringstream ss;
         ss << "Couldn't parse message: " << e.what();
-        throw MalformedMessageException(ss.str(),
+        throw MessageException(ss.str(),
                 ErrorType::protocolError);
     }
     
     auto type = find( Field::Type, decoder.getData() );
     if (!type)
-        throw MalformedMessageException("Couldn't find message type",
+        throw MessageException("Couldn't find message type",
                 ErrorType::protocolError);
 
     std::shared_ptr<Message> message;
@@ -65,7 +65,7 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
     {
         auto msgType = find(Field::Query, decoder.getData() );
         if (!msgType)
-            throw MalformedMessageException("Couldn't find message name",
+            throw MessageException("Couldn't find message name",
                     ErrorType::protocolError);
         
         if( *msgType == Messages::Ping)
@@ -79,7 +79,7 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
         else // @TODO must send methodUnknown error message back
              // not a malformed message.
         {
-            throw MalformedMessageException("Unknown message name",
+            throw MessageException("Unknown message name",
                     ErrorType::methodUnknownError);
         }
     }
@@ -95,7 +95,7 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
     }
     else
     {
-        throw MalformedMessageException("Unknown message type",
+        throw MessageException("Unknown message type",
                 ErrorType::protocolError);
     }
     return message;
@@ -105,7 +105,7 @@ const utils::Buffer Message::getType() const
 {
     auto type = find( Field::Type );
     if (!type)
-        throw MalformedMessageException("Couldn't find message type",
+        throw MessageException("Couldn't find message type",
                 ErrorType::protocolError);
     return *type;
 }
@@ -114,7 +114,7 @@ const utils::Buffer Message::getTransactionID() const
 {
     auto token = find( Field::TransactionID);
     if (!token)
-        throw MalformedMessageException("Couldn't find token",
+        throw MessageException("Couldn't find token",
                 ErrorType::protocolError);
     return *token;
 }
@@ -126,7 +126,7 @@ const utils::Buffer Message::getID() const
             + "/" + Field::PeerID;
     auto id = find(path);
     if (!id)
-        throw MalformedMessageException("Couldn't find peer id",
+        throw MessageException("Couldn't find peer id",
                 ErrorType::protocolError);
     return *id;
 }

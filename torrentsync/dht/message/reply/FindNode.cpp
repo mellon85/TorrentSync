@@ -73,10 +73,10 @@ std::vector<dht::NodeSPtr> FindNode::getNodes() const
 void FindNode::check() const
 {
     if (!find(Field::Reply + "/" + Field::PeerID))
-        throw MalformedMessageException("Missing nodes in find_node reply",
+        throw MessageException("Missing nodes in find_node reply",
                 ErrorType::protocolError);
     if (!find(Field::Reply + "/" + Field::Nodes))
-        throw MalformedMessageException("Missing nodes in find_node reply",
+        throw MessageException("Missing nodes in find_node reply",
                 ErrorType::protocolError);
 }
 

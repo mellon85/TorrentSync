@@ -62,10 +62,10 @@ Error::Error( const Message& m ) : Reply(m)
 void Error::check() const
 {
     if (!find(Field::Error+"/0"))
-        throw MalformedMessageException("Missing error code Error Reply",
+        throw MessageException("Missing error code Error Reply",
                 ErrorType::protocolError);
     if (!find(Field::Error+"/1"))
-        throw MalformedMessageException("Missing error message in Error Reply",
+        throw MessageException("Missing error message in Error Reply",
                 ErrorType::protocolError);
 }
 

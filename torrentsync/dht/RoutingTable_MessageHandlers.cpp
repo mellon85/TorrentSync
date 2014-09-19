@@ -76,11 +76,18 @@ void RoutingTable::doPing(
     registerCallback([&](
             boost::optional<Callback::payload_type> data,
             const torrentsync::dht::Callback&       trigger) {
-
+            
             if (!!data)
             {
-                data->node.setGood(); // mark the node as good
-                LOG(DEBUG,"Ping handled: " << data->node );
+                if (data->message.getType() == msg::Type::Error)
+                {
+                    LOG(DEBUG, "Error in ping. " << data->message);
+                }
+                else
+                {
+                    data->node.setGood(); // mark the node as good
+                    LOG(DEBUG,"Ping handled: " << data->node);
+                }
             }
         }, transaction, destination);
 
