@@ -22,6 +22,7 @@ Logger& Logger::getInstance()
 {
     static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
+
     if (!_logger.get())
     {
         _logger.reset(new Logger());

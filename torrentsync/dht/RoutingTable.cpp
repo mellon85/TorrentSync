@@ -121,9 +121,8 @@ void RoutingTable::sendMessage(
 {
     // the write handler will ensure that the buffer exists until the
     // end of the send.
-    std::lock_guard<std::mutex> lock(_send_mutex);
 
-    const size_t count = _send_queue_counter++;
+    const size_t count = _send_queue_counter.fetch_add(1,std::memory_order_relaxed);
     if (count < MAX_SEND_QUEUE)
     {
         _recv_socket.async_send_to(
@@ -132,13 +131,13 @@ void RoutingTable::sendMessage(
             [=] (
                   const boost::system::error_code& error,
                   std::size_t bytes_transferred) -> void 
-                { _send_queue_counter--;
+                { _send_queue_counter.fetch_sub(1,std::memory_order_relaxed);
                   LOG(DEBUG,"RoutingTable * Sent to " << addr << " " <<
                     bytes_transferred << "/" << buff.size() << " e:" <<
                     error.message() << " buffer:" << pretty_print(buff)); });
     } else {
         LOG(DEBUG,"RoutingTable * dropped to " << addr << " " << " buffer:"<<buff);
-        _send_queue_counter--;
+        _send_queue_counter.fetch_sub(1,std::memory_order_relaxed);
     }
 }
 
@@ -154,7 +153,7 @@ utils::Buffer RoutingTable::newTransaction()
 {
     utils::Buffer buff;
     buff.reserve(2);
-    uint16_t value = _transaction_id++; // as per BEP 005 suggestion
+    uint16_t value = _transaction_id.fetch_add(1,std::memory_order_relaxed); // as per BEP 005 suggestion
     buff.push_back(value);
     buff.push_back(value>>8);
     return buff;

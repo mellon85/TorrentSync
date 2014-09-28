@@ -24,7 +24,7 @@ void RoutingTable::handlePingQuery(
     const dht::Node&          node)
 {
     assert(!!(node.getEndpoint()));
-    
+
     // send ping reply
     sendMessage( msg::reply::Ping::make(
                     ping.getTransactionID(), _table.getTableNode()),
@@ -76,7 +76,7 @@ void RoutingTable::doPing(
     registerCallback([&](
             boost::optional<Callback::payload_type> data,
             const torrentsync::dht::Callback&       trigger) {
-            
+
             if (!!data)
             {
                 if (data->message.getType() == msg::Type::Error)

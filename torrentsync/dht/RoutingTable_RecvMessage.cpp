@@ -22,7 +22,7 @@ void RoutingTable::recvMessage(
     const boost::asio::ip::udp::endpoint& sender)
 {
     namespace msg = dht::message;
-    
+
     buffer.resize(bytes_transferred);
     LOG(DEBUG,"RoutingTable * from " << sender << " received " <<
         bytes_transferred <<  " " << pretty_print(buffer)
@@ -54,7 +54,7 @@ void RoutingTable::recvMessage(
 
     // fetch the node from the tree table
     boost::optional<NodeSPtr> node = _table.getNode( message->getID() );
-    
+
     if (!!node) // we already know the node
     {
         const auto endpoint = (*node)->getEndpoint();

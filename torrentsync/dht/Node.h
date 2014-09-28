@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 #include <boost/asio.hpp>
 
 #include <torrentsync/dht/NodeData.h>
@@ -11,7 +13,7 @@ namespace dht
 {
 
 #define PACKED_NODE_SIZE 26
-#define PEERDATALENGTH 6
+#define PACKED_PEER_SIZE 6
 
 using boost::asio::ip::udp;
 
@@ -29,14 +31,14 @@ public:
     Node(
         utils::Buffer::const_iterator begin,
         utils::Buffer::const_iterator end);
-    
+
     Node( Node&& ) = default;
-    
+
     Node& operator=(Node&&) = default;
-    
+
     Node& operator=(const Node&) = default;
     virtual ~Node() = default;
-    
+
     //! marks the address as good/fresh
     void setGood() noexcept;
 
@@ -73,7 +75,13 @@ public:
      * @return the packed representation.
      */
     virtual utils::Buffer getPackedNode() const;
-    
+
+    /** Returns a packed representation of the node
+     * 4-byte ipv4 address followed by the port, all in network order bytes
+     * @return the packed representation.
+     */
+    virtual utils::Buffer getPackedPeer() const;
+
 protected:
     Node();
 
@@ -85,6 +93,7 @@ protected:
 
     //! the endpoint of the node
     boost::optional<udp::endpoint> _endpoint;
+
 };
 
 typedef std::shared_ptr<Node> NodeSPtr;

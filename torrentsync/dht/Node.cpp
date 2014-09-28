@@ -80,24 +80,24 @@ void Node::read(
     NodeData::read(begin,end);
     begin += NodeData::addressDataLength;
 
-    if ( end > begin && static_cast<size_t>(end-begin) < PEERDATALENGTH)
+    if ( end > begin && static_cast<size_t>(end-begin) < PACKED_PEER_SIZE)
     {
-        LOG(ERROR,"Peer - parsePeer: not enough data to parse. Expected " << PEERDATALENGTH << ", found: " << (end-begin) );
+        LOG(ERROR,"Peer - parsePeer: not enough data to parse. Expected " << PACKED_PEER_SIZE << ", found: " << (end-begin) );
         throw std::invalid_argument("Not enough data to parse Peer contact information");
     }
 
     uint32_t address;
     uint16_t port;
-    
+
     for( size_t _i = 0; _i < sizeof(uint32_t); ++_i )
     {
         address <<= 8;
         address += *begin++;
     }
-    
+
     const boost::asio::ip::address_v4 new_address(
         ntohl(address));
-    
+
     port = *begin++;
     port <<= 8;
     port += *begin++;
@@ -107,10 +107,20 @@ void Node::read(
 
 utils::Buffer Node::getPackedNode() const
 {
-    assert(!!_endpoint);
-    
     utils::Buffer buff = NodeData::write();
     buff.reserve(PACKED_NODE_SIZE);
+
+    auto peer = getPackedPeer();
+
+    buff.insert(buff.end(),peer.begin(),peer.end());
+    return buff;
+}
+
+utils::Buffer Node::getPackedPeer() const
+{
+    assert(!!_endpoint);
+
+    utils::Buffer buff(PACKED_PEER_SIZE);
 
     auto networkOrderAddress        = htonl(_endpoint->address().to_v4().to_ulong());
     const uint16_t portNetworkOrder = htons(_endpoint->port());

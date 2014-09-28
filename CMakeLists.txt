@@ -42,20 +42,23 @@ set(SOURCES
     torrentsync/dht/NodeData.cpp
     torrentsync/dht/NodeTree.cpp
     torrentsync/dht/RoutingTable.cpp
-    torrentsync/dht/RoutingTable_MessageHandlers.cpp
     torrentsync/dht/RoutingTable_InitializeTable.cpp
+    torrentsync/dht/RoutingTable_MessageHandlers.cpp
     torrentsync/dht/RoutingTable_RecvMessage.cpp
     torrentsync/dht/message/BEncodeDecoder.cpp
     torrentsync/dht/message/BEncodeEncoder.cpp
     torrentsync/dht/message/Constants.cpp
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Query.cpp
-    torrentsync/dht/message/query/FindNode.cpp
-    torrentsync/dht/message/query/Ping.cpp
     torrentsync/dht/message/Reply.cpp
+    torrentsync/dht/message/query/FindNode.cpp
+    torrentsync/dht/message/query/GetPeers.cpp
+    torrentsync/dht/message/query/Ping.cpp
     torrentsync/dht/message/reply/Error.cpp
     torrentsync/dht/message/reply/FindNode.cpp
+    torrentsync/dht/message/reply/GetPeers.cpp
     torrentsync/dht/message/reply/Ping.cpp
+    torrentsync/dht/TokenManager.cpp
     torrentsync/utils/Buffer.cpp
     torrentsync/utils/RandomGenerator.cpp
     torrentsync/utils/log/Log.cpp

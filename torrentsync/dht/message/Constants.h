@@ -32,12 +32,18 @@ namespace Field
     // find_node
     extern const utils::Buffer Target;
     extern const utils::Buffer Nodes;
+
+    // get_peers
+    extern const utils::Buffer InfoHash;
+    extern const utils::Buffer Values;
+    extern const utils::Buffer Token; // and announce
 };
 
 namespace Messages
 {
     extern const utils::Buffer Ping;
     extern const utils::Buffer FindNode;
+    extern const utils::Buffer GetPeers;
 };
 
 namespace ErrorType

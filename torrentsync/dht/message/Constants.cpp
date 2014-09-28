@@ -26,12 +26,17 @@ namespace Field
 
     const utils::Buffer Target        = utils::makeBuffer("target");
     const utils::Buffer Nodes         = utils::makeBuffer("nodes");
+
+    const utils::Buffer InfoHash      = utils::makeBuffer("info_hash");
+    const utils::Buffer Values        = utils::makeBuffer("values");
+    const utils::Buffer Token         = utils::makeBuffer("token");
 };
 
 namespace Messages
 {
     const utils::Buffer Ping     = utils::makeBuffer("ping");
     const utils::Buffer FindNode = utils::makeBuffer("find_node");
+    const utils::Buffer GetPeers = utils::makeBuffer("get_peers");
 };
 
 } // message

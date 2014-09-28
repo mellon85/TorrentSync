@@ -44,9 +44,17 @@ class Message;
 using boost::asio::ip::udp;
 using namespace torrentsync;
 
-class RoutingTable : public boost::noncopyable
+class RoutingTable
 {
 public:
+    // non copyable
+    RoutingTable( const RoutingTable& ) = delete;
+    RoutingTable& operator=(const RoutingTable&) = delete;
+
+    // movable
+    RoutingTable( RoutingTable&& ) = default;
+    RoutingTable& operator=(RoutingTable&&) = default;
+
     //! Constructor
     //! @param endpoint the port and address to bind
     RoutingTable(
@@ -158,10 +166,7 @@ private:
     udp::socket _send_socket;
 
     //! Counter of the number of messages to be sent in the queue
-    size_t _send_queue_counter;
-
-    //! Outbout mutex
-    std::mutex _send_mutex;
+    std::atomic<size_t> _send_queue_counter;
 
     //! Initialization mutex to avoid race condition when serializing
     //! the initializer list.

@@ -10,8 +10,6 @@
 #include <list>
 #include <functional>
 
-#include <boost/utility.hpp>
-
 namespace torrentsync
 {
 namespace dht
@@ -29,9 +27,16 @@ typedef boost::optional<BucketSPtrPair> MaybeBuckets;
  * Access to this class is thread safe as it manages it's own internal
  * consistency.
  */
-class NodeTree : public boost::noncopyable
+class NodeTree
 {
 public:
+    //! not copyable
+    NodeTree( const NodeTree& ) = delete;
+    NodeTree& operator=( const NodeTree& ) = delete;
+
+    //! movable
+    NodeTree( NodeTree&& ) = default;
+    NodeTree& operator=( NodeTree&& ) = default;
 
     //! The constructor initializes the container and saves a reference to the
     //! current node address
