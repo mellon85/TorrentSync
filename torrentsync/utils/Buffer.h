@@ -13,6 +13,7 @@ typedef std::vector<uint8_t> Buffer;
 
 Buffer makeBuffer( const std::string& );
 Buffer makeBuffer( const uint64_t& );
+Buffer makeBuffer( const uint8_t*, const size_t );
 
 std::string toString( const Buffer& );
 

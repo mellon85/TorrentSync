@@ -20,6 +20,11 @@ Buffer makeBuffer( const uint64_t& v )
     return Buffer(str.cbegin(),str.cend());
 }
 
+Buffer makeBuffer( const uint8_t* b, const size_t l )
+{
+    return Buffer(b,b+l);
+}
+
 std::string toString( const Buffer& buff )
 {
     return std::string(buff.cbegin(),buff.cend());

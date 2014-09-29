@@ -61,6 +61,7 @@ set(SOURCES
     torrentsync/dht/TokenManager.cpp
     torrentsync/utils/Buffer.cpp
     torrentsync/utils/RandomGenerator.cpp
+    torrentsync/utils/Spinlock.cpp
     torrentsync/utils/log/Log.cpp
     torrentsync/utils/log/LogStream.cpp
     torrentsync/utils/log/Logger.cpp

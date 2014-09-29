@@ -120,7 +120,8 @@ utils::Buffer Node::getPackedPeer() const
 {
     assert(!!_endpoint);
 
-    utils::Buffer buff(PACKED_PEER_SIZE);
+    utils::Buffer buff;
+    buff.reserve(PACKED_PEER_SIZE);
 
     auto networkOrderAddress        = htonl(_endpoint->address().to_v4().to_ulong());
     const uint16_t portNetworkOrder = htons(_endpoint->port());

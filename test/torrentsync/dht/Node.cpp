@@ -15,7 +15,7 @@ namespace
 class NodeFixture : public torrentsync::dht::Node
 {
 public:
-	NodeFixture() {}
+    NodeFixture() {}
 };
 };
 
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(distance_0)
 {
     const std::string data = "ffffffffffffffff0000000000000001aaaaaaaa";
     auto dataBuff = utils::parseIDFromHex(data);
-    
+
     Node *addr1;
     BOOST_REQUIRE_NO_THROW(addr1 = new Node(dataBuff));
     Node *addr2;
@@ -138,16 +138,16 @@ BOOST_AUTO_TEST_CASE(serialization)
 {
     const utils::Buffer buff = utils::parseIDFromHex(generateRandomNode());
     dht::NodeData nodedata(buff);
-    
+
     boost::asio::ip::udp::endpoint endpoint(
         boost::asio::ip::udp::endpoint(
              boost::asio::ip::address_v4(0x44454647),0x4445));
-    
+
     dht::Node node1(nodedata.write(),endpoint);
     auto data = node1.getPackedNode();
-    
+
     dht::Node node2(data.begin(), data.end());
-    
+
     BOOST_CHECK_EQUAL(node2.getEndpoint()->port(), 0x4445);
     BOOST_CHECK_EQUAL(node2.getEndpoint()->address().to_v4().to_ulong(), 0x44454647);
     BOOST_CHECK(buff == node1.write());
