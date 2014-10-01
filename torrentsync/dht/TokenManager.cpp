@@ -5,14 +5,15 @@
 #include <torrentsync/dht/TokenManager.h>
 #include <torrentsync/utils/RandomGenerator.h>
 #include <torrentsync/utils/Spinlock.h>
+#include <torrentsync/utils/log/Logger.h>
 
+// OpenSSL
 #include <openssl/evp.h>
 
 namespace torrentsync
 {
 namespace dht
 {
-
 namespace TokenManager
 {
 
@@ -23,8 +24,8 @@ typedef std::array<uint32_t, 3> seeds_t;
 typedef std::chrono::steady_clock spinlock_clock_t;
 typedef std::chrono::time_point<spinlock_clock_t> spinlock_time_point_t;
 
-static seeds_t   _random_seeds;
-static std::chrono::time_point<spinlock_clock_t> last_time;
+static seeds_t               _random_seeds;
+static spinlock_time_point_t last_time;
 
 static utils::Spinlock spinlock;
 
@@ -85,7 +86,6 @@ utils::Buffer calculateToken(
     EVP_MD_CTX_destroy(&ctx);
 
     return utils::makeBuffer( hash, hash_length );
-
 }
 
 utils::Buffer getToken( const udp::endpoint& endpoint )
@@ -101,18 +101,25 @@ bool isTokenValid(
 {
     const seeds_t seeds = getAndUpdateSeeds();
     bool ret = false;
+    
     std::for_each( seeds.begin(), seeds.end(), [&](seeds_t::value_type seed){
-        if (calculateToken(endpoint,seed) == token)
+        try
         {
-            ret = true;
-            return;
+            if (calculateToken(endpoint,seed) == token)
+            {
+                ret = true;
+                return;
+            }
+            catch( const std::runtime_error& )
+            {
+                LOG(ERROR,"TokenManager * Failed to calculate a token for " << endpoint);
+            }
         }
     });
     return ret;
 }
 
 } /* TokenManager */ 
-
 } /* dht */ 
 } /* torrentsync */
 
