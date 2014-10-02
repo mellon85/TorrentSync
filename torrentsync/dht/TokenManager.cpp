@@ -110,10 +110,10 @@ bool isTokenValid(
                 ret = true;
                 return;
             }
-            catch( const std::runtime_error& )
-            {
-                LOG(ERROR,"TokenManager * Failed to calculate a token for " << endpoint);
-            }
+        }
+        catch( const std::runtime_error& )
+        {
+            LOG(ERROR,"TokenManager * Failed to calculate a token for " << endpoint);
         }
     });
     return ret;
