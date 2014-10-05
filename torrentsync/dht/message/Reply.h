@@ -22,11 +22,11 @@ public:
     virtual ~Reply() = 0;
 
     Reply( const DataMap& );
-    
+
     Reply( Message&& );
-    
+
     Reply( const Message& );
-    
+
     Reply( Reply&& ) = default;
 
     Reply( const Reply& ) = default;

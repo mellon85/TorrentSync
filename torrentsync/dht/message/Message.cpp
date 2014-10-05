@@ -54,8 +54,8 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
         throw MessageException(ss.str(),
                 ErrorType::protocolError);
     }
-    
-    auto type = find( Field::Type, decoder.getData() );
+
+    auto type = find(Field::Type, decoder.getData());
     if (!type)
         throw MessageException("Couldn't find message type",
                 ErrorType::protocolError);
@@ -67,7 +67,7 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
         if (!msgType)
             throw MessageException("Couldn't find message name",
                     ErrorType::protocolError);
-        
+
         if( *msgType == Messages::Ping)
         {
             message.reset(new query::Ping(decoder.getData()));
@@ -141,9 +141,9 @@ const std::string Message::string() const
 {
     std::stringstream message;
     std::for_each( _data.begin(), _data.end(), [&](
-        const DataMap::value_type& t)
+        const DataMap::value_type& _i)
     {
-        message << t.first << ":" << pretty_print(t.second) << std::endl;
+        message << pretty_print(_i.first) << ":" << pretty_print(_i.second) << std::endl;
     });
     return message.str();
 }

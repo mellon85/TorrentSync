@@ -19,7 +19,6 @@ std::string toString( const Buffer& );
 
 const Buffer parseIDFromHex( const std::string& str );
 
-
 }; // utils
 }; // torrentsync
 

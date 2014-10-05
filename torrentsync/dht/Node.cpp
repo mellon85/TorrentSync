@@ -1,4 +1,5 @@
 #include <torrentsync/dht/Node.h>
+#include <torrentsync/dht/message/Constants.h>
 #include <torrentsync/utils/log/Logger.h>
 
 #include <boost/integer_traits.hpp>
@@ -10,6 +11,46 @@ namespace dht
 
 const time_t Node::good_interval              = 15 * 60;  // 15 minutes
 const size_t Node::allowed_unanswered_queries = 10;
+
+utils::Buffer packEndpoint( const udp::endpoint& endpoint )
+{
+    utils::Buffer buff;
+    buff.reserve(PACKED_PEER_SIZE);
+
+    auto networkOrderAddress        = htonl(endpoint.address().to_v4().to_ulong());
+    const uint16_t portNetworkOrder = htons(endpoint.port());
+
+    buff.push_back(networkOrderAddress >> 24);
+    buff.push_back(networkOrderAddress >> 16);
+    buff.push_back(networkOrderAddress >> 8);
+    buff.push_back(networkOrderAddress);
+
+    buff.push_back(portNetworkOrder >> 8);
+    buff.push_back(portNetworkOrder);
+
+    return buff;
+}
+
+udp::endpoint unpackEndpoint( torrentsync::utils::Buffer::const_iterator begin )
+{
+    uint32_t address = 0;
+    uint16_t port    = 0;
+
+    for( size_t _i = 0; _i < sizeof(uint32_t); ++_i )
+    {
+        address <<= 8;
+        address += *begin++;
+    }
+
+    const boost::asio::ip::address_v4 new_address(
+        ntohl(address));
+
+    port = *begin++;
+    port <<= 8;
+    port += *begin++;
+
+    return udp::endpoint(new_address,ntohs(port));
+}
 
 Node::Node()
 {
@@ -86,23 +127,7 @@ void Node::read(
         throw std::invalid_argument("Not enough data to parse Peer contact information");
     }
 
-    uint32_t address;
-    uint16_t port;
-
-    for( size_t _i = 0; _i < sizeof(uint32_t); ++_i )
-    {
-        address <<= 8;
-        address += *begin++;
-    }
-
-    const boost::asio::ip::address_v4 new_address(
-        ntohl(address));
-
-    port = *begin++;
-    port <<= 8;
-    port += *begin++;
-
-    _endpoint = udp::endpoint(new_address,ntohs(port));
+    _endpoint = unpackEndpoint(begin);
 }
 
 utils::Buffer Node::getPackedNode() const
@@ -119,22 +144,7 @@ utils::Buffer Node::getPackedNode() const
 utils::Buffer Node::getPackedPeer() const
 {
     assert(!!_endpoint);
-
-    utils::Buffer buff;
-    buff.reserve(PACKED_PEER_SIZE);
-
-    auto networkOrderAddress        = htonl(_endpoint->address().to_v4().to_ulong());
-    const uint16_t portNetworkOrder = htons(_endpoint->port());
-
-    buff.push_back(networkOrderAddress >> 24);
-    buff.push_back(networkOrderAddress >> 16);
-    buff.push_back(networkOrderAddress >> 8);
-    buff.push_back(networkOrderAddress);
-
-    buff.push_back(portNetworkOrder >> 8);
-    buff.push_back(portNetworkOrder);
-
-    return buff;
+    return packEndpoint(*_endpoint);
 }
 
 }; // dht

@@ -28,9 +28,9 @@ bool Callback::isOld() const
 
 bool Callback::verifyConstraints( const dht::message::Message& message ) const
 {
-    if ( !!_source && *_source != message.getID() )
+    if ( !!_source && *_source != NodeData(message.getID()) )
         return false;
-    
+
     if ( !(_transactionID == message.getTransactionID()) )
         return false;
 

@@ -93,7 +93,7 @@ void BEncodeEncoder::addDictionaryElement(
 
     addElement(begin1,end1);
     addElement(begin2,end2);
-    
+
     lastKey = utils::Buffer(begin1,end1);
 }
 

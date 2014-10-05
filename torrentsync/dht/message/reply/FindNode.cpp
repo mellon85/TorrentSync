@@ -28,18 +28,14 @@ const utils::Buffer FindNode::make(
     const dht::NodeData& source,
     const std::function<boost::optional<dht::NodeSPtr> ()> nodes)
 {
-    utils::Buffer nodeData(PACKED_NODE_SIZE*DHT_FIND_NODE_COUNT);
-    
-    size_t bufferIndex = 0;
+    utils::Buffer nodeData;
+    nodeData.reserve(PACKED_NODE_SIZE*DHT_FIND_NODE_COUNT);
+
     utils::for_each(nodes, [&](const dht::NodeSPtr& it)
     {
-        const utils::Buffer data = it->getPackedNode();
-        assert(bufferIndex + data.size() <= nodeData.size());
-        std::copy(data.cbegin(),data.cend(),nodeData.begin()+bufferIndex);
-        bufferIndex += PACKED_NODE_SIZE;
+        nodeData += it->getPackedNode();
     });
-    nodeData.resize(bufferIndex);
-    
+
     BEncodeEncoder enc;
     enc.startDictionary();
     enc.addElement(Field::Reply);
@@ -61,12 +57,12 @@ std::vector<dht::NodeSPtr> FindNode::getNodes() const
     const utils::Buffer& buff = *token;
 
     std::vector<dht::NodeSPtr> nodes;
-    
+
     for( auto it = buff.begin(); it+PACKED_NODE_SIZE <= buff.end(); it += PACKED_NODE_SIZE )
     {
         nodes.push_back(NodeSPtr(new Node(it,it+PACKED_NODE_SIZE)));
     }
-   
+
     return nodes;
 }
 

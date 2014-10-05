@@ -33,7 +33,7 @@ public:
     FindNode( Message&& );
 
     FindNode( const Message& );
-    
+
     //! Destructor
     virtual ~FindNode() = default;
 

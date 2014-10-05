@@ -53,7 +53,7 @@ void RoutingTable::recvMessage(
     const auto type = message->getType();
 
     // fetch the node from the tree table
-    boost::optional<NodeSPtr> node = _table.getNode( message->getID() );
+    boost::optional<NodeSPtr> node = _table.getNode( NodeData(message->getID()) );
 
     if (!!node) // we already know the node
     {

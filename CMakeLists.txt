@@ -75,11 +75,12 @@ set(SOURCES_UT
     test/torrentsync/dht/RoutingTable.cpp
     test/torrentsync/dht/message/BEncodeDecoder.cpp
     test/torrentsync/dht/message/BEncodeEncoder.cpp
-    test/torrentsync/dht/message/query/Ping.cpp
     test/torrentsync/dht/message/query/FindNode.cpp
+    test/torrentsync/dht/message/query/Ping.cpp
     test/torrentsync/dht/message/reply/Error.cpp
-    test/torrentsync/dht/message/reply/Ping.cpp
     test/torrentsync/dht/message/reply/FindNode.cpp
+    test/torrentsync/dht/message/reply/GetPeers.cpp
+    test/torrentsync/dht/message/reply/Ping.cpp
     test/torrentsync/utils/Buffer.cpp
     test/torrentsync/utils/log/Log.cpp
 )

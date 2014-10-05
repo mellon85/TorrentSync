@@ -36,9 +36,9 @@ public:
     virtual ~Message() = default;
 
     Message( Message&& ) = default;
-    
+
     Message( const Message& ) = default;
-    
+
     /*! Parse a generic message and returns an instance of it.
      * This method must be used to parse messages.
      * @param istream the input stream to read from
@@ -55,12 +55,12 @@ public:
     static std::shared_ptr<Message> parseMessage(
         const utils::Buffer& buffer,
         const size_t size );
-        
+
     //! returns the type of the message
     //! @return a member of Type namespace
     //! @throw MessageException in case the field is not available.
     const utils::Buffer getType() const;
- 
+
     //! Returns a buffer containing the transaction ID of the message.
     //! Must be reimplemented in every subclass
     //! @return transaction id
@@ -76,10 +76,10 @@ public:
     //! returns an optional buffer from the data map if found.
     const boost::optional<utils::Buffer> find(
         const utils::Buffer& key) const;
-    
+
     //! converts the message to a human readable representation
     const std::string string() const;
-    
+
     //! move assignment
     Message& operator=( Message&& ) = default;
 

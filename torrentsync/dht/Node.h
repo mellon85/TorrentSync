@@ -12,10 +12,10 @@ namespace torrentsync
 namespace dht
 {
 
-#define PACKED_NODE_SIZE 26
-#define PACKED_PEER_SIZE 6
-
 using boost::asio::ip::udp;
+
+utils::Buffer packEndpoint( const udp::endpoint& endpoint );
+udp::endpoint unpackEndpoint( torrentsync::utils::Buffer::const_iterator begin );
 
 //! A DHT address with the associated statistics and informations
 class Node : public NodeData

@@ -32,7 +32,7 @@ class BEncodeEncoder
     void addDictionaryElement(
         const std::string& k,
         const std::string& v );
-    
+
     void addElement(
         const utils::Buffer& v );
 
@@ -76,7 +76,7 @@ private:
         It2 begin2, const It2 end2 );
 
     size_t used_bytes;
-    
+
     void checkAndExpand( const size_t add );
 
     mutable utils::Buffer result;

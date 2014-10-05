@@ -46,6 +46,11 @@ namespace Messages
     extern const utils::Buffer GetPeers;
 };
 
+#define MAX_NODES_PER_GETPEERS 8
+#define MAX_PEERS_PER_GETPEERS 32
+#define PACKED_NODE_SIZE 26
+#define PACKED_PEER_SIZE 6
+
 namespace ErrorType
 {
 typedef enum
