@@ -22,9 +22,11 @@ class GetPeers : public dht::message::Query
 public:
     //! GetPeers constructor to initialize the class from a raw data map
     GetPeers(const DataMap& dataMap);
-    
+
     GetPeers( GetPeers&& ) = default;
-    
+
+    GetPeers& operator=( GetPeers&& ) = default;
+
     //! Destructor
     virtual ~GetPeers() {}
 
@@ -37,7 +39,9 @@ public:
         const utils::Buffer& infoHash,
         const dht::NodeData& address);
 
-    GetPeers& operator=( GetPeers&& ) = default;
+    //! returns the info_hash contained in the message
+    utils::Buffer getInfoHash() const;
+
 };
  
 } /* query */

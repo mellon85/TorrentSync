@@ -1,6 +1,7 @@
 #include <torrentsync/dht/message/Message.h>
 #include <torrentsync/dht/message/query/Ping.h>
 #include <torrentsync/dht/message/query/FindNode.h>
+#include <torrentsync/dht/message/query/GetPeers.h>
 #include <torrentsync/dht/message/reply/Error.h>
 #include <torrentsync/dht/message/reply/Ping.h>
 #include <torrentsync/dht/message/reply/FindNode.h>
@@ -75,6 +76,10 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
         else if ( *msgType == Messages::FindNode )
         {
             message.reset(new query::FindNode(decoder.getData()));
+        }
+        else if ( *msgType == Messages::GetPeers)
+        {
+            message.reset(new query::GetPeers(decoder.getData()));
         }
         else // @TODO must send methodUnknown error message back
              // not a malformed message.

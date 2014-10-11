@@ -37,6 +37,8 @@ namespace Field
     extern const utils::Buffer InfoHash;
     extern const utils::Buffer Values;
     extern const utils::Buffer Token; // and announce
+
+    extern const utils::Buffer Separator;
 };
 
 namespace Messages

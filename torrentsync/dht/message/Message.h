@@ -90,6 +90,7 @@ protected:
     //! Constructor 
     Message(const DataMap& data);
 
+private:
     //! Map containing all the data for the message
     DataMap _data;
 

@@ -30,6 +30,8 @@ namespace Field
     const utils::Buffer InfoHash      = utils::makeBuffer("info_hash");
     const utils::Buffer Values        = utils::makeBuffer("values");
     const utils::Buffer Token         = utils::makeBuffer("token");
+
+    const utils::Buffer Separator     = utils::makeBuffer("/");
 };
 
 namespace Messages

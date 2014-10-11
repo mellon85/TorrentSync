@@ -28,7 +28,7 @@ public:
     FindNode(const DataMap& dataMap);
 
     FindNode(FindNode&&) = default;
-    
+
     //! Destructor
     virtual ~FindNode() {}
 
@@ -44,7 +44,7 @@ public:
 
     //! returns the target node
     utils::Buffer getTarget();
-    
+
     FindNode& operator=( FindNode&& ) = default;
 };
 

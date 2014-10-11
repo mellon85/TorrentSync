@@ -23,7 +23,7 @@ public:
     virtual ~Query() = default;
 
     Query( Query&& ) = default;
-    
+
     Query( const Query& ) = default;
 
     //! Returns the message type. In this way you can cast to the correct
@@ -33,9 +33,9 @@ public:
     const utils::Buffer getMessageType() const;
 
     Query& operator=( Query&& ) = default;
-    
+
     Query& operator=( Query& ) = default;
-    
+
 protected:
     //! Default constructor
     Query() = default;

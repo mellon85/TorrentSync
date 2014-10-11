@@ -75,6 +75,7 @@ set(SOURCES_UT
     test/torrentsync/dht/RoutingTable.cpp
     test/torrentsync/dht/message/BEncodeDecoder.cpp
     test/torrentsync/dht/message/BEncodeEncoder.cpp
+    test/torrentsync/dht/message/query/GetPeers.cpp
     test/torrentsync/dht/message/query/FindNode.cpp
     test/torrentsync/dht/message/query/Ping.cpp
     test/torrentsync/dht/message/reply/Error.cpp

@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(generation_1)
     auto transaction = utils::makeBuffer("aa");
     utils::Buffer b = {'a','b','c','d','e','f','g','h','i','j','0','1','2','3','4','5','6','7','8','9'};
     utils::Buffer tb = {'m','n','o','p','q','r','s','t','u','v','w','x','y','z','1','2','3','4','5','6'};
-    
+
     dht::NodeData data, target;
     data.read(b.cbegin(),b.cend());
     target.read(tb.cbegin(),tb.cend());

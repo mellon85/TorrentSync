@@ -22,9 +22,9 @@ class Ping : public dht::message::Query
 public:
     //! Ping constructor to initialize the class from a raw data map
     Ping(const DataMap& dataMap);
-    
+
     Ping( Ping&& ) = default;
-    
+
     //! Destructor
     virtual ~Ping() {}
 

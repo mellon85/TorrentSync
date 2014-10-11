@@ -12,6 +12,8 @@ namespace message
 namespace query
 {
 
+static const utils::Buffer INFO_HASH = Field::Arguments + Field::Separator + Field::InfoHash;
+
 using namespace torrentsync;
 
 GetPeers::GetPeers(const DataMap& dataMap) : dht::message::Query(dataMap)
@@ -20,7 +22,7 @@ GetPeers::GetPeers(const DataMap& dataMap) : dht::message::Query(dataMap)
         throw MessageException("Missing Routing Table ID in GetPeers Query",
                 ErrorType::protocolError);
 
-    if (!find(Field::Arguments + "/" + Field::InfoHash))
+    if (!find(INFO_HASH))
         throw MessageException("Missing Info Hash ID in GetPeers Query",
                 ErrorType::protocolError);
 }
@@ -42,6 +44,13 @@ const utils::Buffer GetPeers::make(
     enc.addDictionaryElement(Field::Type,Type::Query);
     enc.endDictionary();
     return enc.value();
+}
+
+utils::Buffer GetPeers::getInfoHash() const
+{
+    auto result = find(INFO_HASH);
+    assert(!!result);
+    return *result;
 }
 
 } /* query */
