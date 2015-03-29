@@ -18,8 +18,8 @@ namespace reply
 {
 using namespace torrentsync;
 
-const utils::Buffer NODES_FIELD  = Field::Reply + "/" + Field::Nodes;
-const utils::Buffer VALUES_FIELD = Field::Reply + "/" + Field::Values;
+const utils::Buffer NODES_FIELD  = Field::Reply + Field::Separator+ Field::Nodes;
+const utils::Buffer VALUES_FIELD = Field::Reply + Field::Separator + Field::Values;
 
 GetPeers::GetPeers(const DataMap& dataMap) : dht::message::Reply(dataMap)
 {

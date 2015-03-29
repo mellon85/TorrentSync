@@ -16,9 +16,11 @@ namespace query
 
 using namespace torrentsync;
 
+static const utils::Buffer TARGET = Field::Arguments + Field::Separator + Field::Target;
+
 FindNode::FindNode(const DataMap& dataMap) : Query(dataMap)
 {
-    if (!find( Field::Arguments + "/" + Field::Target ))
+    if (!find(TARGET))
         throw MessageException("Couldn't find Target",
                 ErrorType::protocolError);
 }
@@ -44,7 +46,7 @@ const utils::Buffer FindNode::make(
 
 utils::Buffer FindNode::getTarget()
 {
-    auto token = find( Field::Arguments + "/" + Field::Target );
+    auto token = find(TARGET);
     assert(!!token);
     return *token;
 }

@@ -12,6 +12,8 @@ namespace message
 namespace reply
 {
 
+static const utils::Buffer PEER_ID = Field::Reply + Field::Separator + Field::PeerID;
+
 using namespace torrentsync;
 
 Ping::Ping(const DataMap& dataMap) : dht::message::Reply(dataMap)
@@ -19,7 +21,7 @@ Ping::Ping(const DataMap& dataMap) : dht::message::Reply(dataMap)
     check();
 }
 
-const utils::Buffer Ping::make( 
+const utils::Buffer Ping::make(
     const utils::Buffer& transactionID,
     const dht::NodeData& source)
 {
@@ -47,7 +49,7 @@ Ping::Ping( const Message& m ) : Reply(m)
 
 void Ping::check() const
 {
-    if (!find(Field::Reply + "/" + Field::PeerID))
+    if (!find(PEER_ID))
         throw MessageException("Missing Peer ID in Ping Reply",
                 ErrorType::protocolError);
 }
@@ -56,4 +58,3 @@ void Ping::check() const
 } /* message */
 } /* dht */
 } /* torrentsync */
-

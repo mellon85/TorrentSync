@@ -12,11 +12,12 @@ namespace message
 namespace query
 {
 
+static const utils::Buffer PEER_ID   = Field::Arguments + Field::Separator + Field::PeerID;
 using namespace torrentsync;
 
 Ping::Ping(const DataMap& dataMap) : dht::message::Query(dataMap)
 {
-    if (!find(Field::Arguments + "/" + Field::PeerID))
+    if (!find(PEER_ID))
         throw MessageException("Missing Peer ID in Ping Reply",
                 ErrorType::protocolError);
 }

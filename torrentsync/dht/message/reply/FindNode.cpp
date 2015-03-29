@@ -18,12 +18,15 @@ namespace reply
 
 using namespace torrentsync;
 
+static const utils::Buffer NODES = Field::Reply + Field::Separator + Field::Nodes;
+static const utils::Buffer PEER_ID = Field::Reply + Field::Separator + Field::PeerID;
+
 FindNode::FindNode(const DataMap& dataMap) : dht::message::Reply(dataMap)
 {
     check();
 }
 
-const utils::Buffer FindNode::make( 
+const utils::Buffer FindNode::make(
     const utils::Buffer& transactionID,
     const dht::NodeData& source,
     const std::function<boost::optional<dht::NodeSPtr> ()> nodes)
@@ -44,14 +47,14 @@ const utils::Buffer FindNode::make(
     enc.addDictionaryElement(Field::Nodes,nodeData);
     enc.endDictionary();
     enc.addDictionaryElement(Field::TransactionID,transactionID);
-    enc.addDictionaryElement(Field::Type,Type::Reply); 
+    enc.addDictionaryElement(Field::Type,Type::Reply);
     enc.endDictionary();
     return enc.value();
 }
 
 std::vector<dht::NodeSPtr> FindNode::getNodes() const
 {
-    auto token = find( Field::Reply + "/" + Field::Nodes );
+    auto token = find(NODES);
     assert(!!token);
 
     const utils::Buffer& buff = *token;
@@ -68,10 +71,10 @@ std::vector<dht::NodeSPtr> FindNode::getNodes() const
 
 void FindNode::check() const
 {
-    if (!find(Field::Reply + "/" + Field::PeerID))
+    if (!find(PEER_ID))
         throw MessageException("Missing nodes in find_node reply",
                 ErrorType::protocolError);
-    if (!find(Field::Reply + "/" + Field::Nodes))
+    if (!find(NODES))
         throw MessageException("Missing nodes in find_node reply",
                 ErrorType::protocolError);
 }
@@ -90,4 +93,3 @@ FindNode::FindNode( const Message& m ) : Reply(m)
 } /* message */
 } /* dht */
 } /* torrentsync */
-
