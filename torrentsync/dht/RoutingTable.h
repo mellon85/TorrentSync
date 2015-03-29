@@ -170,7 +170,7 @@ private:
 
     //! Initialization mutex to avoid race condition when serializing
     //! the initializer list.
-    std::mutex _initializer_mutex;
+    mutable std::mutex _initializer_mutex;
 
     //! Callbacks container.
     //! A multimap is enough as anyway there shouldn't be more than one

@@ -1,8 +1,8 @@
+#include <torrentsync/dht/message/query/FindNode.h>
+#include <torrentsync/dht/message/reply/FindNode.h>
 #include <torrentsync/utils/log/Logger.h>
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/RoutingTable.h>
-#include <torrentsync/dht/message/query/FindNode.h>
-#include <torrentsync/dht/message/reply/FindNode.h>
 
 #include <iterator>
 #include <vector>

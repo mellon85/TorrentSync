@@ -1,4 +1,3 @@
-#include <torrentsync/utils/log/Logger.h>
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/RoutingTable.h>
 #include <torrentsync/dht/message/query/Ping.h>
@@ -8,6 +7,7 @@
 #include <torrentsync/dht/message/reply/Error.h>
 #include <torrentsync/dht/Callback.h>
 #include <torrentsync/utils/Yield.h>
+#include <torrentsync/utils/log/Logger.h>
 
 #include <exception> // for not implemented stuff
 

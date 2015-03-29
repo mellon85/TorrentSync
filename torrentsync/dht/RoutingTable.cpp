@@ -1,5 +1,5 @@
-#include <torrentsync/utils/log/Logger.h>
 #include <torrentsync/utils/Buffer.h>
+#include <torrentsync/utils/log/Logger.h>
 #include <torrentsync/utils/Finally.h>
 #include <torrentsync/dht/RoutingTable.h>
 
