@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <sstream>
+#include <memory>
 
 #include <torrentsync/dht/Node.h>
 
@@ -28,19 +29,16 @@ BOOST_AUTO_TEST_CASE(distance_0)
     const std::string data = "ffffffffffffffff0000000000000001aaaaaaaa";
     auto dataBuff = utils::parseIDFromHex(data);
 
-    Node *addr1;
-    BOOST_REQUIRE_NO_THROW(addr1 = new Node(dataBuff));
-    Node *addr2;
-    BOOST_REQUIRE_NO_THROW(addr2 = new Node(dataBuff));
+    std::unique_ptr<Node> addr1;
+    BOOST_REQUIRE_NO_THROW(addr1.reset(new Node(dataBuff)));
+    std::unique_ptr<Node> addr2;
+    BOOST_REQUIRE_NO_THROW(addr2.reset(new Node(dataBuff)));
 
     BOOST_REQUIRE_EQUAL(data,addr1->string());
     BOOST_REQUIRE(boost::iequals(data,addr2->string()));
 
     const dht::Distance dist = *addr1 ^ *addr2;
     BOOST_REQUIRE_EQUAL(dist.string(),"0000000000000000000000000000000000000000");
-
-    delete addr1;
-    delete addr2;
 }
 
 BOOST_AUTO_TEST_CASE(distance_some_static)
@@ -50,10 +48,10 @@ BOOST_AUTO_TEST_CASE(distance_some_static)
     const std::string data2 = "ffffffffffffffff0001100000000001aaaaaaaa";
     auto dataBuff2 = utils::parseIDFromHex(data2);
 
-    Node *addr1;
-    BOOST_REQUIRE_NO_THROW(addr1 = new Node(dataBuff1));
-    Node *addr2;
-    BOOST_REQUIRE_NO_THROW(addr2 = new Node(dataBuff2));
+    std::unique_ptr<Node> addr1;
+    BOOST_REQUIRE_NO_THROW(addr1.reset(new Node(dataBuff1)));
+    std::unique_ptr<Node> addr2;
+    BOOST_REQUIRE_NO_THROW(addr2.reset(new Node(dataBuff2)));
 
     BOOST_REQUIRE(boost::iequals(data1,addr1->string()));
     BOOST_REQUIRE(boost::iequals(data2,addr2->string()));
@@ -62,9 +60,6 @@ BOOST_AUTO_TEST_CASE(distance_some_static)
     BOOST_REQUIRE_EQUAL(dist.string(),"0000000000000000000110000000000000000000");
     BOOST_REQUIRE(boost::iequals(data1,addr1->string()));
     BOOST_REQUIRE(boost::iequals(data2,addr2->string()));
-
-    delete addr1;
-    delete addr2;
 }
 
 BOOST_AUTO_TEST_CASE(distance_random)
@@ -84,10 +79,10 @@ BOOST_AUTO_TEST_CASE(distance_random)
         auto dataBuff1 = utils::parseIDFromHex(data1);
         auto dataBuff2 = utils::parseIDFromHex(data2);
 
-        Node *addr1;
-        BOOST_REQUIRE_NO_THROW(addr1 = new Node(dataBuff1));
-        Node *addr2;
-        BOOST_REQUIRE_NO_THROW(addr2 = new Node(dataBuff2));
+        std::unique_ptr<Node> addr1;
+        BOOST_REQUIRE_NO_THROW(addr1.reset(new Node(dataBuff1)));
+        std::unique_ptr<Node> addr2;
+        BOOST_REQUIRE_NO_THROW(addr2.reset(new Node(dataBuff2)));
 
         BOOST_REQUIRE(boost::iequals(data1,addr1->string()));
         BOOST_REQUIRE(boost::iequals(data2,addr2->string()));
@@ -96,8 +91,8 @@ BOOST_AUTO_TEST_CASE(distance_random)
         BOOST_REQUIRE(boost::iequals(data1,addr1->string()));
         BOOST_REQUIRE(boost::iequals(data2,addr2->string()));
 
-        Node *addr3;
-        BOOST_REQUIRE_NO_THROW(addr3 = new Node(utils::parseIDFromHex(dist.string())));
+        std::unique_ptr<Node> addr3;
+        BOOST_REQUIRE_NO_THROW(addr3.reset(new Node(utils::parseIDFromHex(dist.string()))));
         const dht::Distance dist1 = *addr3 ^ *addr2;
         const dht::Distance dist2 = *addr3 ^ *addr1;
 
@@ -106,10 +101,6 @@ BOOST_AUTO_TEST_CASE(distance_random)
 
         BOOST_REQUIRE_EQUAL(dist1.string(),addr1->string());
         BOOST_REQUIRE_EQUAL(dist2.string(),addr2->string());
-
-        delete addr1;
-        delete addr2;
-        delete addr3;
     }
 }
 
@@ -156,4 +147,3 @@ BOOST_AUTO_TEST_CASE(serialization)
 }
 
 BOOST_AUTO_TEST_SUITE_END();
-
