@@ -8,30 +8,38 @@ SET(CMAKE_BUILD_TYPE Debug)
 enable_testing()
 
 if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
-    
+
     execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
                             OUTPUT_VARIABLE GCC_VERSION)
-    if (GCC_VERSION VERSION_LESS 4.7 )
-        message(FATAL_ERROR "gcc must be version >= 4.7 but found ${GCC_VERSION}")
+    if (GCC_VERSION VERSION_LESS 4.8 )
+        message(FATAL_ERROR "gcc must be version >= 4.8 but found ${GCC_VERSION}")
     endif()
 
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+    SET(CMAKE_CXX_FLAGS_RELEASE "-O2")
+    SET(CMAKE_CXX_FLAGS_DEBUG "-Og")
 
-    set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -std=c++11")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    SET(CMAKE_AR "gcc-ar")
+    SET(CMAKE_RANLIB "gcc-ranlib")
+    IF (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+        SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
+    ENDIF()
 
     # check for code coverage unit test
     if (COVERAGE)
         message("-- Coverage is ON")
-        set(CMAKE_CXX_FLAGS
+        SET(CMAKE_CXX_FLAGS
             "${CMAKE_CXX_FLAGS_DEBUG} -fno-inline-small-functions -fdce -fno-default-inline -fno-elide-constructors -fno-inline -fprofile-arcs -ftest-coverage ")
-        set(CMAKE_EXE_LINKER_FLAGS
+        SET(CMAKE_EXE_LINKER_FLAGS
             "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
-        set(CMAKE_SHARED_LINKER_FLAGS
+        SET(CMAKE_SHARED_LINKER_FLAGS
             "${CMAKE_SHARED_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
     endif()
 elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
-    set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -std=c++11")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -std=c++11")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR})
@@ -141,12 +149,12 @@ target_link_libraries(TorrentSyncExecutable
     TorrentSync
     ${COMMON_BOOST_LIBS}
     ${COMMON_LIBS}
-    )
+)
 target_link_libraries(unittest
     TorrentSync
     ${COMMON_BOOST_LIBS}
     ${TEST_BOOST_LIBS}
     ${COMMON_LIBS}
-    )
+)
 
 add_custom_target(doxygen doxygen doxygen.config)
