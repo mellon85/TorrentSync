@@ -1,5 +1,6 @@
 #include <torrentsync/dht/Callback.h>
 #include <torrentsync/dht/message/Message.h>
+#include <torrentsync/utils/log/Logger.h>
 
 #include <ctime>
 
@@ -29,10 +30,16 @@ bool Callback::isOld() const
 bool Callback::verifyConstraints( const dht::message::Message& message ) const
 {
     if ( !!_source && *_source != NodeData(message.getID()) )
+    {
+        LOG(DEBUG, "Constraint failed: source is different");
         return false;
+    }
 
     if ( !(_transactionID == message.getTransactionID()) )
+    {
+        LOG(DEBUG, "Constraint failed: transaction is different");
         return false;
+    }
 
     return true;
 }
