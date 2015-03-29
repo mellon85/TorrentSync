@@ -98,7 +98,7 @@ void RoutingTable::initializeTable()
 
                             try
                             {
-                                const auto& find_node = dynamic_cast<const msg::reply::FindNode&>(data->message);
+                                const auto& find_node = msg::reply::FindNode(std::move(data->message));
                                 auto nodes = find_node.getNodes();
                                 for( const dht::NodeSPtr& t : nodes )
                                 {
@@ -107,8 +107,9 @@ void RoutingTable::initializeTable()
                                     _table.addNode(NodeSPtr(t));
                                 }
                             }
-                            catch(  std::bad_cast& e )
+                            catch(  torrentsync::dht::message::MessageException& e )
                             {
+                                LOG(DEBUG, "Error: " << e.what());
                                 LOG(WARN, "A message different from find node received");
                                 return;
                             }
@@ -154,7 +155,7 @@ void RoutingTable::bootstrap()
 
         while ( iterator != udp::resolver::iterator() )
         {
-            LOG(DEBUG,"Resolved to "<< iterator->host_name() );
+            LOG(DEBUG,"Resolved to "<< iterator->endpoint() );
             _initial_addresses.push_back(iterator->endpoint());
             ++iterator;
         }

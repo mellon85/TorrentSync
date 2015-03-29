@@ -58,7 +58,7 @@ void RoutingTable::recvMessage(
     if (!!node) // we already know the node
     {
         const auto endpoint = (*node)->getEndpoint();
-        // message dropped if the data is still fresh but with a different IP.
+        // message dropped if t he data is still fresh but with a different IP.
         if (!!endpoint && *endpoint != sender)
             return;
     }
@@ -71,12 +71,13 @@ void RoutingTable::recvMessage(
 
     // if a callback is registered call it instead of the normal flow
     auto callback = getCallback(*message);
-    if( !!callback ) 
+    if( !!callback )
     {
         callback->call(*message,**node);
     }
     else
     {
+        LOG(DEBUG,"Callback not found");
         if ( type == msg::Type::Query )
         {
             const auto query = std::dynamic_pointer_cast<msg::Query>(message);
@@ -100,7 +101,7 @@ void RoutingTable::recvMessage(
                    LOG(ERROR, "RoutingTable * unknown query type: " << pretty_print(buffer) << " - " << message);
                 }
             }
-            catch ( const std::bad_cast& e ) 
+            catch ( const std::bad_cast& e )
             {
                 LOG(ERROR, " RoutingTable * A message was mis-interpreted! " << message << " Report this bug! ");
             }

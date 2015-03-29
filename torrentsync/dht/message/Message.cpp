@@ -90,8 +90,8 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
     }
     else if (*type == Type::Reply)
     {
-        //@TODO use validators to verify the message or 
-        // create classes for the replies.
+        // ping and announce are indistinguisahable at this point
+        // it's up to the receiver to know what are they waiting for
         message.reset(new Message(decoder.getData()));
     }
     else if (*type == Type::Error)

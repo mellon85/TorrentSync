@@ -90,6 +90,7 @@ void RoutingTable::registerCallback(
     const utils::Buffer& transactionID,
     const boost::optional<dht::NodeData>& source)
 {
+    LOG(DEBUG,"Adding callback for transation " << transactionID);
     _callbacks.insert(
         std::make_pair(
             transactionID,
@@ -99,7 +100,7 @@ void RoutingTable::registerCallback(
 boost::optional<Callback> RoutingTable::getCallback(
     const message::Message& message)
 {
-    auto its = _callbacks.equal_range(message.getID());
+    auto its = _callbacks.equal_range(message.getTransactionID());
 
     boost::optional<Callback> ret;
     for( auto it = its.first; it != its.second; ++it )
