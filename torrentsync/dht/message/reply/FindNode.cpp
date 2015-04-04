@@ -4,6 +4,7 @@
 #include <torrentsync/dht/message/reply/FindNode.h>
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/DHTConstants.h>
+#include <torrentsync/utils/log/Logger.h>
 
 #include <torrentsync/utils/Yield.h>
 
@@ -61,9 +62,27 @@ std::vector<dht::NodeSPtr> FindNode::getNodes() const
 
     std::vector<dht::NodeSPtr> nodes;
 
-    for( auto it = buff.begin(); it+PACKED_NODE_SIZE <= buff.end(); it += PACKED_NODE_SIZE )
+    try
     {
-        nodes.push_back(NodeSPtr(new Node(it,it+PACKED_NODE_SIZE)));
+        NodeSPtr last_node;
+        for( auto it = buff.begin();
+                it < buff.end(); // enough data for a whole node
+                it += PACKED_NODE_SIZE )
+        {
+            NodeSPtr node(new Node(it, it+PACKED_NODE_SIZE));
+            if (last_node && *last_node == *node)
+            {
+                LOG(DEBUG, "Duplicated node: " << *node);
+                continue;
+            }
+            LOG(DEBUG, "Added node: " << *node);
+            nodes.push_back(node);
+            last_node = node;
+        }
+    }
+    catch (std::invalid_argument& e)
+    {
+        LOG(ERROR, "Node parsing failed. " << e.what());
     }
 
     return nodes;
