@@ -7,8 +7,11 @@
 
 //#include <boost/utility.hpp>
 
-#define LOG(LEVEL, MSG) torrentsync::utils::log::Logger::getInstance().log(torrentsync::utils::log::LEVEL) << MSG << \
-    torrentsync::utils::log::logend;
+#define LOG(LEVEL, MSG) {\
+auto& _logger = torrentsync::utils::log::Logger::getInstance();\
+auto _level = torrentsync::utils::log::LEVEL;\
+if( _logger.willLog(_level) ) { _logger.log(_level) << MSG <<\
+    torrentsync::utils::log::logend;}}
 
 namespace torrentsync
 {
@@ -17,6 +20,9 @@ namespace utils
 namespace log
 {
 
+/**
+ * Default log level: WARN
+ **/
 class Logger : boost::noncopyable
 {
 public:
@@ -33,13 +39,13 @@ public:
     //! @return the flag value
     static bool getForceFlush();
 
-    static void setLogLevel( const Level level );
-
     static Level getLogLevel();
 
     void addSink( std::ostream*, const Level );
 
     static void destroy();
+
+    bool willLog( const Level ) const noexcept;
 
 private:
     //! Logger constructor

@@ -14,10 +14,11 @@ namespace log
 
 typedef enum
 {
-    DEBUG = 0,
-    INFO,
-    WARN,
-    ERROR,
+    DATA  = 0,
+    DEBUG = 1,
+    INFO  = 2,
+    WARN  = 3,
+    ERROR = 4
 } Level;
 
 const std::string& levelToString( const Level );

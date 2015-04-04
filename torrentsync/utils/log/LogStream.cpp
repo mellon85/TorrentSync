@@ -21,11 +21,6 @@ LogStream::LogStream(
 {
     using namespace boost::posix_time;
 
-    if (_level < Logger::getLogLevel())
-    {
-        _level = Logger::getLogLevel();
-    }
-
     ptime timestamp(microsec_clock::universal_time());
     *_buffer << '[' << to_iso_string(timestamp) << ' ' << levelToString(_level) << "] ";
 }

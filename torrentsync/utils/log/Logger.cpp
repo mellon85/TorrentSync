@@ -35,6 +35,11 @@ LogStream Logger::log( const Level level )
     return LogStream(_sinks,level);
 }
 
+bool Logger::willLog( const Level level ) const noexcept
+{
+    return _level <= level;
+}
+
 void Logger::setForceFlush( const bool forseFlush )
 {
     _forceFlush = forseFlush;
@@ -45,11 +50,6 @@ bool Logger::getForceFlush()
     return _forceFlush;
 }
 
-void Logger::setLogLevel( const Level level )
-{
-    _level = level;
-}
-
 Level Logger::getLogLevel()
 {
     return _level;
@@ -57,6 +57,9 @@ Level Logger::getLogLevel()
 
 void Logger::addSink( std::ostream* stream, const Level level )
 {
+    if ( level < _level )
+        _level = level;
+
     _sinks.push_back(Sink(stream,level,
         std::shared_ptr<std::mutex>(new std::mutex())));
 }

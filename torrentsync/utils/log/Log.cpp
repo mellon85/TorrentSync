@@ -10,6 +10,7 @@ namespace log
 {
 
 static const std::string levels[] = {
+    "DATA",
     "DEBUG",
     "INFO",
     "WARN",

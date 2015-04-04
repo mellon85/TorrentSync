@@ -90,8 +90,6 @@ BOOST_AUTO_TEST_CASE(log_levels)
     Logger::getInstance().addSink(&str2,WARN);
     Logger::getInstance().addSink(&str3,ERROR);
 
-    Logger::setLogLevel(DEBUG);
-
     LOG(DEBUG,"debug");
     LOG(WARN,"warn");
     LOG(ERROR,"error");
