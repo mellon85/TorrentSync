@@ -6,6 +6,9 @@
 #include <torrentsync/utils/RandomGenerator.h>
 #include <torrentsync/utils/Spinlock.h>
 #include <torrentsync/utils/log/Logger.h>
+#include <boost/range/irange.hpp>
+#include <cassert>
+#include <algorithm>
 
 // OpenSSL
 #include <openssl/evp.h>
@@ -26,23 +29,39 @@ typedef std::chrono::time_point<spinlock_clock_t> spinlock_time_point_t;
 
 static seeds_t               _random_seeds;
 static spinlock_time_point_t last_time;
+static const auto token_interval = std::chrono::minutes(5);
 
 static utils::Spinlock spinlock;
 
 seeds_t getAndUpdateSeeds()
 {
-    const spinlock_time_point_t now      = spinlock_clock_t::now();
-    const spinlock_time_point_t interval = last_time + std::chrono::minutes(5);;
+    const auto now      = spinlock_clock_t::now();
 
     std::lock_guard<utils::Spinlock> lock(spinlock);
 
-    if (now > interval)
+    // check if more than one token has expired. something weird is going on if
+    // there were no tokens generated in the last 5*x minutes. Reset all the
+    // invalidated tokens, not just one shift.
+    const size_t number_of_intervals = std::floor((now - last_time) / token_interval);
+    if (number_of_intervals >= 1)
     {
-        for( int _i = _random_seeds.max_size()-1; _i > 0; --_i )
+        // shift by one to create space for a new one
+        for( auto _i : boost::irange(
+                    static_cast<int>(_random_seeds.max_size())-1, 1, -1) )
         {
+            assert(_i >= 0 && _i < (int)_random_seeds.size());
             _random_seeds[_i-1] = _random_seeds[_i];
         }
         _random_seeds[0] = utils::RandomGenerator::getInstance().get();
+
+        // cover the additional old ones that have expired with the latest 
+        // shifted one.
+        const size_t index_to_remove_from = number_of_intervals-1;
+        std::fill(
+                _random_seeds.end() - index_to_remove_from,
+                _random_seeds.end(),
+                _random_seeds[
+                    std::max(0ul,_random_seeds.size() - number_of_intervals - 1)]);
     }
 
     return _random_seeds;
@@ -97,26 +116,25 @@ utils::Buffer getToken( const udp::endpoint& endpoint )
 
 bool isTokenValid(
     const utils::Buffer& token,
-    const udp::endpoint& endpoint)
+    const udp::endpoint& endpoint) noexcept
 {
     const seeds_t seeds = getAndUpdateSeeds();
-    bool ret = false;
-    
-    std::for_each( seeds.begin(), seeds.end(), [&](seeds_t::value_type seed){
+
+    for( auto &seed : seeds )
+    {
         try
         {
             if (calculateToken(endpoint,seed) == token)
             {
-                ret = true;
-                return;
+                return true;
             }
         }
         catch( const std::runtime_error& )
         {
             LOG(ERROR,"TokenManager * Failed to calculate a token for " << endpoint);
         }
-    });
-    return ret;
+    };
+    return false;
 }
 
 } /* TokenManager */ 

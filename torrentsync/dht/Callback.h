@@ -75,11 +75,11 @@ public:
 
     //! verifies if the callback is too old.
     //! @returns true if the callback is more than TIME_LIMIT seconds old.
-    bool isOld() const;
+    bool isOld() const noexcept;
 
     //! verifies if the callback respects the filters set
     bool verifyConstraints(
-        const dht::message::Message& message ) const;
+        const dht::message::Message& message ) const noexcept;
 
 private:
 

@@ -146,7 +146,7 @@ void RoutingTable::bootstrap()
 
     udp::resolver resolver(_io_service);
 
-    for ( const std::pair<std::string,std::string>& addr : BOOTSTRAP_ADDRESSES )
+    for ( const auto& addr : BOOTSTRAP_ADDRESSES )
     {
         LOG(DEBUG,"Bootstrapping with "<<addr.first<<":"<<addr.second);
         boost::system::error_code error;

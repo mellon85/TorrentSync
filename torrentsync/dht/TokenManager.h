@@ -17,7 +17,7 @@ utils::Buffer getToken( const boost::asio::ip::udp::endpoint& endpoint);
 //! @return true if the token is valid based on the current and the previous still valid seed values
 bool isTokenValid(
     const utils::Buffer& token,
-    const boost::asio::ip::udp::endpoint& endpoint);
+    const boost::asio::ip::udp::endpoint& endpoint) noexcept;
 
 } /* TokenManager */ 
 } /* dht */ 

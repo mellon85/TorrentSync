@@ -22,12 +22,12 @@ Callback::Callback(
 {
 }
 
-bool Callback::isOld() const
+bool Callback::isOld() const noexcept
 {
    return difftime(time(NULL),_creation_time) > TIME_LIMIT;
 }
 
-bool Callback::verifyConstraints( const dht::message::Message& message ) const
+bool Callback::verifyConstraints( const dht::message::Message& message ) const noexcept
 {
     if ( !!_source && *_source != NodeData(message.getID()) )
     {
