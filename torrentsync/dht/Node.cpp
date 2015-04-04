@@ -20,36 +20,28 @@ utils::Buffer packEndpoint( const udp::endpoint& endpoint )
     auto networkOrderAddress        = htonl(endpoint.address().to_v4().to_ulong());
     const uint16_t portNetworkOrder = htons(endpoint.port());
 
-    buff.push_back(networkOrderAddress >> 24);
-    buff.push_back(networkOrderAddress >> 16);
-    buff.push_back(networkOrderAddress >> 8);
     buff.push_back(networkOrderAddress);
+    buff.push_back(networkOrderAddress >> 8);
+    buff.push_back(networkOrderAddress >> 16);
+    buff.push_back(networkOrderAddress >> 24);
 
-    buff.push_back(portNetworkOrder >> 8);
     buff.push_back(portNetworkOrder);
+    buff.push_back(portNetworkOrder >> 8);
 
     return buff;
 }
 
 udp::endpoint unpackEndpoint( torrentsync::utils::Buffer::const_iterator begin )
 {
-    uint32_t address = 0;
-    uint16_t port    = 0;
+    const uint32_t address= *((uint32_t*)&*begin);
+    begin += sizeof(address);
 
-    for( size_t _i = 0; _i < sizeof(uint32_t); ++_i )
-    {
-        address <<= 8;
-        address += *begin++;
-    }
+    const boost::asio::ip::address_v4 new_address(ntohl(address));
 
-    const boost::asio::ip::address_v4 new_address(
-        ntohl(address));
+    const uint16_t port = *((uint16_t*)&*begin);
 
-    port = *begin++;
-    port <<= 8;
-    port += *begin++;
-
-    return udp::endpoint(new_address,ntohs(port));
+    udp::endpoint ep(new_address, ntohs(port));
+    return ep;
 }
 
 Node::Node()

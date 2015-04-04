@@ -24,9 +24,10 @@ void RoutingTable::recvMessage(
     namespace msg = dht::message;
 
     buffer.resize(bytes_transferred);
-    LOG(DEBUG,"RoutingTable * from " << sender << " received " <<
-        bytes_transferred <<  " " << pretty_print(buffer)
-        << " e:" << error.message());
+    LOG(DEBUG,"Routingtable * received a message from " << sender << " e:"
+            << error.message());
+    LOG(DATA,"RoutingTable * " << sender << " received " <<
+        bytes_transferred <<  " " << pretty_print(buffer));
 
     std::shared_ptr<msg::Message> message;
 
@@ -41,11 +42,12 @@ void RoutingTable::recvMessage(
     try
     {
         message = msg::Message::parseMessage(buffer);
-        LOG(DEBUG, "RoutingTable * message parsed: \n" << *message);
+        LOG(DATA, "RoutingTable * message parsed: \n" << *message);
     }
     catch ( const msg::MessageException& e )
     {
-        LOG(ERROR, "RoutingTable * message parsing failed: " << pretty_print(buffer) << " e:" << e.what());
+        LOG(ERROR, "RoutingTable * message parsing failed" << e.what());
+        LOG(DATA, "RoutingTable * message parsing failed: " << pretty_print(buffer));
         // @TODO send malformed message error
         return;
     }

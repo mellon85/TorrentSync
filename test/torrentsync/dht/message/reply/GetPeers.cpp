@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(reply_nodes)
     const auto transaction = utils::makeBuffer("aa");
 
     auto buff = utils::makeBuffer(
-        "d1:rd2:id20:GGGGGGGGGGGGGGGGGGGG5:nodes52:HHHHHHHHHHHHHHHHHHHHGGEEDFHHHHHHHHHHHHHHHHHHHHGGEEDF5:token8:46464646e1:t2:aa1:y1:re");
+        "d1:rd2:id20:GGGGGGGGGGGGGGGGGGGG5:nodes52:HHHHHHHHHHHHHHHHHHHHEEGGFDHHHHHHHHHHHHHHHHHHHHEEGGFD5:token8:46464646e1:t2:aa1:y1:re");
 
     dht::NodeData source(utils::parseIDFromHex(id1));
     dht::NodeData target(utils::parseIDFromHex(id2));
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(reply_peers)
     const auto transaction = utils::makeBuffer("aa");
 
     auto buff = utils::makeBuffer(
-        "d1:rd2:id20:GGGGGGGGGGGGGGGGGGGG5:token8:464646466:valuesl6:GGEEDF6:GGEEDFee1:t2:aa1:y1:re");
+        "d1:rd2:id20:GGGGGGGGGGGGGGGGGGGG5:token8:464646466:valuesl6:EEGGFD6:EEGGFDee1:t2:aa1:y1:re");
 
     dht::NodeData source(utils::parseIDFromHex(id1));
 

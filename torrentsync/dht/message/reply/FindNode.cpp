@@ -72,10 +72,8 @@ std::vector<dht::NodeSPtr> FindNode::getNodes() const
             NodeSPtr node(new Node(it, it+PACKED_NODE_SIZE));
             if (last_node && *last_node == *node)
             {
-                LOG(DEBUG, "Duplicated node: " << *node);
                 continue;
             }
-            LOG(DEBUG, "Added node: " << *node);
             nodes.push_back(node);
             last_node = node;
         }
