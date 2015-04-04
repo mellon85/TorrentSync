@@ -33,7 +33,10 @@ void App::setupSignalHandlers()
             if (!error)
             {
                 LOG(INFO,"Received signal: " << signal_number);
-                _service.stop();
+                if (signal_number == SIGTERM || signal_number == SIGINT)
+                {
+                    _service.stop();
+                }
             }
             else
             {
