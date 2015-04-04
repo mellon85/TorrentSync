@@ -104,7 +104,7 @@ void RoutingTable::initializeTable()
                                 {
                                     if (!!t->getEndpoint())
                                         _initial_addresses.push_front(*t->getEndpoint());
-                                    _table.addNode(NodeSPtr(t));
+                                    _table.addNode(t);
                                 }
                             }
                             catch(  torrentsync::dht::message::MessageException& e )
