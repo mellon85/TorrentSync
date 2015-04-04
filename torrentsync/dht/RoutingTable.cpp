@@ -90,7 +90,7 @@ void RoutingTable::registerCallback(
     const utils::Buffer& transactionID,
     const boost::optional<dht::NodeData>& source)
 {
-    LOG(DEBUG,"Adding callback for transation " << transactionID);
+    LOG(DEBUG,"Adding callback for transation " << pretty_print(transactionID));
     _callbacks.insert(
         std::make_pair(
             transactionID,

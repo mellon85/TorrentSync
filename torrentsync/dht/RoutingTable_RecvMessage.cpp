@@ -65,6 +65,7 @@ void RoutingTable::recvMessage(
     else
     {
         // create new node
+        LOG(DEBUG, "New node: " << pretty_print(message->getID()) << " addr: " << sender);
         node = boost::optional<NodeSPtr>(NodeSPtr(
             new Node(message->getID(),sender)));
     }
@@ -127,7 +128,7 @@ void RoutingTable::recvMessage(
             LOG(ERROR, "RoutingTable * unknown message type: " << pretty_print(buffer) << " - " << message);
         }
     }
- 
+
     // @TODO post-process
     // - add the node to the known addresses
     // - update node statistics
