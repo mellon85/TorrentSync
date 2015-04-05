@@ -69,21 +69,27 @@ bool operator==(
     }
 }
 
+/*
 bool operator!=(
     const torrentsync::utils::Buffer& buff,
     const std::string& str)
 {
     return ! (buff == str);
 }
+*/
 
+pretty_print::pretty_print(const torrentsync::utils::Buffer& buff) : _buff(buff) {}
+
+/*
 std::ostream& operator<<(
     std::ostream& stream,
     const torrentsync::utils::Buffer& buff )
 {
-    for( auto it = buff.cbegin(); it != buff.cend(); ++it )
-        stream << *it;
+    for( const auto& it : buff )
+        stream << it;
     return stream;
 };
+*/
 
 std::ostream& operator<<(
     std::ostream& stream,
@@ -91,15 +97,15 @@ std::ostream& operator<<(
 {
     const auto flags = stream.flags();
     stream << std::hex;
-    for( auto it = buff._buff.cbegin(); it != buff._buff.cend(); ++it )
+    for( const auto& it : buff._buff )
     {
-        if ( std::isprint(*it))
+        if ( std::isprint(it))
         {
-            stream << *it;
+            stream << it;
         }
         else
         {
-            stream << "0x" << (static_cast<uint8_t>(*it) & 0xFF);
+            stream << "0x" << (static_cast<uint8_t>(it) & 0xFF);
         }
     }
     stream.setf(flags);

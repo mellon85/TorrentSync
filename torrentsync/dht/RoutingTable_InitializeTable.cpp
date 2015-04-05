@@ -113,7 +113,7 @@ void RoutingTable::initializeTable()
                                 LOG(WARN, "A message different from find node received");
                                 return;
                             }
-                            //@TODO put all the nodes received at the front of _initial_addresses
+
                             //@TODO _close_nodes_count must be incremented as necessary
                         }
                     }, transaction);

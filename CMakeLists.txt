@@ -17,7 +17,7 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
 
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
     SET(CMAKE_CXX_FLAGS_RELEASE "-O2")
-    SET(CMAKE_CXX_FLAGS_DEBUG "-Og")
+    SET(CMAKE_CXX_FLAGS_DEBUG "-Og -Wall -std=c++11")
 
     SET(CMAKE_AR "gcc-ar")
     SET(CMAKE_RANLIB "gcc-ranlib")

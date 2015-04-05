@@ -78,6 +78,10 @@ public:
     void initializeNetwork(
         const udp::endpoint& endpoint);
 
+    //! returns out node ID
+    //! @return the ID
+    const NodeData& getNode() const noexcept;
+
 protected:
 
     //! Sends a message to the specified address

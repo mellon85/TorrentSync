@@ -23,9 +23,9 @@ const Buffer parseIDFromHex( const std::string& str );
 }; // torrentsync
 
 bool operator==( const torrentsync::utils::Buffer&, const std::string& );
-bool operator!=( const torrentsync::utils::Buffer&, const std::string& );
+//bool operator!=( const torrentsync::utils::Buffer&, const std::string& );
 
-std::ostream& operator<<( std::ostream& stream, const torrentsync::utils::Buffer& buff );
+//std::ostream& operator<<( std::ostream& stream, const torrentsync::utils::Buffer& buff );
 
 //! Pretty printing wrapper for a buffer containing string data.
 //! Will print all the content of the buffer escaping the binary data
@@ -33,7 +33,7 @@ std::ostream& operator<<( std::ostream& stream, const torrentsync::utils::Buffer
 struct pretty_print
 {
     const torrentsync::utils::Buffer& _buff;
-    pretty_print(const torrentsync::utils::Buffer& buff) : _buff(buff) {}
+    pretty_print(const torrentsync::utils::Buffer& buff);
 };
 
 std::ostream& operator<<( std::ostream& stream, const pretty_print& buff );

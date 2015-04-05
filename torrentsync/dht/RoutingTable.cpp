@@ -48,6 +48,7 @@ udp::endpoint RoutingTable::getEndpoint() const
 
 void RoutingTable::tableMaintenance()
 {
+    // @TODO
     throw std::runtime_error("Not Implemented Yet");
 }
 
@@ -115,6 +116,12 @@ boost::optional<Callback> RoutingTable::getCallback(
 
     return ret;
 }
+
+const NodeData& RoutingTable::getNode() const noexcept
+{
+    return _table.getTableNode();
+}
+
 
 void RoutingTable::sendMessage(
     const utils::Buffer& buff,
