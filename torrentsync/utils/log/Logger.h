@@ -41,10 +41,15 @@ public:
 
     static Level getLogLevel() noexcept;
 
+    // Adding sinks in not thread safe. No other logging action should happend
+    // at the same time.
     void addSink( std::unique_ptr<std::ostream>&& , const Level );
 
+    // tests if the log level will be logged
     bool willLog( const Level ) const noexcept;
 
+    // It's not thread safe, should be called only when all logging has
+    // completed.
     void destroy();
 
 private:
