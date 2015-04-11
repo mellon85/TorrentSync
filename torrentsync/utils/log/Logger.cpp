@@ -62,11 +62,9 @@ void Logger::addSink( std::unique_ptr<std::ostream>&& stream, const Level level 
     if ( level < _level )
         _level = level;
 
-    _sinks.push_back(
-        Sink(
-            std::move(stream),
-            level,
-            std::move(std::unique_ptr<std::mutex>(new std::mutex()))));
+    _sinks.emplace_back(
+        Sink(std::move(stream),
+             level));
 }
 
 } // log

@@ -2,7 +2,6 @@
 
 #include <tuple>
 #include <ostream>
-#include <mutex>
 #include <memory>
 
 namespace torrentsync
@@ -25,9 +24,7 @@ const std::string& levelToString( const Level );
 
 typedef std::tuple<
     std::unique_ptr<std::ostream>,
-    Level,
-    std::unique_ptr<std::mutex> >
-        Sink;
+    Level> Sink;
 
 } // level
 } // utils

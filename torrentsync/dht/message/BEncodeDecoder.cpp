@@ -64,7 +64,8 @@ void BEncodeDecoder::parseMessage( std::istream& stream )
                         try
                         {
                             const utils::Buffer& data = structureStack.back().first;
-                            listCounter = boost::lexical_cast<int>(std::string(data.cbegin(),data.cend()))+1;
+                            const std::string number(data.cbegin(), data.cend());
+                            listCounter = boost::lexical_cast<int>(number) + 1;
                         } catch (...) { listCounter = 0; }
                     }
                 }

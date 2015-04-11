@@ -3,6 +3,8 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+#include <mutex>
+
 namespace torrentsync
 {
 namespace utils
@@ -11,6 +13,8 @@ namespace log
 {
 
 logend_t logend;
+
+static std::mutex log_mutex;
 
 LogStream::LogStream(
     std::list<Sink>& sinks,
@@ -45,8 +49,8 @@ template <> LogStream& LogStream::operator<< < logend_t> ( const logend_t& t )
         {
             if (std::get<1>(sink) <= _level)
             {
-                std::lock_guard<std::mutex> lock(* std::get<2>(sink));
-                (*(std::get<0>(sink))) << _buffer->str();
+                std::lock_guard<std::mutex> lock(log_mutex);
+                *(std::get<0>(sink)) << _buffer->str();
             }
         });
         _buffer.reset();
