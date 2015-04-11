@@ -25,10 +25,6 @@ LogStream::LogStream(
     *_buffer << '[' << to_iso_string(timestamp) << ' ' << levelToString(_level) << "] ";
 }
 
-LogStream::~LogStream()
-{
-}
-
 void LogStream::flush()
 {
     if (Logger::getForceFlush())

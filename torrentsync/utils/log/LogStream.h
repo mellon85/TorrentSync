@@ -22,19 +22,25 @@ class LogStream
 public:
     LogStream( std::list<Sink> & sinks, const Level level );
 
-    ~LogStream();
+    ~LogStream() = default;
+
+    LogStream( LogStream&& ) = default;
+    LogStream& operator=( LogStream&& ) = default;
+
+    LogStream( const LogStream& ) = delete;
+    LogStream& operator=( const LogStream& ) = delete;
 
     template <class T> LogStream& operator<< ( const T& t );
 
 private:
 
-    std::list<Sink> & _sinks;
+    std::list<Sink>& _sinks;
 
     Level _level;
 
     void flush();
 
-    std::shared_ptr<std::stringstream> _buffer;
+    std::unique_ptr<std::stringstream> _buffer;
 };
 
 template <> LogStream& LogStream::operator<< < logend_t> ( const logend_t& t );
