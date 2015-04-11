@@ -4,7 +4,7 @@
 
 #include <assert.h>
 #include <boost/foreach.hpp>
-#include <vector>
+#include <list>
 #include <sstream>
 
 namespace torrentsync
@@ -20,7 +20,7 @@ extern logend_t logend;
 class LogStream
 {
 public:
-    LogStream( std::vector<Sink> & sinks, const Level level );
+    LogStream( std::list<Sink> & sinks, const Level level );
 
     ~LogStream();
 
@@ -28,7 +28,7 @@ public:
 
 private:
 
-    std::vector<Sink> & _sinks;
+    std::list<Sink> & _sinks;
 
     Level _level;
 

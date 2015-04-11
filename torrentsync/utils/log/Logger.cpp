@@ -12,22 +12,16 @@ bool Logger::_forceFlush = false;
 
 Level Logger::_level = WARN;
 
-std::unique_ptr<Logger> Logger::_logger;
-
 Logger::Logger()
 {
 }
 
-Logger& Logger::getInstance()
+Logger& Logger::getInstance() noexcept
 {
-    static std::mutex mutex;
-    std::lock_guard<std::mutex> lock(mutex);
+    //! the logger singleton instance
+    static Logger _logger;
 
-    if (!_logger.get())
-    {
-        _logger.reset(new Logger());
-    }
-    return *_logger;
+    return _logger;
 }
 
 LogStream Logger::log( const Level level )
@@ -45,28 +39,34 @@ void Logger::setForceFlush( const bool forseFlush )
     _forceFlush = forseFlush;
 }
 
-bool Logger::getForceFlush()
+bool Logger::getForceFlush() noexcept
 {
     return _forceFlush;
 }
 
-Level Logger::getLogLevel()
+Level Logger::getLogLevel() noexcept
 {
     return _level;
 }
 
-void Logger::addSink( std::ostream* stream, const Level level )
+void Logger::destroy()
+{
+    auto&& logger = getInstance();
+
+    std::list<Sink> old_sinks;
+    logger._sinks.swap(old_sinks);
+}
+
+void Logger::addSink( std::unique_ptr<std::ostream>&& stream, const Level level )
 {
     if ( level < _level )
         _level = level;
 
-    _sinks.push_back(Sink(stream,level,
-        std::shared_ptr<std::mutex>(new std::mutex())));
-}
-
-void Logger::destroy()
-{
-    _logger.reset();
+    _sinks.push_back(
+        Sink(
+            std::move(stream),
+            level,
+            std::move(std::unique_ptr<std::mutex>(new std::mutex()))));
 }
 
 } // log

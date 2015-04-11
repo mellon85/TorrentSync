@@ -3,7 +3,7 @@
 #include <torrentsync/utils/log/Log.h>
 #include <torrentsync/utils/log/LogStream.h>
 
-#include <mutex>
+#include <list>
 
 //#include <boost/utility.hpp>
 
@@ -27,8 +27,8 @@ class Logger : boost::noncopyable
 {
 public:
 
-    static Logger& getInstance();
-    
+    static Logger& getInstance() noexcept;
+
     LogStream log( const Level level );
 
     //! Sets the policy to force the log to be flushed at each operations
@@ -37,22 +37,19 @@ public:
 
     //! Returns the value of the global flag to force log files to be flushed
     //! @return the flag value
-    static bool getForceFlush();
+    static bool getForceFlush() noexcept;
 
-    static Level getLogLevel();
+    static Level getLogLevel() noexcept;
 
-    void addSink( std::ostream*, const Level );
-
-    static void destroy();
+    void addSink( std::unique_ptr<std::ostream>&& , const Level );
 
     bool willLog( const Level ) const noexcept;
+
+    void destroy();
 
 private:
     //! Logger constructor
     Logger();
-
-    //! the logger singleton instance
-    static std::unique_ptr<Logger> _logger;
 
     static Level _level;
 
@@ -62,7 +59,7 @@ private:
     static bool _forceFlush;
 
     //! Registered sinks to store the logs to
-    std::vector<Sink> _sinks;
+    std::list<Sink> _sinks;
 
 };
 

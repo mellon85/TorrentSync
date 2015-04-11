@@ -24,9 +24,9 @@ typedef enum
 const std::string& levelToString( const Level );
 
 typedef std::tuple<
-    std::ostream*,
+    std::unique_ptr<std::ostream>,
     Level,
-    std::shared_ptr<std::mutex> >
+    std::unique_ptr<std::mutex> >
         Sink;
 
 } // level

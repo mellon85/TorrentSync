@@ -13,7 +13,7 @@ namespace log
 logend_t logend;
 
 LogStream::LogStream(
-    std::vector<Sink>& sinks,
+    std::list<Sink>& sinks,
     const Level level )
         : _sinks(sinks)
         , _level(level)
