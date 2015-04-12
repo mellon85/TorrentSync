@@ -69,27 +69,7 @@ bool operator==(
     }
 }
 
-/*
-bool operator!=(
-    const torrentsync::utils::Buffer& buff,
-    const std::string& str)
-{
-    return ! (buff == str);
-}
-*/
-
 pretty_print::pretty_print(const torrentsync::utils::Buffer& buff) : _buff(buff) {}
-
-/*
-std::ostream& operator<<(
-    std::ostream& stream,
-    const torrentsync::utils::Buffer& buff )
-{
-    for( const auto& it : buff )
-        stream << it;
-    return stream;
-};
-*/
 
 std::ostream& operator<<(
     std::ostream& stream,
