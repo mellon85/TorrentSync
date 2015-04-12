@@ -67,8 +67,7 @@ void RoutingTable::initializeNetwork(
 
 void RoutingTable::scheduleNextReceive()
 {
-    std::shared_ptr<utils::Buffer> buff(
-        new utils::Buffer);
+    auto buff = std::make_shared<utils::Buffer>();
     buff->assign(MESSAGE_BUFFER_SIZE,0); // assign buffer size
     auto sender = std::make_shared<boost::asio::ip::udp::endpoint>();
 
