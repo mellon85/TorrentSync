@@ -37,7 +37,8 @@ BOOST_AUTO_TEST_CASE(parse)
 {
     auto b = utils::makeBuffer("d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe");
 
-    auto m = std::dynamic_pointer_cast<Query>(Message::parseMessage(b));;
+    auto m = std::dynamic_pointer_cast<Query>(
+            std::shared_ptr<Message>(Message::parseMessage(b)));
     BOOST_REQUIRE(!!m);
     BOOST_REQUIRE(m->getType() == Type::Query);
     BOOST_REQUIRE(m->getMessageType() == Messages::FindNode);

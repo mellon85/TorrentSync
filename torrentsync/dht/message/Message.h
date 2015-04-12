@@ -48,11 +48,11 @@ public:
      * @throw MethodUnknownException in case the query received is of an
      * unknown type.
      */
-    static std::shared_ptr<Message> parseMessage(
+    static std::unique_ptr<Message> parseMessage(
         std::istream& istream );
-    static std::shared_ptr<Message> parseMessage(
+    static std::unique_ptr<Message> parseMessage(
         const utils::Buffer& buffer );
-    static std::shared_ptr<Message> parseMessage(
+    static std::unique_ptr<Message> parseMessage(
         const utils::Buffer& buffer,
         const size_t size );
 

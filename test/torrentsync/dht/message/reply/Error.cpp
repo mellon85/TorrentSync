@@ -28,12 +28,15 @@ BOOST_AUTO_TEST_CASE(reply)
     // parse it back
     BOOST_CHECK_NO_THROW(
         ptr = std::dynamic_pointer_cast<
-            dht::message::reply::Error>(dht::message::Message::parseMessage(buffer)););
+            dht::message::reply::Error>(
+                std::shared_ptr<Message>(dht::message::Message::parseMessage(buffer))););
     BOOST_REQUIRE(!!ptr);
 
     BOOST_REQUIRE(ptr->getType() == dht::message::Type::Error);
     BOOST_REQUIRE(ptr->getTransactionID() == transactionID);
-    BOOST_REQUIRE_THROW(ptr->getID() == transactionID,std::runtime_error);
+    BOOST_REQUIRE_THROW(
+        transactionID == ptr->getID(),
+        std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -32,7 +32,8 @@ BOOST_AUTO_TEST_CASE(generation_and_parse)
 BOOST_AUTO_TEST_CASE(parse)
 {
     auto buff = utils::makeBuffer("d1:ad2:id20:9876543210jihgfedcba9:info_hash20:abcdefghij0123456789e1:q9:get_peers1:t2:bb1:y1:qe");
-    auto m = std::dynamic_pointer_cast<Query>(Message::parseMessage(buff));
+    auto m = std::dynamic_pointer_cast<Query>(
+            std::shared_ptr<Message>(Message::parseMessage(buff)));
 
     BOOST_REQUIRE(!!m);
     BOOST_CHECK(m->getType() == Type::Query);

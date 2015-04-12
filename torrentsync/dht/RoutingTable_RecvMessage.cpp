@@ -29,7 +29,7 @@ void RoutingTable::recvMessage(
     LOG(DATA,"RoutingTable * " << sender << " received " <<
         bytes_transferred <<  " " << pretty_print(buffer));
 
-    std::shared_ptr<msg::Message> message;
+    std::unique_ptr<msg::Message> message;
 
     // check for errors
     if (error)
@@ -83,34 +83,37 @@ void RoutingTable::recvMessage(
         LOG(DEBUG,"Callback not found");
         if ( type == msg::Type::Query )
         {
-            const auto query = std::dynamic_pointer_cast<msg::Query>(message);
+            const auto query = dynamic_cast<msg::Query*>(message.get());
+            assert(query != nullptr);
             const auto msg_type = query->getMessageType();
             try
             {
                 if ( msg_type == msg::Messages::Ping )
                 {
+                    assert(dynamic_cast<msg::query::Ping*>(query) != nullptr);
                     handlePingQuery(
-                        *std::dynamic_pointer_cast<msg::query::Ping>(message),
+                        dynamic_cast<msg::query::Ping&>(*query),
                         **node);
                 }
                 else if ( msg_type == msg::Messages::FindNode )
                 {
+                    assert(dynamic_cast<msg::query::FindNode*>(query) != nullptr);
                     handleFindNodeQuery(
-                        *std::dynamic_pointer_cast<msg::query::FindNode>(message),
+                        dynamic_cast<msg::query::FindNode&>(*query),
                         **node);
                 } 
                 else
                 {
-                   LOG(ERROR, "RoutingTable * unknown query type: " << pretty_print(buffer) << " - " << message);
+                   LOG(ERROR, "RoutingTable * unknown query type: " << pretty_print(buffer) << " - " << *message);
                 }
             }
             catch ( const std::bad_cast& e )
             {
-                LOG(ERROR, " RoutingTable * A message was mis-interpreted! " << message << " Report this bug! ");
+                LOG(ERROR, " RoutingTable * A message was mis-interpreted! " << *message << " Report this bug! ");
             }
             catch ( const dht::message::MessageException& e )
             {
-                LOG(ERROR, " RoutingTable * malformed message: " << message);
+                LOG(ERROR, " RoutingTable * malformed message: " << *message);
             }
         }
         else if (type == msg::Type::Reply)
@@ -127,7 +130,7 @@ void RoutingTable::recvMessage(
         }
         else 
         {
-            LOG(ERROR, "RoutingTable * unknown message type: " << pretty_print(buffer) << " - " << message);
+            LOG(ERROR, "RoutingTable * unknown message type: " << pretty_print(buffer) << " - " << *message);
         }
     }
 

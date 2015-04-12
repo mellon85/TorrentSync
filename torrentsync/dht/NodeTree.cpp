@@ -147,8 +147,8 @@ void NodeTree::clear() noexcept
     _buckets.clear();
 
     // initialize first bucket
-    std::shared_ptr<Bucket> bucket(
-            new Bucket( NodeData::minValue, NodeData::maxValue));
+    auto bucket = std::make_shared<Bucket>(
+            NodeData::minValue, NodeData::maxValue);
     _buckets.insert(bucket);
 }
 

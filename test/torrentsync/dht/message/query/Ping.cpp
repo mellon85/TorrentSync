@@ -33,7 +33,8 @@ BOOST_AUTO_TEST_CASE(parse)
 {
     auto b = utils::makeBuffer("d1:ad2:id20:GGGGGGGGHHHHHHHHIIIIe1:q4:ping1:t2:aa1:y1:qe");
 
-    auto m = std::dynamic_pointer_cast<Query>(Message::parseMessage(b));
+    auto m = std::dynamic_pointer_cast<Query>(
+                std::shared_ptr<Message>(Message::parseMessage(b)));
     BOOST_REQUIRE(m.get());
     BOOST_REQUIRE(m->getType() == Type::Query);
     BOOST_REQUIRE(m->getMessageType() == Messages::Ping);
@@ -51,7 +52,8 @@ BOOST_AUTO_TEST_CASE(parseBinary)
     b[15] = '\t';
     b[18] = '\0';
 
-    auto m = std::dynamic_pointer_cast<Query>(Message::parseMessage(b));
+    auto m = std::dynamic_pointer_cast<Query>(
+                std::shared_ptr<Message>(Message::parseMessage(b)));
     BOOST_REQUIRE(m.get());
     BOOST_REQUIRE(m->getType() == Type::Query);
     BOOST_REQUIRE(m->getMessageType() == Messages::Ping);
@@ -78,7 +80,8 @@ BOOST_AUTO_TEST_CASE(parseRandom)
         auto ab = addr.write();
         std::copy(ab.cbegin(),ab.cend(),b.begin()+12);
 
-        auto m = std::dynamic_pointer_cast<Query>(Message::parseMessage(b));
+        auto m = std::dynamic_pointer_cast<Query>(
+                std::shared_ptr<Message>(Message::parseMessage(b)));
         BOOST_REQUIRE(!!m);
         BOOST_REQUIRE(m->getType() == Type::Query);
         BOOST_REQUIRE(m->getMessageType() == Messages::Ping);

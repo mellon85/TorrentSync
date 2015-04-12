@@ -27,12 +27,12 @@ Message::Message(const DataMap& data) : _data(data)
 {
 }
 
-std::shared_ptr<Message> Message::parseMessage( const utils::Buffer& buffer )
+std::unique_ptr<Message> Message::parseMessage( const utils::Buffer& buffer )
 {
     return parseMessage(buffer,buffer.size());
 }
 
-std::shared_ptr<Message> Message::parseMessage(
+std::unique_ptr<Message> Message::parseMessage(
     const utils::Buffer& buffer,
     const size_t length )
 {
@@ -41,7 +41,7 @@ std::shared_ptr<Message> Message::parseMessage(
     return parseMessage(in);
 }
 
-std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
+std::unique_ptr<Message> Message::parseMessage( std::istream& istream )
 {
     BEncodeDecoder decoder;
     try
@@ -61,7 +61,7 @@ std::shared_ptr<Message> Message::parseMessage( std::istream& istream )
         throw MessageException("Couldn't find message type",
                 ErrorType::protocolError);
 
-    std::shared_ptr<Message> message;
+    std::unique_ptr<Message> message;
     if (*type == Type::Query)
     {
         auto msgType = find(Field::Query, decoder.getData() );
