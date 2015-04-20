@@ -30,13 +30,13 @@ namespace msg = dht::message;
 
 RoutingTable::RoutingTable(
     boost::asio::io_service& io_service)
-        : _table(NodeData::getRandom()),
-          _io_service(io_service),
-          _recv_socket(io_service),
-          _send_socket(io_service),
-          _send_queue_counter(0),
-          _close_nodes_count(0),
-          _transaction_id(rand()) // initialize with a random value
+        : _initialization_completed(false)
+        , _table(NodeData::getRandom())
+        , _io_service(io_service)
+        , _recv_socket(io_service)
+        , _send_socket(io_service)
+        , _send_queue_counter(0)
+        , _transaction_id(rand()) // initialize with a random value
 {
     LOG(INFO, "RoutingTable * Table Node: " << _table.getTableNode());
 }
@@ -49,6 +49,9 @@ udp::endpoint RoutingTable::getEndpoint() const
 void RoutingTable::tableMaintenance()
 {
     // @TODO
+    // - clean the buckets
+    // - must also set _initialization_completed to false in case all known
+    // nodes disappear.
     throw std::runtime_error("Not Implemented Yet");
 }
 

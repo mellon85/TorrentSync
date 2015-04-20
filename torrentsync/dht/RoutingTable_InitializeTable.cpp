@@ -26,7 +26,7 @@ static std::vector< // domain/ip address, port, needs to be resolved
 static const size_t DHT_CLOSE_ENOUGH = 10;
 
 //! number of batches per second while initializing the DHT.
-static const size_t INITIALIZE_PING_BATCH_INTERVAL = static_cast<size_t>(3000);
+static const size_t INITIALIZE_PING_BATCH_INTERVAL = static_cast<size_t>(1000);
 
 namespace torrentsync
 {
@@ -38,98 +38,107 @@ using namespace torrentsync;
 
 void RoutingTable::initializeTable()
 {
-    using timer_t = boost::asio::deadline_timer;
-    std::shared_ptr<timer_t> timer(new timer_t(_io_service,
-        boost::posix_time::milliseconds(INITIALIZE_PING_BATCH_INTERVAL)));
+    if (_initialization_completed)
+        return;
+
+    auto timer = std::make_shared<
+            boost::asio::deadline_timer>(_io_service,
+        boost::posix_time::milliseconds(INITIALIZE_PING_BATCH_INTERVAL));
 
     LOG(DEBUG, "RoutingTable * Register initializeTable timer");
     timer->async_wait(
         [&,timer] (const boost::system::error_code& e) {
-                using namespace boost::asio;
+            using namespace boost::asio;
+            initializeTable();
 
-                std::lock_guard<std::mutex> lock(_initializer_mutex);
+            std::lock_guard<std::mutex> lock(_initializer_mutex);
 
+            LOG(DEBUG, "RoutingTable * " << _initial_addresses.size() <<
+                            " initializing addresses");
+
+            if ( e.value() != 0 )
+            {
+                LOG(ERROR, "Error in RoutingTable initializeTable timer: " << e.message());
+                initializeTable();
+                return;
+            }
+
+            if ( _initial_addresses.empty() )
+            {
+                bootstrap();
                 LOG(DEBUG, "RoutingTable * " << _initial_addresses.size() <<
-                                " initializing addresses");
+                                " initializing addresses after bootstrap");
+            }
 
-                if ( e.value() != 0 )
-                {
-                    LOG(ERROR, "Error in RoutingTable initializeTable timer: " << e.message());
-                    initializeTable();
-                    return;
-                }
+            for( size_t i = 0; 
+                i < INITIALIZE_PING_BATCH_SIZE && !_initial_addresses.empty(); ++i )
+            {
+                // copy to local and remove from list
+                const auto endpoint = _initial_addresses.front();
+                _initial_addresses.pop_front();
 
-                if ( _initial_addresses.empty() )
-                {
-                    bootstrap();
-                    LOG(DEBUG, "RoutingTable * " << _initial_addresses.size() <<
-                                    " initializing addresses after bootstrap");
-                }
+                LOG(DEBUG, "RoutingTable * initializing ping with " << endpoint);
 
-                for( size_t i = 0; 
-                    i < INITIALIZE_PING_BATCH_SIZE && !_initial_addresses.empty(); ++i )
-                {
-                    // copy to local and remove from list
-                    const auto endpoint = _initial_addresses.front();
-                    _initial_addresses.pop_front();
+                const auto transaction = newTransaction();
 
-                    LOG(DEBUG, "RoutingTable * initializing ping with " << endpoint);
+                // create and send the message
+                const utils::Buffer msg =
+                    dht::message::query::FindNode::make(
+                        transaction,
+                        _table.getTableNode(),
+                        _table.getTableNode());
 
-                    const auto transaction = newTransaction();
+                registerCallback([&](
+                    boost::optional<Callback::payload_type> data,
+                    const dht::Callback& ) {
 
-                    // create and send the message
-                    const utils::Buffer msg =
-                        dht::message::query::FindNode::make(
-                            transaction,
-                            _table.getTableNode(),
-                            _table.getTableNode());
-
-                    registerCallback([&](
-                        boost::optional<Callback::payload_type> data,
-                        const dht::Callback& trigger) {
-
-                        if (!!data)
+                    if (!!data)
+                    {
+                        if (data->message.getType() == msg::Type::Error)
                         {
-                            if (data->message.getType() == msg::Type::Error)
-                            {
-                                LOG(DEBUG,"Error returned in initialization: " << data->message);
-                                return;
-                            }
+                            LOG(DEBUG,"Error returned in initialization: " << data->message);
+                            return;
+                        }
 
-                            try
+                        try
+                        {
+                            const auto& find_node = msg::reply::FindNode(std::move(data->message));
+                            auto nodes = find_node.getNodes();
+                            for( const dht::NodeSPtr& t : nodes )
                             {
-                                const auto& find_node = msg::reply::FindNode(std::move(data->message));
-                                auto nodes = find_node.getNodes();
-                                for( const dht::NodeSPtr& t : nodes )
+                                if (*t == _table.getTableNode())
+                                {
+                                    _initialization_completed = true;
+                                    LOG(INFO, " Initialization finished");
+                                    break;
+                                }
+                                else
                                 {
                                     if (!!t->getEndpoint())
                                         _initial_addresses.push_front(*t->getEndpoint());
+                                    LOG(DEBUG, "Distance: " << (*t ^ _table.getTableNode()));
                                     _table.addNode(t);
                                 }
                             }
-                            catch(  torrentsync::dht::message::MessageException& e )
-                            {
-                                LOG(DEBUG, "Error: " << e.what());
-                                LOG(WARN, "A message different from find node received");
-                                return;
-                            }
-
-                            //@TODO _close_nodes_count must be incremented as necessary
                         }
-                    }, transaction);
+                        catch(  torrentsync::dht::message::MessageException& e )
+                        {
+                            LOG(DEBUG, "Error: " << e.what());
+                            LOG(WARN, "A message different from find node received");
+                            return;
+                        }
 
-                    // send the message
-                    sendMessage(msg,endpoint);
-                }
+                    }
+                }, transaction);
 
-                LOG(DEBUG, "RoutingTable * " << _initial_addresses.size() <<
-                                " initializing addresses remaining");
+                // send the message
+                sendMessage(msg,endpoint);
+            }
 
-                if ( _close_nodes_count < DHT_CLOSE_ENOUGH )
-                    initializeTable();
-                else
-                    _initial_addresses.clear();
-            });
+            LOG(DEBUG, "RoutingTable * " << _initial_addresses.size() <<
+                            " initializing addresses remaining");
+
+        });
 }
 
 void RoutingTable::bootstrap()
@@ -142,7 +151,7 @@ void RoutingTable::bootstrap()
     }
 
     LOG(INFO,"RoutingTable * Proceeding with boostrap procedure from " <<
-            "known nodes; count: " << _table.size() << ", needed: " << _close_nodes_count);
+            "known nodes; count: " << _table.size());
 
     udp::resolver resolver(_io_service);
 

@@ -101,6 +101,9 @@ protected:
 
 private:
 
+    //! true of false based on the table situation
+    std::atomic<bool> _initialization_completed;
+
     //! Initalizes the tables by trying to contact the initial addresses stored
     //! from previous runs. It will try sending ping requests to these nodes.
     void initializeTable();
@@ -182,10 +185,6 @@ private:
     std::multimap<
         utils::Buffer,
         dht::Callback> _callbacks;
-
-    //! Number of close nodes found. (synchronized with
-    // _initializer_mutex)
-    size_t _close_nodes_count;
 
     //! Transaction ID counter.
     std::atomic<uint16_t> _transaction_id;
