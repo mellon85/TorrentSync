@@ -26,7 +26,7 @@ public:
     Ping( Ping&& ) = default;
 
     //! Destructor
-    virtual ~Ping() {}
+    virtual ~Ping() = default;
 
     //! creates a Ping message
     //! @param transactionID the ID

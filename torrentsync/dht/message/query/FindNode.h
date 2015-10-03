@@ -30,7 +30,7 @@ public:
     FindNode(FindNode&&) = default;
 
     //! Destructor
-    virtual ~FindNode() {}
+    virtual ~FindNode() = default;
 
     /** creates a FindNode message
      * @param transactionID the ID

@@ -27,7 +27,7 @@ public:
 
     Error( Message&& );
 
-    Error( const Message& );
+    //Error( const Message& );
 
     //! Destructor
     virtual ~Error() = default;
@@ -35,7 +35,7 @@ public:
     //! creates a Error message
     //! @param transactionID the ID
     //! @param source source address (should be our own address)
-    static const utils::Buffer make( 
+    static const utils::Buffer make(
         const utils::Buffer& transactionID,
         const ErrorType::error_type error);
 

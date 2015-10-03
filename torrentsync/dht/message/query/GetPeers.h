@@ -28,7 +28,7 @@ public:
     GetPeers& operator=( GetPeers&& ) = default;
 
     //! Destructor
-    virtual ~GetPeers() {}
+    virtual ~GetPeers() = default;
 
     //! creates a GetPeers message
     //! @param transactionID the ID
