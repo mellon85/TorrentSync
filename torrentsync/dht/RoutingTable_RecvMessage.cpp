@@ -55,7 +55,11 @@ void RoutingTable::recvMessage(
     const auto type = message->getType();
 
     // fetch the node from the tree table
-    boost::optional<NodeSPtr> node = _table.getNode( NodeData(message->getID()) );
+    boost::optional<NodeSPtr> node;
+    {
+        std::lock_guard<std::mutex> lock_table(_table_mutex);
+        node = _table.getNode( NodeData(message->getID()) );
+    }
 
     if (!!node) // we already know the node
     {
@@ -128,7 +132,7 @@ void RoutingTable::recvMessage(
             // same be behaviour as a Reply without a callback
             LOG(WARN, "RoutingTable * received unexpected error: \n" << *message << " " << sender);
         }
-        else 
+        else
         {
             LOG(ERROR, "RoutingTable * unknown message type: " << pretty_print(buffer) << " - " << *message);
         }

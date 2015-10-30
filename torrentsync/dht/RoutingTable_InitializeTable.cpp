@@ -5,17 +5,16 @@
 #include <torrentsync/dht/RoutingTable.h>
 
 #include <iterator>
-#include <vector>
+#include <array>
 #include <atomic>
 #include <mutex>
 #include <tuple>
 
 #include <boost/asio.hpp>
 
-
 //! list of known bootstrap servers for the DHT network
-static std::vector< // domain/ip address, port, needs to be resolved
-    std::pair<std::string,std::string> > BOOTSTRAP_ADDRESSES =
+static constexpr std::array< // domain/ip address, port, needs to be resolved
+    std::pair<const char*,const char*>, 3 > BOOTSTRAP_ADDRESSES =
             {std::make_pair("router.bittorrent.com"     ,"8991"),
              std::make_pair("router.utorrent.com"       ,"6881"),
              std::make_pair("dht.transmissionbt.com"    ,"6881")
@@ -26,7 +25,7 @@ static std::vector< // domain/ip address, port, needs to be resolved
 static const size_t DHT_CLOSE_ENOUGH = 10;
 
 //! number of batches per second while initializing the DHT.
-static const size_t INITIALIZE_PING_BATCH_INTERVAL = static_cast<size_t>(1000);
+static const size_t INITIALIZE_PING_BATCH_INTERVAL = 1000;
 
 namespace torrentsync
 {
@@ -53,12 +52,13 @@ void RoutingTable::initializeTable()
 
             std::lock_guard<std::mutex> lock(_initializer_mutex);
 
-            LOG(DEBUG, "RoutingTable * " << _initial_addresses.size() <<
-                            " initializing addresses");
+            LOG(DEBUG, "RoutingTable * " << _initial_addresses.size()
+                    << " initializing addresses");
 
             if ( e.value() != 0 )
             {
-                LOG(ERROR, "Error in RoutingTable initializeTable timer: " << e.message());
+                LOG(ERROR, "Error in RoutingTable initializeTable timer: "
+                        << e.message());
                 initializeTable();
                 return;
             }
@@ -117,6 +117,7 @@ void RoutingTable::initializeTable()
                                     if (!!t->getEndpoint())
                                         _initial_addresses.push_front(*t->getEndpoint());
                                     LOG(DEBUG, "Distance: " << (*t ^ _table.getTableNode()));
+                                    std::lock_guard<std::mutex> lock_table(_table_mutex);
                                     _table.addNode(t);
                                 }
                             }
@@ -150,6 +151,7 @@ void RoutingTable::bootstrap()
         return;
     }
 
+    std::lock_guard<std::mutex> lock_table(_table_mutex);
     LOG(INFO,"RoutingTable * Proceeding with boostrap procedure from " <<
             "known nodes; count: " << _table.size());
 

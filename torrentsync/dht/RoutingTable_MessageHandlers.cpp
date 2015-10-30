@@ -46,6 +46,7 @@ void RoutingTable::handleFindNodeQuery(
     LOG(DEBUG,"Find Query received " << message.getID() << " " << node);
     assert(!!(node.getEndpoint()));
 
+    std::lock_guard<std::mutex> lock_table(_table_mutex);
     auto nodes = _table.getClosestNodes(node);
     sendMessage(
         msg::reply::FindNode::make(
@@ -75,7 +76,7 @@ void RoutingTable::doPing(
 
     registerCallback([&](
             boost::optional<Callback::payload_type> data,
-            const torrentsync::dht::Callback&       trigger) {
+            const torrentsync::dht::Callback& /* trigger */) {
 
             if (!!data)
             {

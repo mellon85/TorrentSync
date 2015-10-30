@@ -5,7 +5,6 @@
 #include <torrentsync/dht/DHTConstants.h>
 
 #include <memory>
-#include <mutex>
 #include <set>
 #include <list>
 #include <functional>
@@ -69,12 +68,7 @@ public:
     const std::list<NodeSPtr> getClosestNodes(
         const NodeData& data) const;
 
-    //! for each node call the function to do something with the nodes
-    void for_each( std::function<void (const Node&)> );
-
 protected:
-
-    mutable std::recursive_mutex _mutex;
 
     //! splits, if possible, a bucket in 2 splitting the contents
     MaybeBuckets split( BucketContainer::const_iterator bucket_it );
@@ -86,7 +80,7 @@ protected:
      *  @return iterator to bucket
      */
     BucketContainer::const_iterator findBucket(
-        const NodeData& address ) const; 
+        const NodeData& address ) const;
 
     //! returns the counts of the buckets
     size_t getBucketsCount() const noexcept;

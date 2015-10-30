@@ -99,14 +99,19 @@ protected:
         std::size_t bytes_transferred,
         const boost::asio::ip::udp::endpoint& sender);
 
-private:
+protected:
 
-    //! true of false based on the table situation
-    std::atomic<bool> _initialization_completed;
+    //! list of address to populate the table with
+    std::list<boost::asio::ip::udp::endpoint> _initial_addresses;
 
     //! Initalizes the tables by trying to contact the initial addresses stored
     //! from previous runs. It will try sending ping requests to these nodes.
     void initializeTable();
+
+private:
+
+    //! true of false based on the table situation
+    std::atomic<bool> _initialization_completed;
 
     //! Use a few known addresses to start a connection with the DHT network.
     //! This function must not be called until initialization of the
@@ -120,9 +125,6 @@ private:
     //! - look for close nodes.
     //! - clean timedout callbacks.
     void tableMaintenance();
-
-    //! list of address to populate the table with
-    std::list<boost::asio::ip::udp::endpoint> _initial_addresses;
 
     //! configure the io_service actions to receive messages
     void scheduleNextReceive();
@@ -178,6 +180,8 @@ private:
     //! Initialization mutex to avoid race condition when serializing
     //! the initializer list.
     mutable std::mutex _initializer_mutex;
+
+    mutable std::mutex _table_mutex;
 
     //! Callbacks container.
     //! A multimap is enough as anyway there shouldn't be more than one
@@ -246,16 +250,20 @@ void RoutingTable::save( Archive &ar, const unsigned int version) const
     if (version <= 0)
     {
         std::lock_guard<std::mutex> lock(_initializer_mutex);
+        std::lock_guard<std::mutex> lock_table(_table_mutex);
 
         ar << _table.size();
         // serialize addresses in _table
+        for ( auto address : _table )
+        {
+            ar << address;
+        };
 
         // serialize addresses in _initial_addresses
-        std::for_each( _initial_addresses.cbegin(),
-                       _initial_addresses.cend(),
-                       [&]( const boost::asio::ip::udp::endpoint& element ) {
-           ar << element;
-        });
+        for( auto e : _initial_addresses )
+        {
+           ar << e;
+        };
 
         throw std::runtime_error("Not Implemented Yet");
     }

@@ -31,8 +31,6 @@ bool NodeTree::addNode( NodeSPtr address )
     if (!address.get())
         throw std::invalid_argument("Node is not set");
 
-    std::lock_guard<std::recursive_mutex> lock(_mutex);
-
     BucketContainer::const_iterator bucket_it = findBucket(*address);
     assert(bucket_it != _buckets.end());
 
@@ -73,8 +71,6 @@ void NodeTree::removeNode( NodeSPtr address )
     if (!address.get())
         throw std::invalid_argument("Node is not set");
 
-    std::lock_guard<std::recursive_mutex> lock(_mutex);
-
     BucketContainer::const_iterator bucket_it = findBucket(*address);
 
     BucketContainer::key_type bucket = *bucket_it;
@@ -85,7 +81,6 @@ void NodeTree::removeNode( NodeSPtr address )
 
 size_t NodeTree::size() const noexcept
 {
-    std::lock_guard<std::recursive_mutex> lock(_mutex);
     return std::accumulate(_buckets.begin(), _buckets.end(), static_cast<size_t>(0),
         [](const size_t init,const BucketContainer::key_type& t) -> size_t
             { return init+t->size(); });
@@ -143,7 +138,6 @@ MaybeBuckets NodeTree::split( BucketContainer::const_iterator bucket_it )
 
 void NodeTree::clear() noexcept
 {
-    std::lock_guard<std::recursive_mutex> lock(_mutex);
     _buckets.clear();
 
     // initialize first bucket
@@ -166,7 +160,6 @@ const std::list<NodeSPtr> NodeTree::getClosestNodes(
     const NodeData& data) const
 {
     std::list<NodeSPtr> nodes;
-    std::lock_guard<std::recursive_mutex> lock(_mutex);
 
     std::set<NodeSPtr,std::function<bool(const NodeSPtr&,const NodeSPtr&)> > knownNodes(
         [&data]( const NodeSPtr& x, const NodeSPtr& y) {
@@ -215,19 +208,6 @@ const NodeData& NodeTree::getTableNode() const noexcept
 size_t NodeTree::getBucketsCount() const noexcept
 {
     return _buckets.size();
-}
-
-void NodeTree::for_each( std::function<void (const Node&)> f )
-{
-    std::lock_guard<std::recursive_mutex> lock(_mutex);
-
-    for ( const auto &b : _buckets )
-    {
-        for ( const auto &n : *b )
-        {
-            f(*n);
-        }
-    };
 }
 
 }; // dht
