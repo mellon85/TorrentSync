@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <sstream>
 #include <streambuf>
-#include <turtle/mock.hpp>
 
 #include <torrentsync/dht/message/BEncodeDecoder.h>
 
