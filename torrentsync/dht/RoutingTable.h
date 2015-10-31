@@ -254,10 +254,10 @@ void RoutingTable::save( Archive &ar, const unsigned int version) const
 
         ar << _table.size();
         // serialize addresses in _table
-        for ( auto address : _table )
+        /*for ( auto address : _table )
         {
             ar << address;
-        };
+        };*/
 
         // serialize addresses in _initial_addresses
         for( auto e : _initial_addresses )

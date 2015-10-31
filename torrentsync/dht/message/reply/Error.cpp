@@ -49,17 +49,10 @@ const utils::Buffer Error::make(
     return enc.value();
 }
 
-Error::Error( Message&& m ) : Reply(std::forward(m))
+Error::Error( Message&& m ) : Reply(std::move(m))
 {
     check();
 }
-
-/*
-Error::Error( const Message& m ) : Reply(m)
-{
-    check();
-}
-/*
 
 void Error::check() const
 {

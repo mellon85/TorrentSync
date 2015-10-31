@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 project (TorrentSync)
 
 include(CheckCXXCompilerFlag)
-SET(TURTLE_PATH "${PROJECT_SOURCE_DIR}/turtle/")
 SET(CMAKE_BUILD_TYPE Debug)
 
 enable_testing()
@@ -17,7 +16,7 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
 
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
     SET(CMAKE_CXX_FLAGS_RELEASE "-O2")
-    SET(CMAKE_CXX_FLAGS_DEBUG "-Og -Wall -std=c++11")
+    SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -std=c++11")
 
     SET(CMAKE_AR "gcc-ar")
     SET(CMAKE_RANLIB "gcc-ranlib")
@@ -133,9 +132,6 @@ set_target_properties(
     TorrentSyncExecutable
     PROPERTIES
     OUTPUT_NAME "TorrentSync")
-
-# Turtle configuration
-include_directories("${TURTLE_PATH}/include")
 
 add_executable(unittest
     test/main.cpp ${SOURCES_UT})
