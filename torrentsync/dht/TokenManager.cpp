@@ -4,7 +4,6 @@
 
 #include <torrentsync/dht/TokenManager.h>
 #include <torrentsync/utils/RandomGenerator.h>
-#include <torrentsync/utils/Spinlock.h>
 #include <torrentsync/utils/log/Logger.h>
 #include <boost/range/irange.hpp>
 #include <cassert>
@@ -31,13 +30,13 @@ static seeds_t               _random_seeds;
 static spinlock_time_point_t last_time;
 static const auto token_interval = std::chrono::minutes(5);
 
-static utils::Spinlock spinlock;
+static std::mutex mutexlock;
 
 seeds_t getAndUpdateSeeds()
 {
     const auto now      = spinlock_clock_t::now();
 
-    std::lock_guard<utils::Spinlock> lock(spinlock);
+    std::lock_guard<std::mutex> lock(mutexlock);
 
     // check if more than one token has expired. something weird is going on if
     // there were no tokens generated in the last 5*x minutes. Reset all the
