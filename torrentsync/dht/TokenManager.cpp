@@ -3,7 +3,6 @@
 #include <mutex>
 
 #include <torrentsync/dht/TokenManager.h>
-#include <torrentsync/utils/RandomGenerator.h>
 #include <torrentsync/utils/log/Logger.h>
 #include <boost/range/irange.hpp>
 #include <cassert>

@@ -10,7 +10,6 @@
 
 #include <torrentsync/dht/NodeData.h>
 #include <torrentsync/dht/Distance.h>
-#include <torrentsync/utils/RandomGenerator.h>
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/utils/log/Logger.h>
 

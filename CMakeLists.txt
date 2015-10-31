@@ -45,7 +45,7 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 set(SOURCES
     torrentsync/dht/Callback.cpp
-    torrentsync/dht/Node.cpp 
+    torrentsync/dht/Node.cpp
     torrentsync/dht/NodeData.cpp
     torrentsync/dht/NodeTree.cpp
     torrentsync/dht/RoutingTable.cpp
@@ -67,7 +67,6 @@ set(SOURCES
     torrentsync/dht/message/reply/Ping.cpp
     torrentsync/dht/TokenManager.cpp
     torrentsync/utils/Buffer.cpp
-    torrentsync/utils/RandomGenerator.cpp
     torrentsync/utils/log/Log.cpp
     torrentsync/utils/log/LogStream.cpp
     torrentsync/utils/log/Logger.cpp
