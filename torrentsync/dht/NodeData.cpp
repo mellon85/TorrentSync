@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <stdexcept>
+#include <random>
 
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -23,9 +24,11 @@ namespace dht
 const size_t NodeData::ADDRESS_STRING_LENGTH = 40;
 const size_t NodeData::addressDataLength     = 20;
 
+static std::random_device random;
+
 NodeData::NodeData(const utils::Buffer& buff)
 {
-    if ( buff.size() != addressDataLength) 
+    if ( buff.size() != addressDataLength)
     {
         std::stringstream msg;
         msg << "NodeData expects " << addressDataLength << " byte as address";
@@ -59,7 +62,7 @@ Distance NodeData::operator^( const NodeData& addr ) const noexcept
 const std::string NodeData::string() const
 {
     std::ostringstream ss;
-    
+
     ss << std::hex;
     ss.width(16); ss.fill('0'); ss << p1;
     ss.width(16); ss.fill('0'); ss << p2;
@@ -124,18 +127,14 @@ MaybeBounds NodeData::splitInHalf(
 
 const NodeData NodeData::getRandom()
 {
+    static std::uniform_int_distribution<uint32_t> dist;
+    static std::uniform_int_distribution<uint64_t> dist64;
     NodeData data;
     using namespace torrentsync::utils;
 
-    data.p1 = RandomGenerator::getInstance().get();
-    data.p1 <<= 32;
-    data.p1 |= RandomGenerator::getInstance().get();
-
-    data.p2 = RandomGenerator::getInstance().get();
-    data.p2 <<= 32;
-    data.p2 |= RandomGenerator::getInstance().get();
-
-    data.p3 = RandomGenerator::getInstance().get();
+    data.p1 = dist64(random);
+    data.p2 = dist64(random);
+    data.p3 = dist(random);
 
     return data;
 }
@@ -177,7 +176,7 @@ torrentsync::utils::Buffer NodeData::write() const
 {
     torrentsync::utils::Buffer buff;
     buff.reserve(20);
-    
+
     buff.push_back(p1 >> 56 & 0xFF);
     buff.push_back(p1 >> 48 & 0xFF);
     buff.push_back(p1 >> 40 & 0xFF);

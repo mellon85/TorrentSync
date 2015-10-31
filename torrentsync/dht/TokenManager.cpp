@@ -8,6 +8,7 @@
 #include <boost/range/irange.hpp>
 #include <cassert>
 #include <algorithm>
+#include <random>
 
 // OpenSSL
 #include <openssl/evp.h>
@@ -26,15 +27,17 @@ typedef std::array<uint32_t, 3> seeds_t;
 typedef std::chrono::steady_clock spinlock_clock_t;
 typedef std::chrono::time_point<spinlock_clock_t> spinlock_time_point_t;
 
-static seeds_t               _random_seeds;
-static spinlock_time_point_t last_time;
-static const auto token_interval = std::chrono::minutes(5);
-
-static std::mutex mutexlock;
-
 seeds_t getAndUpdateSeeds()
 {
-    const auto now      = spinlock_clock_t::now();
+    static std::uniform_int_distribution<uint32_t> dist;
+    static const auto token_interval = std::chrono::minutes(5);
+
+    static std::random_device random;
+    static std::mutex mutexlock;
+    static seeds_t  _random_seeds;
+    static spinlock_time_point_t last_time;
+
+    const auto now = spinlock_clock_t::now();
 
     std::lock_guard<std::mutex> lock(mutexlock);
 
@@ -51,9 +54,9 @@ seeds_t getAndUpdateSeeds()
             assert(_i >= 0 && _i < (int)_random_seeds.size());
             _random_seeds[_i-1] = _random_seeds[_i];
         }
-        _random_seeds[0] = utils::RandomGenerator::getInstance().get();
+        _random_seeds[0] = dist(random);
 
-        // cover the additional old ones that have expired with the latest 
+        // cover the additional old ones that have expired with the latest
         // shifted one.
         const size_t index_to_remove_from = number_of_intervals-1;
         std::fill(
@@ -68,7 +71,7 @@ seeds_t getAndUpdateSeeds()
 
 utils::Buffer calculateToken(
     const udp::endpoint& endpoint,
-    seeds_t::value_type seed) 
+    seeds_t::value_type seed)
 {
     auto port = endpoint.port();
 
@@ -136,7 +139,6 @@ bool isTokenValid(
     return false;
 }
 
-} /* TokenManager */ 
-} /* dht */ 
+} /* TokenManager */
+} /* dht */
 } /* torrentsync */
-
