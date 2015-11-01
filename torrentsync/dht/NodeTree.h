@@ -14,14 +14,8 @@ namespace torrentsync
 namespace dht
 {
 
-typedef torrentsync::dht::NodeBucket<DHT_K> Bucket;
-typedef std::shared_ptr<Bucket> BucketSPtr;
-typedef std::set<std::shared_ptr<Bucket>, bool(*)(const BucketSPtr&,const BucketSPtr&) > BucketContainer;
-typedef std::pair<BucketSPtr,BucketSPtr> BucketSPtrPair;
-typedef boost::optional<BucketSPtrPair> MaybeBuckets;
- 
 /**
- * NodeTree is the tree structure to keep the known DHT addresses as per DHT 
+ * NodeTree is the tree structure to keep the known DHT addresses as per DHT
  * specification.
  * Access to this class is thread safe as it manages it's own internal
  * consistency.
@@ -29,6 +23,8 @@ typedef boost::optional<BucketSPtrPair> MaybeBuckets;
 class NodeTree
 {
 public:
+    typedef torrentsync::dht::NodeBucket<DHT_K> Bucket;
+
     //! not copyable
     NodeTree( const NodeTree& ) = delete;
     NodeTree& operator=( const NodeTree& ) = delete;
@@ -58,6 +54,7 @@ public:
     const NodeData& getTableNode() const noexcept;
 
     //! clears every bucket in the tree and resets its structure
+    //! this method has weak exception safety.
     void clear() noexcept;
 
     //! find an address inside the tree
@@ -70,8 +67,13 @@ public:
 
 protected:
 
+    typedef std::set<Bucket*,
+            bool(*)(Bucket const * const,Bucket const * const ) > BucketContainer;
+    typedef boost::optional<std::pair<Bucket*, Bucket*> > MaybeBuckets;
+
     //! splits, if possible, a bucket in 2 splitting the contents
-    MaybeBuckets split( BucketContainer::const_iterator bucket_it );
+    //! this method has weak exception safety.
+    MaybeBuckets split( Bucket* bucket_it );
 
     /** Finds the bucket containing the address space for this address.
      *  Should be called from a read-lock; it will always return a valid bucket.
@@ -79,8 +81,9 @@ protected:
      *  @param address the address
      *  @return iterator to bucket
      */
-    BucketContainer::const_iterator findBucket(
-        const NodeData& address ) const;
+    const Bucket& findBucket(const NodeData& address) const noexcept;
+
+    Bucket& findBucket(const NodeData& address) noexcept;
 
     //! returns the counts of the buckets
     size_t getBucketsCount() const noexcept;

@@ -9,7 +9,9 @@ namespace torrentsync
 namespace dht
 {
 
-bool sortByBounds(const BucketSPtr& x, const BucketSPtr& y) noexcept
+bool sortByBounds(
+        NodeTree::Bucket const * const x,
+        NodeTree::Bucket const * const y) noexcept
 {
     return x->getUpperBound() < y->getLowerBound();
 }
@@ -24,29 +26,31 @@ NodeTree::NodeTree(
 
 NodeTree::~NodeTree()
 {
+    clear();
+    if (_buckets.size() > 0)
+    {
+        delete *_buckets.begin();
+    }
 }
 
 bool NodeTree::addNode( NodeSPtr address )
 {
-    if (!address.get())
+    if (!address)
         throw std::invalid_argument("Node is not set");
 
-    BucketContainer::const_iterator bucket_it = findBucket(*address);
-    assert(bucket_it != _buckets.end());
+    Bucket& bucket = findBucket(*address);
+    assert(bucket.inBounds(address));
 
-    BucketContainer::key_type bucket = *bucket_it;
-    assert(bucket->inBounds(address));
-
-    bool isAdded = bucket->add(address);
-    if ( !isAdded && bucket->inBounds(_node) )
+    bool isAdded = bucket.add(address);
+    if ( !isAdded && bucket.inBounds(_node) )
     {
-        MaybeBuckets maybe_split_buckets = split(bucket_it);
+        MaybeBuckets maybe_split_buckets = split(&bucket);
 
         // unsplittable, ignore it
         if (!maybe_split_buckets)
             return false;
 
-        BucketSPtrPair& split_buckets = *maybe_split_buckets;
+        auto& split_buckets = *maybe_split_buckets;
 
         assert(split_buckets.first->inBounds(address) ||
                split_buckets.second->inBounds(address));
@@ -71,12 +75,9 @@ void NodeTree::removeNode( NodeSPtr address )
     if (!address.get())
         throw std::invalid_argument("Node is not set");
 
-    BucketContainer::const_iterator bucket_it = findBucket(*address);
-
-    BucketContainer::key_type bucket = *bucket_it;
-    assert(bucket->inBounds(address));
-
-    bucket->remove(*address);
+    Bucket& bucket = findBucket(*address);
+    assert(bucket.inBounds(address));
+    bucket.remove(*address);
 }
 
 size_t NodeTree::size() const noexcept
@@ -86,23 +87,25 @@ size_t NodeTree::size() const noexcept
             { return init+t->size(); });
 }
 
-BucketContainer::const_iterator
-NodeTree::findBucket( const NodeData& addr ) const
+const NodeTree::Bucket& NodeTree::findBucket( const NodeData& addr ) const noexcept
 {
-    const BucketContainer::key_type key(new Bucket(addr,addr));
+    Bucket key(addr,addr);
 
-    auto it = _buckets.lower_bound(key);
+    auto it = _buckets.lower_bound(&key);
 
-    assert( it != _buckets.end() );
-    assert( it->get() );
-    return it;
+    assert(it != _buckets.end() );
+    return **it;
 }
 
-MaybeBuckets NodeTree::split( BucketContainer::const_iterator bucket_it )
+NodeTree::Bucket& NodeTree::findBucket( const NodeData& addr ) noexcept
 {
-    assert(bucket_it != _buckets.end());
-    assert(bucket_it->get());
-    BucketSPtr bucket = *bucket_it;
+    return const_cast<Bucket&>(
+            static_cast<const NodeTree&>(*this).findBucket(addr));
+}
+
+NodeTree::MaybeBuckets NodeTree::split(Bucket* bucket)
+{
+    assert(bucket != nullptr);
 
     MaybeBounds bounds = NodeData::splitInHalf(
             bucket->getLowerBound(), bucket->getUpperBound());
@@ -110,51 +113,73 @@ MaybeBuckets NodeTree::split( BucketContainer::const_iterator bucket_it )
     if (!bounds)
         return MaybeBuckets();
 
-    BucketSPtr lower_bucket(new Bucket(bucket->getLowerBound(),bounds->first));
-    BucketSPtr upper_bucket(new Bucket(bounds->second,bucket->getUpperBound()));
+    Bucket* lower_bucket = new Bucket(bucket->getLowerBound(), bounds->first);
+    Bucket* upper_bucket = new Bucket(bounds->second, bucket->getUpperBound());
 
-    // split addresses in buckets
-    for( Bucket::const_iterator it = bucket->cbegin(); it != bucket->cend(); ++it)
+    try
     {
-        if (lower_bucket->inBounds(*it))
+        // split addresses in buckets
+        for( auto it : *bucket )
         {
-            lower_bucket->add(*it);
+            if (lower_bucket->inBounds(it))
+            {
+                lower_bucket->add(it);
+            }
+            else
+            {
+                assert(upper_bucket->inBounds(it));
+                upper_bucket->add(it);
+            }
         }
-        else
-        {
-            assert(upper_bucket->inBounds(*it));
-            upper_bucket->add(*it);
-        }
+
+        assert(upper_bucket->size() + lower_bucket->size() == bucket->size());
+
+        _buckets.erase(bucket);
+        delete bucket;
+        _buckets.insert(upper_bucket);
+        _buckets.insert(lower_bucket);
+    }
+    catch(...)
+    {
+        // bucket was not removed
+        delete lower_bucket;
+        delete upper_bucket;
+        throw;
     }
 
-    assert(upper_bucket->size() + lower_bucket->size() == bucket->size());
-
-    _buckets.erase(bucket_it);
-    _buckets.insert(upper_bucket);
-    _buckets.insert(lower_bucket);
-
-    return MaybeBuckets(BucketSPtrPair(lower_bucket,upper_bucket));
+    return MaybeBuckets(std::make_pair(lower_bucket,upper_bucket));
 }
 
 void NodeTree::clear() noexcept
 {
+    for( auto it : _buckets )
+    {
+        delete it;
+    }
     _buckets.clear();
 
     // initialize first bucket
-    auto bucket = std::make_shared<Bucket>(
-            NodeData::minValue, NodeData::maxValue);
-    _buckets.insert(bucket);
+    Bucket* bucket = new Bucket(NodeData::minValue, NodeData::maxValue);
+    try
+    {
+        _buckets.insert(bucket);
+    }
+    catch(...)
+    {
+        delete bucket;
+        throw;
+    }
 }
 
 const boost::optional<NodeSPtr> NodeTree::getNode(
     const NodeData& data ) const noexcept
 {
-    return (*findBucket(data))->find(data); 
+    return findBucket(data).find(data);
 }
 
 // This method will not return the exact 8 closest, but fetches the nodes from
 // three buckets, the right one and the 2 adjacent ones.
-// In case we have a lot of nodes it will be precise, if not then we can't 
+// In case we have a lot of nodes it will be precise, if not then we can't
 // expect to have a precise result anyway.
 const std::list<NodeSPtr> NodeTree::getClosestNodes(
     const NodeData& data) const
@@ -167,35 +192,37 @@ const std::list<NodeSPtr> NodeTree::getClosestNodes(
         });
 
     // find bucket
-    auto bucket_it = findBucket(data);
+    const Bucket& bucket = findBucket(data);
 
     // check if we have a perfect match
     const Bucket::const_iterator perfect_match = std::find_if(
-        (*bucket_it)->cbegin(),(*bucket_it)->cend(),
+        std::begin(bucket), std::end(bucket),
             [&data](const NodeSPtr& a) { return *a == data; } );
 
-    if ( perfect_match != (*bucket_it)->cend() )
+    if ( perfect_match != std::end(bucket) )
     {
         nodes.push_back(*perfect_match);
         return nodes;
     }
 
     // in case a perfect match is not found the closest nodes are returned
-    if (bucket_it != _buckets.begin())
-        --bucket_it; // put it at the left bucket
+    auto it = _buckets.find(const_cast<Bucket*>(&bucket));
+    if (it != _buckets.begin())
+        --it; // put it at the left bucket
 
-    for( int i = 0; i < 3 && bucket_it != _buckets.end(); ++i, ++bucket_it )
+    // get the left, central and right bucket
+    for( int i = 0; i < 3 && it != _buckets.end(); ++i, ++it )
     {
-        for( auto it = (*bucket_it)->cbegin(); it != (*bucket_it)->cend(); ++it)
+        for(auto addr : **it)
         {
-            knownNodes.insert(*it);
+            knownNodes.insert(addr);
         }
     }
 
-    auto it = knownNodes.begin();
-    for( size_t __i = 0; __i < knownNodes.size() && __i < DHT_FIND_NODE_COUNT;  ++__i, ++it )
+    std::copy(knownNodes.begin(), knownNodes.end(), std::back_inserter(nodes));
+    if (nodes.size() > DHT_FIND_NODE_COUNT)
     {
-        nodes.push_back(*it);
+        nodes.resize(DHT_FIND_NODE_COUNT);
     }
     return nodes;
 }
