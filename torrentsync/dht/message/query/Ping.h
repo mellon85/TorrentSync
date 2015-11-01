@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torrentsync/dht/message/Query.h>
+#include <torrentsync/dht/message/Message.h>
 #include <torrentsync/utils/Buffer.h>
 
 

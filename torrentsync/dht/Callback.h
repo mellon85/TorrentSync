@@ -72,7 +72,7 @@ public:
 
     //! Calls the callback function
     void call(
-        const dht::message::Message&,
+        const dht::message::AnyMessage&,
         dht::Node& ) const;
 
     void timeout() const;

@@ -45,11 +45,11 @@ bool Callback::verifyConstraints(const dht::message::Message& message) const noe
 }
 
 void Callback::call(
-    const dht::message::Message& m,
+    const dht::message::AnyMessage& m,
     dht::Node& node) const
 {
     _callback(
-        payload_type(m,node),*this);
+        payload_type(m, node),*this);
 }
 
 void Callback::timeout() const

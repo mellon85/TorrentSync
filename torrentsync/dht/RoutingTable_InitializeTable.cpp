@@ -89,49 +89,46 @@ void RoutingTable::initializeTable()
                         _table.getTableNode());
 
                 registerCallback([&](
-                    boost::optional<Callback::payload_type> data,
+                    const boost::optional<Callback::payload_type> data,
                     const dht::Callback& ) {
 
-                    if (!!data)
+                    if (!data)
+                        return;
+
+                    // there is no assert for no-exception
+                    const auto* reply = boost::get<msg::reply::Reply>(&data->message);
+                    assert(reply != nullptr);
+
+                    const auto* error = boost::get<msg::reply::Error>(reply);
+                    if (error != nullptr)
                     {
-                        if (data->message.getType() == msg::Type::Error)
-                        {
-                            LOG(DEBUG,"Error returned in initialization: " << data->message);
-                            return;
-                        }
+                        LOG(DEBUG,"Error returned in initialization: " << error);
+                        return;
+                    }
 
-                        try
-                        {
-                            const auto find_node =
-                              msg::reply::Reply(
-                                msg::reply::FindNode(std::move(data->message)));
+                    const auto* find_node = boost::get<msg::reply::FindNode>(reply);
+                    if (find_node == nullptr)
+                    {
+                        LOG(WARN, "A message different from find node received");
+                        return;
+                    }
 
-                            auto nodes = find_node.getNodes();
-                            for( const dht::NodeSPtr& t : nodes )
-                            {
-                                if (*t == _table.getTableNode())
-                                {
-                                    _initialization_completed = true;
-                                    LOG(INFO, " Initialization finished");
-                                    break;
-                                }
-                                else
-                                {
-                                    if (!!t->getEndpoint())
-                                        _initial_addresses.push_front(*t->getEndpoint());
-                                    LOG(DEBUG, "Distance: " << (*t ^ _table.getTableNode()));
-                                    std::lock_guard<std::mutex> lock_table(_table_mutex);
-                                    _table.addNode(t);
-                                }
-                            }
-                        }
-                        catch(  torrentsync::dht::message::MessageException& e )
+                    for( const auto& t : find_node->getNodes() )
+                    {
+                        if (*t == _table.getTableNode())
                         {
-                            LOG(DEBUG, "Error: " << e.what());
-                            LOG(WARN, "A message different from find node received");
-                            return;
+                            _initialization_completed = true;
+                            LOG(INFO, " Initialization finished");
+                            break;
                         }
-
+                        else
+                        {
+                            if (!!t->getEndpoint())
+                                _initial_addresses.push_front(*t->getEndpoint());
+                            LOG(DEBUG, "Distance: " << (*t ^ _table.getTableNode()));
+                            std::lock_guard<std::mutex> lock_table(_table_mutex);
+                            _table.addNode(t);
+                        }
                     }
                 }, transaction);
 
