@@ -70,7 +70,7 @@ void RoutingTable::initializeTable()
                                 " initializing addresses after bootstrap");
             }
 
-            for( size_t i = 0; 
+            for( size_t i = 0;
                 i < INITIALIZE_PING_BATCH_SIZE && !_initial_addresses.empty(); ++i )
             {
                 // copy to local and remove from list
@@ -102,7 +102,10 @@ void RoutingTable::initializeTable()
 
                         try
                         {
-                            const auto& find_node = msg::reply::FindNode(std::move(data->message));
+                            const auto find_node =
+                              msg::reply::Reply(
+                                msg::reply::FindNode(std::move(data->message)));
+
                             auto nodes = find_node.getNodes();
                             for( const dht::NodeSPtr& t : nodes )
                             {

@@ -2,6 +2,7 @@
 
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/Node.h>
+#include <torrentsync/dht/message/Messages.h>
 
 #include <functional>
 
@@ -37,9 +38,12 @@ public:
     static const size_t TIME_LIMIT;
 
     typedef struct T {
-        T(const dht::message::Message& m,dht::Node& n) : message(m), node(n) {}
-        const dht::message::Message& message;
-        dht::Node&                   node; } payload_type;
+        template <class M, class N>
+        T(M&& m, N&& n) : message(std::forward<M>(m)),
+                          node(std::forward<N>(n)) {}
+
+        const dht::message::AnyMessage& message;
+        dht::Node& node; } payload_type;
 
     //! type of the callback
     typedef std::function<void (
@@ -57,15 +61,15 @@ public:
 
     Callback( const Callback& ) = default;
     Callback( Callback&& ) = default;
-    
+
     bool operator==( const Callback& ) const;
 
     bool operator<=( const Callback& ) const;
 
     Callback& operator=( Callback&& ) = default;
-    
+
     Callback& operator=( const Callback& ) = default;
-    
+
     //! Calls the callback function
     void call(
         const dht::message::Message&,
@@ -91,11 +95,10 @@ private:
 
     //! filter condition for transaction it
     utils::Buffer _transactionID;
-    
+
     //! creation time, to filter out old callbacks
     time_t _creation_time;
 };
 
 }; // dht
 }; // torrentsync
-

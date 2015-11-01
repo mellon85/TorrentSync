@@ -22,7 +22,12 @@ using namespace torrentsync;
 static const utils::Buffer NODES = Field::Reply + Field::Separator + Field::Nodes;
 static const utils::Buffer PEER_ID = Field::Reply + Field::Separator + Field::PeerID;
 
-FindNode::FindNode(const DataMap& dataMap) : dht::message::Reply(dataMap)
+FindNode::FindNode(const DataMap& dataMap) : dht::message::Message(dataMap)
+{
+    check();
+}
+
+FindNode::FindNode(DataMap&& dataMap) : dht::message::Message(std::move(dataMap))
 {
     check();
 }
@@ -94,16 +99,6 @@ void FindNode::check() const
     if (!find(NODES))
         throw MessageException("Missing nodes in find_node reply",
                 ErrorType::protocolError);
-}
-
-FindNode::FindNode( Message&& m ) : Reply(std::move(m))
-{
-    check();
-}
-
-FindNode::FindNode( const Message& m ) : Reply(m)
-{
-    check();
 }
 
 } /* reply */

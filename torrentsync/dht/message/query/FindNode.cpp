@@ -18,14 +18,14 @@ using namespace torrentsync;
 
 static const utils::Buffer TARGET = Field::Arguments + Field::Separator + Field::Target;
 
-FindNode::FindNode(const DataMap& dataMap) : Query(dataMap)
+FindNode::FindNode(const DataMap& dataMap) : Message(dataMap)
 {
     if (!find(TARGET))
         throw MessageException("Couldn't find Target",
                 ErrorType::protocolError);
 }
 
-const utils::Buffer FindNode::make( 
+const utils::Buffer FindNode::make(
     const utils::Buffer& transactionID,
     const dht::NodeData& source,
     const dht::NodeData& target)
@@ -37,9 +37,9 @@ const utils::Buffer FindNode::make(
     enc.addDictionaryElement(Field::PeerID,source.write());
     enc.addDictionaryElement(Field::Target,target.write());
     enc.endDictionary();
-    enc.addDictionaryElement(Field::Query,Messages::FindNode); 
+    enc.addDictionaryElement(Field::Query,Messages::FindNode);
     enc.addDictionaryElement(Field::TransactionID,transactionID);
-    enc.addDictionaryElement(Field::Type,Type::Query); 
+    enc.addDictionaryElement(Field::Type,Type::Query);
     enc.endDictionary();
     return enc.value();
 }
@@ -55,4 +55,3 @@ utils::Buffer FindNode::getTarget()
 } /* message */
 } /* dht */
 } /* torrentsync */
-

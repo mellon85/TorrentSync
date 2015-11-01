@@ -21,7 +21,7 @@ using namespace torrentsync;
 const utils::Buffer NODES_FIELD  = Field::Reply + Field::Separator+ Field::Nodes;
 const utils::Buffer VALUES_FIELD = Field::Reply + Field::Separator + Field::Values;
 
-GetPeers::GetPeers(const DataMap& dataMap) : dht::message::Reply(dataMap)
+GetPeers::GetPeers(const DataMap& dataMap) : dht::message::Message(dataMap)
 {
     check();
 }
@@ -158,18 +158,7 @@ void GetPeers::check() const
             ErrorType::protocolError);
 }
 
-GetPeers::GetPeers( Message&& m ) : Reply(std::move(m))
-{
-    check();
-}
-
-GetPeers::GetPeers( const Message& m ) : Reply(m)
-{
-    check();
-}
-
 } /* reply */
 } /* message */
 } /* dht */
 } /* torrentsync */
-

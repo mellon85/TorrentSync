@@ -26,12 +26,12 @@ static const std::map<ErrorType::error_type,std::string> stringMessage = {
     {ErrorType::methodUnknownError,"Method Unknown"}
 };
 
-Error::Error(const DataMap& dataMap) : dht::message::Reply(dataMap)
+Error::Error(const DataMap& dataMap) : dht::message::Message(dataMap)
 {
     check();
 }
 
-const utils::Buffer Error::make( 
+const utils::Buffer Error::make(
     const utils::Buffer& transactionID,
     const dht::message::ErrorType::error_type error)
 {
@@ -49,11 +49,6 @@ const utils::Buffer Error::make(
     return enc.value();
 }
 
-Error::Error( Message&& m ) : Reply(std::move(m))
-{
-    check();
-}
-
 void Error::check() const
 {
     if (!find(Field::Error+"/0"))
@@ -68,4 +63,3 @@ void Error::check() const
 } /* message */
 } /* dht */
 } /* torrentsync */
-

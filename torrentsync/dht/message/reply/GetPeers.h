@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torrentsync/dht/message/Reply.h>
+#include <torrentsync/dht/message/Message.h>
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/Node.h>
 #include <boost/optional.hpp>
@@ -22,7 +22,7 @@ namespace reply
 {
 
 //! Abstract class representing every message
-class GetPeers : public dht::message::Reply
+class GetPeers : public dht::message::Message
 {
 public:
 
@@ -30,32 +30,29 @@ public:
     GetPeers(const DataMap& dataMap);
 
     GetPeers(GetPeers&&) = default;
-
-    GetPeers( Message&& );
-
-    GetPeers( const Message& );
+    GetPeers(const GetPeers&) = default;
 
     //! Destructor
-    virtual ~GetPeers() = default;
+    ~GetPeers() = default;
 
     /** creates a GetPeers message reply
      * @param transactionID the ID
      * @param token the authentication token from previous messages
      * @param source source address (should be our own address)
      * @param target the target address
-     * @param yield a function that returns the closest nodes to send 
+     * @param yield a function that returns the closest nodes to send
      *              until an invalid value is returned. There should
      *              always be at least one entry in the yield object.
      * @throws MessageException in case the yield object doesn't contain
      *         items.
      */
-    static const utils::Buffer make( 
+    static const utils::Buffer make(
         const utils::Buffer& transactionID,
         const utils::Buffer& token,
         const dht::NodeData& source,
         const std::function<boost::optional<std::shared_ptr<Node> >()> yield);
 
-    static const utils::Buffer make( 
+    static const utils::Buffer make(
         const utils::Buffer& transactionID,
         const utils::Buffer& token,
         const dht::NodeData& source,
@@ -68,6 +65,7 @@ public:
     boost::optional<std::list< udp::endpoint > > getPeers() const;
 
     GetPeers& operator=( GetPeers&& ) = default;
+    GetPeers& operator=( const GetPeers& ) = default;
 
 private:
 

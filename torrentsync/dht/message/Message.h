@@ -7,6 +7,8 @@
 #include <torrentsync/dht/NodeData.h>
 #include <torrentsync/dht/message/Constants.h>
 
+#include <boost/variant.hpp>
+
 namespace torrentsync
 {
 namespace dht
@@ -33,11 +35,9 @@ using namespace torrentsync;
 class Message
 {
 public:
-    virtual ~Message() = default;
-
-    Message( Message&& ) = default;
-
-    Message( const Message& ) = default;
+    ~Message() = default;
+    Message(Message&&) = default;
+    Message(const Message&) = default;
 
     /*! Parse a generic message and returns an instance of it.
      * This method must be used to parse messages.
@@ -87,7 +87,7 @@ protected:
     //! Default constructor
     Message() = default;
 
-    //! Constructor 
+    //! Constructor
     Message(const DataMap& data);
 
 private:

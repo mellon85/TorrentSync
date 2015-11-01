@@ -27,7 +27,7 @@ bool Callback::isOld() const noexcept
    return difftime(time(NULL),_creation_time) > TIME_LIMIT;
 }
 
-bool Callback::verifyConstraints( const dht::message::Message& message ) const noexcept
+bool Callback::verifyConstraints(const dht::message::Message& message) const noexcept
 {
     if ( !!_source && *_source != NodeData(message.getID()) )
     {
@@ -54,18 +54,19 @@ void Callback::call(
 
 void Callback::timeout() const
 {
-    _callback(
-        boost::optional<payload_type>(), *this);
+    _callback(boost::optional<payload_type>(), *this);
 }
 
 bool Callback::operator==( const Callback& c ) const
 {
     const bool equality = _transactionID == c._transactionID;
+#ifndef NDEBUG
     if (equality)
     {
         assert( _source == c._source);
         assert( _creation_time == c._creation_time);
     }
+#endif
     return equality;
 }
 

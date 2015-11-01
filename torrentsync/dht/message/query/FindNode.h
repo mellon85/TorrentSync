@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torrentsync/dht/message/Query.h>
+#include <torrentsync/dht/message/Message.h>
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/Node.h>
 #include <boost/optional.hpp>
@@ -21,23 +21,24 @@ namespace query
 {
 
 //! Abstract class representing every message
-class FindNode : public dht::message::Query
+class FindNode : public dht::message::Message
 {
 public:
     //! FindNode constructor to initialize the class from a raw data map
     FindNode(const DataMap& dataMap);
 
     FindNode(FindNode&&) = default;
+    FindNode(const FindNode&) = default;
 
     //! Destructor
-    virtual ~FindNode() = default;
+    ~FindNode() = default;
 
     /** creates a FindNode message
      * @param transactionID the ID
      * @param source source address (should be our own address)
      * @param target the target address
      */
-    static const utils::Buffer make( 
+    static const utils::Buffer make(
         const utils::Buffer& transactionID,
         const dht::NodeData& source,
         const dht::NodeData& target);
@@ -46,6 +47,7 @@ public:
     utils::Buffer getTarget();
 
     FindNode& operator=( FindNode&& ) = default;
+    FindNode& operator=( const FindNode& ) = default;
 };
 
 } /* query */
