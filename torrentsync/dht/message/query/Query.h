@@ -10,7 +10,7 @@ namespace dht
 {
 namespace message
 {
-namespace Query
+namespace query
 {
 
 typedef boost::variant<

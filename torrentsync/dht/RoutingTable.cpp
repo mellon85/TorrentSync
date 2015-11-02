@@ -3,7 +3,7 @@
 #include <torrentsync/utils/Finally.h>
 #include <torrentsync/dht/RoutingTable.h>
 
-#include <torrentsync/dht/message/Message.h>
+#include <torrentsync/dht/message/Messages.h>
 #include <torrentsync/dht/message/Constants.h>
 
 #include <iterator>
@@ -104,7 +104,9 @@ boost::optional<Callback> RoutingTable::getCallback(
     const message::AnyMessage& message)
 {
     // TODO need visitor to extract transaction id from all the messages
-    auto its = _callbacks.equal_range(message.getTransactionID());
+    auto its = _callbacks.equal_range(
+            boost::apply_visitor(
+                torrentsync::dht::message::getTransactionID(),message));
 
     boost::optional<Callback> ret;
     for( auto it = its.first; it != its.second; ++it )

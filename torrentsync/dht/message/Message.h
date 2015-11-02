@@ -82,6 +82,7 @@ public:
 
     //! move assignment
     Message& operator=( Message&& ) = default;
+    Message& operator=( const Message& ) = default;
 
 protected:
     //! Default constructor

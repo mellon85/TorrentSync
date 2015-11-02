@@ -27,19 +27,24 @@ bool Callback::isOld() const noexcept
    return difftime(time(NULL),_creation_time) > TIME_LIMIT;
 }
 
-bool Callback::verifyConstraints(const dht::message::Message& message) const noexcept
+bool Callback::verifyConstraints(const dht::message::AnyMessage& message) const noexcept
 {
-    if ( !!_source && *_source != NodeData(message.getID()) )
+    if ( !!_source && *_source != NodeData(
+               boost::apply_visitor(torrentsync::dht::message::getID(), message)))
     {
         LOG(DEBUG, "Constraint failed: source is different");
         return false;
     }
 
-    if ( !(_transactionID == message.getTransactionID()) )
+    /*
+    if ( !(_transactionID ==
+                boost::apply_visitor(
+                    torrentsync::dht::message::getTransactionID(), message)) )
     {
         LOG(DEBUG, "Constraint failed: transaction is different");
         return false;
     }
+    */
 
     return true;
 }

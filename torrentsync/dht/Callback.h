@@ -83,7 +83,7 @@ public:
 
     //! verifies if the callback respects the filters set
     bool verifyConstraints(
-        const dht::message::Message& message ) const noexcept;
+        const dht::message::AnyMessage& message ) const noexcept;
 
 private:
 
