@@ -29,7 +29,6 @@ void RoutingTable::recvMessage(
     LOG(DATA,"RoutingTable * " << sender << " received " <<
         bytes_transferred <<  " " << pretty_print(buffer));
 
-    std::unique_ptr<msg::Message> message;
 
     // check for errors
     if (error)
@@ -39,12 +38,14 @@ void RoutingTable::recvMessage(
     }
 
     // parse the message
+    msg::AnyMessage message;
     try
     {
-        message = msg::Message::parseMessage(buffer);
-        LOG(DATA, "RoutingTable * message parsed: \n" << *message);
+        message = msg::parseMessage(buffer);
+        LOG(DATA, "RoutingTable * message parsed: \n" <<
+                boost::apply_visitor(msg::getString(), message));
     }
-    catch ( const msg::MessageException& e )
+    catch (const msg::MessageException& e)
     {
         LOG(ERROR, "RoutingTable * message parsing failed" << e.what());
         LOG(DATA, "RoutingTable * message parsing failed: " << pretty_print(buffer));
@@ -52,13 +53,14 @@ void RoutingTable::recvMessage(
         return;
     }
 
-    const auto type = message->getType();
+    const auto type = boost::apply_visitor(msg::getType(), message);
 
     // fetch the node from the tree table
     boost::optional<NodeSPtr> node;
     {
         std::lock_guard<std::mutex> lock_table(_table_mutex);
-        node = _table.getNode( NodeData(message->getID()) );
+        node = _table.getNode(NodeData(
+                    boost::apply_visitor(msg::getID(), message)));
     }
 
     if (!!node) // we already know the node
@@ -71,54 +73,53 @@ void RoutingTable::recvMessage(
     else
     {
         // create new node
-        LOG(DEBUG, "New node: " << pretty_print(message->getID()) << " addr: " << sender);
-        node = boost::optional<NodeSPtr>(NodeSPtr(
-            new Node(message->getID(),sender)));
+        const utils::Buffer id = boost::apply_visitor(msg::getID(), message);
+        LOG(DEBUG, "New node: " << pretty_print(id) << " addr: " << sender);
+        node = boost::optional<NodeSPtr>(NodeSPtr(new Node(id, sender)));
     }
 
     // if a callback is registered call it instead of the normal flow
-    auto callback = getCallback(*message);
+    auto callback = getCallback(message);
     if(!!callback)
     {
-        callback->call(*message,**node);
+        callback->call(message, **node);
     }
     else
     {
         LOG(DEBUG,"Callback not found");
-        const auto* query = boost::get<msg::query::Query>(message.get());
+        const auto* query = boost::get<msg::query::Query*>(&message);
         if (query != nullptr)
         {
-            const auto query = dynamic_cast<msg::Query*>(message.get());
-            assert(query != nullptr);
-            const auto msg_type = query->getMessageType();
             try
             {
-                if ( msg_type == msg::Messages::Ping )
+                const auto* ping = boost::get<msg::query::Ping*>(&message);
+                if (ping != nullptr)
                 {
-                    assert(dynamic_cast<msg::query::Ping*>(query) != nullptr);
-                    handleQuery(
-                        dynamic_cast<msg::query::Ping&>(*query),
-                        **node);
+                    handleQuery(**ping, **node);
                 }
-                else if ( msg_type == msg::Messages::FindNode )
+
+                const auto* find_node = boost::get<msg::query::FindNode*>(&message);
+                if (find_node != nullptr)
                 {
-                    assert(dynamic_cast<msg::query::FindNode*>(query) != nullptr);
-                    handleQuery(
-                        dynamic_cast<msg::query::FindNode&>(*query),
-                        **node);
+                    handleQuery(**find_node, **node);
                 }
                 else
                 {
-                   LOG(ERROR, "RoutingTable * unknown query type: " << pretty_print(buffer) << " - " << *message);
+                   LOG(ERROR, "RoutingTable * unknown query type: " <<
+                           pretty_print(buffer) << " - " <<
+                           boost::apply_visitor(msg::getString(), message));
                 }
             }
             catch ( const std::bad_cast& e )
             {
-                LOG(ERROR, " RoutingTable * A message was mis-interpreted! " << *message << " Report this bug! ");
+                LOG(ERROR, " RoutingTable * A message was mis-interpreted! " <<
+                    boost::apply_visitor(msg::getString(), message) <<
+                    " Report this bug! ");
             }
             catch ( const dht::message::MessageException& e )
             {
-                LOG(ERROR, " RoutingTable * malformed message: " << *message);
+                LOG(ERROR, " RoutingTable * malformed message: " <<
+                       boost::apply_visitor(msg::getString(), message));
             }
         }
         else if (type == msg::Type::Reply)
@@ -126,16 +127,22 @@ void RoutingTable::recvMessage(
             // Replies should be all managed by a Callback
             // Log the message and drop it, it's an unexpected reply.
             // Maybe it's a reply that came to late or what not.
-            LOG(INFO, "RoutingTable * received unexpected reply: \n" << *message << " " << sender);
+            LOG(INFO, "RoutingTable * received unexpected reply: \n" <<
+                    boost::apply_visitor(msg::getString(), message) << " " <<
+                    sender);
         }
         else if ( type == msg::Type::Error )
         {
             // same be behaviour as a Reply without a callback
-            LOG(WARN, "RoutingTable * received unexpected error: \n" << *message << " " << sender);
+            LOG(WARN, "RoutingTable * received unexpected error: \n" << 
+                    boost::apply_visitor(msg::getString(), message) << " " <<
+                    " " << sender);
         }
         else
         {
-            LOG(ERROR, "RoutingTable * unknown message type: " << pretty_print(buffer) << " - " << *message);
+            LOG(ERROR, "RoutingTable * unknown message type: " <<
+                    pretty_print(buffer) << " - " <<
+                    boost::apply_visitor(msg::getString(), message));
         }
     }
 

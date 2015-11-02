@@ -39,23 +39,6 @@ public:
     Message(Message&&) = default;
     Message(const Message&) = default;
 
-    /*! Parse a generic message and returns an instance of it.
-     * This method must be used to parse messages.
-     * @param istream the input stream to read from
-     * @return a shared pointer with the message
-     * @throw MessageException in case the message was not
-     * parsed or missed mantatory parts.
-     * @throw MethodUnknownException in case the query received is of an
-     * unknown type.
-     */
-    static std::unique_ptr<Message> parseMessage(
-        std::istream& istream );
-    static std::unique_ptr<Message> parseMessage(
-        const utils::Buffer& buffer );
-    static std::unique_ptr<Message> parseMessage(
-        const utils::Buffer& buffer,
-        const size_t size );
-
     //! returns the type of the message
     //! @return a member of Type namespace
     //! @throw MessageException in case the field is not available.
@@ -94,11 +77,6 @@ protected:
 private:
     //! Map containing all the data for the message
     DataMap _data;
-
-    //! returns an optional buffer from the data map if found.
-    static const boost::optional<utils::Buffer> find(
-        const utils::Buffer& key,
-        const DataMap& data);
 };
 
 } /* message */
