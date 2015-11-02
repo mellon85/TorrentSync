@@ -101,8 +101,9 @@ void RoutingTable::registerCallback(
 }
 
 boost::optional<Callback> RoutingTable::getCallback(
-    const message::Message& message)
+    const message::AnyMessage& message)
 {
+    // TODO need visitor to extract transaction id from all the messages
     auto its = _callbacks.equal_range(message.getTransactionID());
 
     boost::optional<Callback> ret;

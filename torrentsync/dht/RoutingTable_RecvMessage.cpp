@@ -78,14 +78,15 @@ void RoutingTable::recvMessage(
 
     // if a callback is registered call it instead of the normal flow
     auto callback = getCallback(*message);
-    if( !!callback )
+    if(!!callback)
     {
         callback->call(*message,**node);
     }
     else
     {
         LOG(DEBUG,"Callback not found");
-        if ( type == msg::Type::Query )
+        const auto* query = boost::get<msg::query::Query>(message.get());
+        if (query != nullptr)
         {
             const auto query = dynamic_cast<msg::Query*>(message.get());
             assert(query != nullptr);
@@ -95,17 +96,17 @@ void RoutingTable::recvMessage(
                 if ( msg_type == msg::Messages::Ping )
                 {
                     assert(dynamic_cast<msg::query::Ping*>(query) != nullptr);
-                    handlePingQuery(
+                    handleQuery(
                         dynamic_cast<msg::query::Ping&>(*query),
                         **node);
                 }
                 else if ( msg_type == msg::Messages::FindNode )
                 {
                     assert(dynamic_cast<msg::query::FindNode*>(query) != nullptr);
-                    handleFindNodeQuery(
+                    handleQuery(
                         dynamic_cast<msg::query::FindNode&>(*query),
                         **node);
-                } 
+                }
                 else
                 {
                    LOG(ERROR, "RoutingTable * unknown query type: " << pretty_print(buffer) << " - " << *message);

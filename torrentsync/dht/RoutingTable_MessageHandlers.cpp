@@ -19,7 +19,7 @@ namespace dht
 using namespace torrentsync;
 namespace msg = dht::message;
 
-void RoutingTable::handlePingQuery(
+void RoutingTable::handleQuery(
     const dht::message::query::Ping& ping,
     const dht::Node&          node)
 {
@@ -32,14 +32,14 @@ void RoutingTable::handlePingQuery(
 }
 
 //! Handle ping reply.
-void RoutingTable::handlePingReply(
+void RoutingTable::handleReply(
     const dht::message::reply::Ping& message,
     const dht::Node& node)
 {
     LOG(DEBUG,"Ping Reply received " << message.getID() << " " << node);
 }
 
-void RoutingTable::handleFindNodeQuery(
+void RoutingTable::handleQuery(
     const dht::message::query::FindNode& message,
     const dht::Node& node)
 {
@@ -56,7 +56,7 @@ void RoutingTable::handleFindNodeQuery(
         *(node.getEndpoint()));
 }
 
-void RoutingTable::handleFindNodeReply(
+void RoutingTable::handleReply(
     const dht::message::reply::FindNode& message,
     const dht::Node& node)
 {
@@ -80,9 +80,12 @@ void RoutingTable::doPing(
 
             if (!!data)
             {
-                if (data->message.getType() == msg::Type::Error)
+                const auto* reply = boost::get<msg::reply::Reply>(&data->message);
+                assert(reply != nullptr);
+                const auto* error = boost::get<msg::reply::Error>(reply);
+                if (error != nullptr)
                 {
-                    LOG(DEBUG, "Error in ping. " << data->message);
+                    LOG(DEBUG, "Error in ping. " << *error);
                 }
                 else
                 {
