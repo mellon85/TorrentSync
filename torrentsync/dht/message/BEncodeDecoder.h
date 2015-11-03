@@ -42,8 +42,7 @@ public:
 
     const DataMap& getData() const noexcept { return data; }
 
-    boost::optional<
-        utils::Buffer> find( const utils::Buffer& key ) const;
+    boost::optional<utils::Buffer> find(const utils::Buffer& key) const;
 
 private:
     //! parse a single element from the stream

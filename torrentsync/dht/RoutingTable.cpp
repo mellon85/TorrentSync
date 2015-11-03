@@ -103,10 +103,7 @@ void RoutingTable::registerCallback(
 boost::optional<Callback> RoutingTable::getCallback(
     const message::AnyMessage& message)
 {
-    // TODO need visitor to extract transaction id from all the messages
-    auto its = _callbacks.equal_range(
-            boost::apply_visitor(
-                torrentsync::dht::message::getTransactionID(),message));
+    auto its = _callbacks.equal_range(msg::getTransactionID(message));
 
     boost::optional<Callback> ret;
     for( auto it = its.first; it != its.second; ++it )

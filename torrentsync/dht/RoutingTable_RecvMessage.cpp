@@ -38,29 +38,33 @@ void RoutingTable::recvMessage(
     }
 
     // parse the message
-    msg::AnyMessage message;
+
     try
     {
-        message = msg::parseMessage(buffer);
-        LOG(DATA, "RoutingTable * message parsed: \n" <<
-                boost::apply_visitor(msg::getString(), message));
+        msg::AnyMessage message = msg::parseMessage(buffer);
+        LOG(DATA, "RoutingTable * message parsed: " << msg::getString(message));
+        processIncomingMessage(message, buffer, sender);
     }
     catch (const msg::MessageException& e)
     {
         LOG(ERROR, "RoutingTable * message parsing failed" << e.what());
         LOG(DATA, "RoutingTable * message parsing failed: " << pretty_print(buffer));
         // @TODO send malformed message error
-        return;
     }
+}
 
-    const auto type = boost::apply_visitor(msg::getType(), message);
+void RoutingTable::processIncomingMessage(
+      torrentsync::dht::message::AnyMessage& message,
+      const utils::Buffer& buffer,
+      const boost::asio::ip::udp::endpoint& sender)
+{
+    const auto type = msg::getType(message);
 
     // fetch the node from the tree table
     boost::optional<NodeSPtr> node;
     {
         std::lock_guard<std::mutex> lock_table(_table_mutex);
-        node = _table.getNode(NodeData(
-                    boost::apply_visitor(msg::getID(), message)));
+        node = _table.getNode(NodeData(msg::getID(message)));
     }
 
     if (!!node) // we already know the node
@@ -73,7 +77,7 @@ void RoutingTable::recvMessage(
     else
     {
         // create new node
-        const utils::Buffer id = boost::apply_visitor(msg::getID(), message);
+        const utils::Buffer id = msg::getID(message);
         LOG(DEBUG, "New node: " << pretty_print(id) << " addr: " << sender);
         node = boost::optional<NodeSPtr>(NodeSPtr(new Node(id, sender)));
     }
@@ -87,39 +91,38 @@ void RoutingTable::recvMessage(
     else
     {
         LOG(DEBUG,"Callback not found");
-        const auto* query = boost::get<msg::query::Query*>(&message);
+        const auto* query = boost::get<msg::query::Query>(&message);
         if (query != nullptr)
         {
             try
             {
-                const auto* ping = boost::get<msg::query::Ping*>(&message);
+                const auto* ping = boost::get<msg::query::Ping>(query);
                 if (ping != nullptr)
                 {
-                    handleQuery(**ping, **node);
+                    handleQuery(*ping, **node);
                 }
 
-                const auto* find_node = boost::get<msg::query::FindNode*>(&message);
+                const auto* find_node = boost::get<msg::query::FindNode>(query);
                 if (find_node != nullptr)
                 {
-                    handleQuery(**find_node, **node);
+                    handleQuery(*find_node, **node);
                 }
                 else
                 {
                    LOG(ERROR, "RoutingTable * unknown query type: " <<
                            pretty_print(buffer) << " - " <<
-                           boost::apply_visitor(msg::getString(), message));
+                           msg::getString(message));
                 }
             }
             catch ( const std::bad_cast& e )
             {
                 LOG(ERROR, " RoutingTable * A message was mis-interpreted! " <<
-                    boost::apply_visitor(msg::getString(), message) <<
-                    " Report this bug! ");
+                    msg::getString(message) << " Report this bug! ");
             }
             catch ( const dht::message::MessageException& e )
             {
                 LOG(ERROR, " RoutingTable * malformed message: " <<
-                       boost::apply_visitor(msg::getString(), message));
+                       msg::getString(message));
             }
         }
         else if (type == msg::Type::Reply)
@@ -128,21 +131,18 @@ void RoutingTable::recvMessage(
             // Log the message and drop it, it's an unexpected reply.
             // Maybe it's a reply that came to late or what not.
             LOG(INFO, "RoutingTable * received unexpected reply: \n" <<
-                    boost::apply_visitor(msg::getString(), message) << " " <<
-                    sender);
+                    msg::getString(message) << " " << sender);
         }
         else if ( type == msg::Type::Error )
         {
             // same be behaviour as a Reply without a callback
-            LOG(WARN, "RoutingTable * received unexpected error: \n" << 
-                    boost::apply_visitor(msg::getString(), message) << " " <<
-                    " " << sender);
+            LOG(WARN, "RoutingTable * received unexpected error: \n" <<
+                    msg::getString(message) << " " << sender);
         }
         else
         {
             LOG(ERROR, "RoutingTable * unknown message type: " <<
-                    pretty_print(buffer) << " - " <<
-                    boost::apply_visitor(msg::getString(), message));
+                    pretty_print(buffer) << " - " << msg::getString(message));
         }
     }
 

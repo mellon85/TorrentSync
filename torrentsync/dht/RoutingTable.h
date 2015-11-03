@@ -110,6 +110,11 @@ protected:
 
 private:
 
+    void processIncomingMessage(
+        torrentsync::dht::message::AnyMessage& message,
+        const utils::Buffer& buffer,
+        const boost::asio::ip::udp::endpoint& sender );
+
     //! true of false based on the table situation
     std::atomic<bool> _initialization_completed;
 

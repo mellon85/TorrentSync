@@ -212,6 +212,16 @@ utils::Buffer BEncodeDecoder::readValue( std::istream& stream )
     }
 }
 
+boost::optional<utils::Buffer> BEncodeDecoder::find(const utils::Buffer& key) const
+{
+    auto it = data.find(key);
+    if (it == data.end())
+    {
+        return boost::optional<utils::Buffer>();
+    }
+    return it->second;
+}
+
 } // torrentsync
 } // dht
 } // message

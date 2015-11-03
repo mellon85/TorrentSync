@@ -2,6 +2,8 @@
 #include <torrentsync/dht/message/Message.h>
 #include <torrentsync/utils/log/Logger.h>
 
+namespace msg = torrentsync::dht::message;
+
 #include <ctime>
 
 namespace torrentsync
@@ -29,22 +31,17 @@ bool Callback::isOld() const noexcept
 
 bool Callback::verifyConstraints(const dht::message::AnyMessage& message) const noexcept
 {
-    if ( !!_source && *_source != NodeData(
-               boost::apply_visitor(torrentsync::dht::message::getID(), message)))
+    if (!!_source && *_source != NodeData(msg::getID(message)))
     {
         LOG(DEBUG, "Constraint failed: source is different");
         return false;
     }
 
-    /*
-    if ( !(_transactionID ==
-                boost::apply_visitor(
-                    torrentsync::dht::message::getTransactionID(), message)) )
+    if ( !(_transactionID == msg::getTransactionID(message)))
     {
         LOG(DEBUG, "Constraint failed: transaction is different");
         return false;
     }
-    */
 
     return true;
 }
