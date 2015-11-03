@@ -52,10 +52,13 @@ public:
 
     FindNode& operator=( FindNode&& ) = default;
     FindNode& operator=( const FindNode& ) = default;
+
 private:
 
     void check() const;
 };
+
+bool isFindNode(const BEncodeDecoder&);
 
 } /* reply */
 } /* message */

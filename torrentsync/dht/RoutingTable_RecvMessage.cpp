@@ -114,11 +114,6 @@ void RoutingTable::processIncomingMessage(
                            msg::getString(message));
                 }
             }
-            catch ( const std::bad_cast& e )
-            {
-                LOG(ERROR, " RoutingTable * A message was mis-interpreted! " <<
-                    msg::getString(message) << " Report this bug! ");
-            }
             catch ( const dht::message::MessageException& e )
             {
                 LOG(ERROR, " RoutingTable * malformed message: " <<

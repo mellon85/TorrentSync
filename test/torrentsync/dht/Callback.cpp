@@ -16,12 +16,12 @@ using torrentsync::dht::Callback;
 static const dht::NodeData buff(utils::makeBuffer("GGGGGGGGHHHHHHHHIIII"));
 static const utils::Buffer transaction = utils::makeBuffer("aa");
 
-static msg::Message getMessage()
+static msg::AnyMessage getMessage()
 {
     std::stringstream s;
     s << "d1:ad2:id20:GGGGGGGGHHHHHHHHIIIIe1:q4:ping1:t2:aa1:y1:qe";
 
-    return *(msg::Message::parseMessage(s));
+    return msg::parseMessage(s);
 }
 
 static dht::Node node(utils::makeBuffer("01234567890123456789"));
@@ -32,9 +32,9 @@ BOOST_AUTO_TEST_CASE(match_node_success)
 
     Callback call(
         [&v]( boost::optional<Callback::payload_type> data,
-              const dht::Callback& c) -> void {
+              const dht::Callback&) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->message.getType().empty() ? 0 : 1; },
+            v += msg::getType(data->message).empty() ? 0 : 1; },
         buff,
         transaction);
 
@@ -54,12 +54,11 @@ BOOST_AUTO_TEST_CASE(match_node_failure)
 
     Callback call(
         [&v]( boost::optional<Callback::payload_type> data,
-              const dht::Callback& c) -> void {
+              const dht::Callback&) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->message.getType().empty() ? 0 : 1; },
+            v += msg::getType(data->message).empty() ? 0 : 1; },
         dht::NodeData(buff2),
         transaction);
-        
 
     BOOST_REQUIRE_EQUAL(false,call.isOld());
     BOOST_REQUIRE_EQUAL(false,call.verifyConstraints(getMessage()));
@@ -73,9 +72,9 @@ BOOST_AUTO_TEST_CASE(match_transaction_success)
 
     Callback call(
         [&v]( boost::optional<Callback::payload_type> data,
-              const dht::Callback& c) -> void {
+              const dht::Callback&) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->message.getType().empty() ? 0 : 1; },
+            v += msg::getType(data->message).empty() ? 0 : 1; },
         buff,
         transaction);
 
@@ -92,9 +91,9 @@ BOOST_AUTO_TEST_CASE(match_transaction_failure)
 
     Callback call(
         [&v]( boost::optional<Callback::payload_type> data,
-              const dht::Callback& c) -> void {
+              const dht::Callback&) -> void {
             BOOST_REQUIRE(!!data);
-            v += data->message.getType().empty() ? 0 : 1; },
+            v += msg::getType(data->message).empty() ? 0 : 1; },
         buff,
         transaction2);
 

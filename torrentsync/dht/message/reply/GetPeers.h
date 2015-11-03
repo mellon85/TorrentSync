@@ -72,6 +72,8 @@ private:
     void check() const;
 };
 
+bool isGetPeers(const BEncodeDecoder&);
+
 } /* reply */
 } /* message */
 } /* dht */

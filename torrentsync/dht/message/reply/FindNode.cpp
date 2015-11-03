@@ -101,6 +101,12 @@ void FindNode::check() const
                 ErrorType::protocolError);
 }
 
+bool isFindNode(const BEncodeDecoder& d)
+{
+    if (d.find(PEER_ID) && d.find(NODES))
+        return true;
+    return false;
+}
 } /* reply */
 } /* message */
 } /* dht */
