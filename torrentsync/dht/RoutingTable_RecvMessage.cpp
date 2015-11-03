@@ -125,13 +125,13 @@ void RoutingTable::processIncomingMessage(
             // Replies should be all managed by a Callback
             // Log the message and drop it, it's an unexpected reply.
             // Maybe it's a reply that came to late or what not.
-            LOG(INFO, "RoutingTable * received unexpected reply: \n" <<
+            LOG(INFO, "RoutingTable * received unexpected reply: n" <<
                     msg::getString(message) << " " << sender);
         }
         else if ( type == msg::Type::Error )
         {
             // same be behaviour as a Reply without a callback
-            LOG(WARN, "RoutingTable * received unexpected error: \n" <<
+            LOG(WARN, "RoutingTable * received unexpected error: n" <<
                     msg::getString(message) << " " << sender);
         }
         else
