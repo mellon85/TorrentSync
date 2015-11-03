@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <torrentsync/dht/message/query/FindNode.h>
+#include <torrentsync/dht/message/Messages.h>
 #include <torrentsync/dht/Node.h>
 #include <torrentsync/utils/Yield.h>
 
@@ -37,14 +38,10 @@ BOOST_AUTO_TEST_CASE(parse)
 {
     auto b = utils::makeBuffer("d1:ad2:id20:abcdefghij01234567896:target20:mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe");
 
-    auto m = std::dynamic_pointer_cast<Query>(
-            std::shared_ptr<Message>(Message::parseMessage(b)));
-    BOOST_REQUIRE(!!m);
-    BOOST_REQUIRE(m->getType() == Type::Query);
-    BOOST_REQUIRE(m->getMessageType() == Messages::FindNode);
-
-    auto p = std::dynamic_pointer_cast<FindNode>(m);
-    BOOST_REQUIRE(p.get());
+    auto m = parseMessage(b);
+    BOOST_REQUIRE(getType(m) == Type::Query);
+    auto* q = boost::get<Query>(&m);
+    auto* p = boost::get<FindNode>(q);
 
     BOOST_REQUIRE(p->getID() == "abcdefghij0123456789");
     BOOST_REQUIRE(p->getTransactionID() == "aa");

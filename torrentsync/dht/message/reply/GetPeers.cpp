@@ -162,7 +162,7 @@ void GetPeers::check() const
 
 bool isGetPeers(const BEncodeDecoder& d)
 {
-    if (d.find(PEER_ID) && d.find(NODES) && d.find(TOKEN))
+    if (d.find(PEER_ID) && d.find(TOKEN))
         return true;
     return false;
 }

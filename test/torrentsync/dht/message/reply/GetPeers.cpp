@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <torrentsync/dht/message/reply/GetPeers.h>
+#include <torrentsync/dht/message/Messages.h>
 #include <torrentsync/dht/Node.h>
 #include <torrentsync/utils/Yield.h>
 
@@ -47,20 +48,22 @@ BOOST_AUTO_TEST_CASE(reply_nodes)
 
     BOOST_REQUIRE(ret == buff);
 
-    const auto m = dht::message::Message::parseMessage(ret);
-    BOOST_REQUIRE(!!m);
-    BOOST_CHECK(m->getType() == Type::Reply);
-    BOOST_CHECK(m->getTransactionID() == transaction);
+    const auto m = parseMessage(ret);
+    BOOST_CHECK(getType(m) == Type::Reply);
+    BOOST_CHECK(getTransactionID(m) == transaction);
 
     std::vector<dht::NodeSPtr> peers;
-    const reply::GetPeers get_peers(*m);
+    auto* r = boost::get<reply::Reply>(&m);
+    BOOST_REQUIRE(r != nullptr);
+    auto* get_peers = boost::get<reply::GetPeers>(r);
+
     BOOST_REQUIRE_NO_THROW(
-        BOOST_REQUIRE(!!get_peers.getNodes());
-        BOOST_REQUIRE(!get_peers.getPeers()));
-    BOOST_REQUIRE_NO_THROW(peers = *get_peers.getNodes());
+        BOOST_REQUIRE(!!get_peers->getNodes());
+        BOOST_REQUIRE(!get_peers->getPeers()));
+    BOOST_REQUIRE_NO_THROW(peers = *get_peers->getNodes());
     BOOST_REQUIRE_EQUAL(peers.size(),nodes.size());
-    BOOST_CHECK(get_peers.getType() == Type::Reply);
-    BOOST_CHECK(get_peers.getTransactionID() == transaction);
+    BOOST_CHECK(get_peers->getType() == Type::Reply);
+    BOOST_CHECK(get_peers->getTransactionID() == transaction);
 
     BOOST_REQUIRE(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH")); BOOST_REQUIRE_EQUAL(peers[0]->getEndpoint()->address().to_v4().to_ulong(), 0x45454747);
     BOOST_REQUIRE_EQUAL(peers[0]->getEndpoint()->port(), 0x4644);
@@ -117,21 +120,23 @@ BOOST_AUTO_TEST_CASE(reply_peers)
 
     BOOST_REQUIRE(ret == buff);
 
-    const auto m = dht::message::Message::parseMessage(ret);
-    BOOST_REQUIRE(!!m);
-    BOOST_CHECK(m->getType() == Type::Reply);
-    BOOST_CHECK(m->getTransactionID() == transaction);
+    const auto m = parseMessage(ret);
+    BOOST_CHECK(getType(m) == Type::Reply);
+    BOOST_CHECK(getTransactionID(m) == transaction);
+
+    auto* r = boost::get<reply::Reply>(&m);
+    BOOST_REQUIRE(r != nullptr);
+    auto* get_peers = boost::get<reply::GetPeers>(r);
+    BOOST_REQUIRE(get_peers != nullptr);
 
     std::list<boost::asio::ip::udp::endpoint> peers;
 
-    reply::GetPeers get_peers(*m);
-
-    BOOST_CHECK(get_peers.getType() == Type::Reply);
-    BOOST_CHECK(get_peers.getTransactionID() == transaction);
+    BOOST_CHECK(get_peers->getType() == Type::Reply);
+    BOOST_CHECK(get_peers->getTransactionID() == transaction);
     BOOST_REQUIRE_NO_THROW(
-        BOOST_REQUIRE(!get_peers.getNodes());
-        BOOST_REQUIRE(!!get_peers.getPeers()));
-    BOOST_REQUIRE_NO_THROW(peers = *get_peers.getPeers());
+        BOOST_REQUIRE(!get_peers->getNodes());
+        BOOST_REQUIRE(!!get_peers->getPeers()));
+    BOOST_REQUIRE_NO_THROW(peers = *get_peers->getPeers());
 
     BOOST_REQUIRE_EQUAL(peers.size(),endpoints.size());
     BOOST_REQUIRE(*peers.begin() == *endpoints.begin());

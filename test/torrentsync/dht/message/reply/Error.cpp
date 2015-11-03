@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <torrentsync/dht/message/reply/Error.h>
+#include <torrentsync/dht/message/Messages.h>
 #include <torrentsync/dht/NodeData.h>
 
 #include <test/torrentsync/dht/CommonNodeTest.h>
@@ -11,6 +12,7 @@
 BOOST_AUTO_TEST_SUITE(torrentsync_dht_message_reply_Error);
 
 using namespace torrentsync::dht::message;
+using namespace torrentsync::dht::message::reply;
 using namespace torrentsync;
 
 BOOST_AUTO_TEST_CASE(reply)
@@ -22,15 +24,10 @@ BOOST_AUTO_TEST_CASE(reply)
 
     BOOST_REQUIRE(buffer == utils::makeBuffer("d1:eli203e14:Protocol Errore1:t2:aa1:y1:ee"));
 
-    std::shared_ptr<
-        dht::message::reply::Error> ptr;
-
-    // parse it back
-    BOOST_CHECK_NO_THROW(
-        ptr = std::dynamic_pointer_cast<
-            dht::message::reply::Error>(
-                std::shared_ptr<Message>(dht::message::Message::parseMessage(buffer))););
-    BOOST_REQUIRE(!!ptr);
+    auto m = parseMessage(buffer);
+    auto* r = boost::get<Reply>(&m);
+    BOOST_REQUIRE(r != nullptr);
+    auto *ptr = boost::get<Error>(r);
 
     BOOST_REQUIRE(ptr->getType() == dht::message::Type::Error);
     BOOST_REQUIRE(ptr->getTransactionID() == transactionID);
