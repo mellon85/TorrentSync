@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <torrentsync/dht/message/reply/FindNode.h>
+#include <torrentsync/dht/message/Messages.h>
 #include <torrentsync/dht/Node.h>
 #include <torrentsync/utils/Yield.h>
 
@@ -44,17 +45,18 @@ BOOST_AUTO_TEST_CASE(reply_perfectMatch)
 
     BOOST_REQUIRE(ret == buff);
 
-    const auto m = dht::message::Message::parseMessage(ret);
-    BOOST_REQUIRE(!!m);
-    BOOST_CHECK(m->getType() == Type::Reply);
-    BOOST_CHECK(m->getTransactionID() == transaction);
+    const auto m = parseMessage(ret);
+    BOOST_CHECK(getType(m) == Type::Reply);
+    BOOST_CHECK(getTransactionID(m) == transaction);
 
-    const reply::FindNode find_node(*m);
+    auto *r = boost::get<reply::Reply>(&m);
+    BOOST_REQUIRE(r != nullptr);
+    auto *find_node = boost::get<reply::FindNode>(r);
     std::vector<dht::NodeSPtr> peers;
-    BOOST_REQUIRE_NO_THROW(peers = find_node.getNodes());
+    BOOST_REQUIRE_NO_THROW(peers = find_node->getNodes());
     BOOST_REQUIRE_EQUAL(peers.size(),nodes.size());
-    BOOST_CHECK(find_node.getType() == Type::Reply);
-    BOOST_CHECK(find_node.getTransactionID() == transaction);
+    BOOST_CHECK(find_node->getType() == Type::Reply);
+    BOOST_CHECK(find_node->getTransactionID() == transaction);
 
     BOOST_REQUIRE(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH"));
     BOOST_REQUIRE_EQUAL(peers[0]->getEndpoint()->address().to_v4().to_ulong(),
@@ -69,18 +71,18 @@ BOOST_AUTO_TEST_CASE(reply_multiple)
     const std::string id3("4141414141414141414141414141414141414141");
     const std::string id4("4242424242424242424242424242424242424242");
     const auto transaction = utils::makeBuffer("aa");
-    
+
     auto buff = utils::makeBuffer("d1:rd2:id20:GGGGGGGGGGGGGGGGGGGG5:nodes78:HHHHHHHHHHHHHHHHHHHHEEGGFDAAAAAAAAAAAAAAAAAAAAEEGGFDBBBBBBBBBBBBBBBBBBBBEEGGFDe1:t2:aa1:y1:re");
-    
+
     dht::NodeData source(utils::parseIDFromHex(id1));
     dht::NodeData target1(utils::parseIDFromHex(id2));
     dht::NodeData target2(utils::parseIDFromHex(id3));
     dht::NodeData target3(utils::parseIDFromHex(id4));
-    
+
     boost::optional<boost::asio::ip::udp::endpoint> endpoint(
         boost::asio::ip::udp::endpoint(
              boost::asio::ip::address_v4(0x45454747),0x4644));
-    
+
     std::list<dht::NodeSPtr> nodes;
     BOOST_REQUIRE_NO_THROW(
     nodes.push_back(dht::NodeSPtr(new dht::Node(target1.write(),endpoint)));
@@ -95,27 +97,29 @@ BOOST_AUTO_TEST_CASE(reply_multiple)
             utils::makeYield(nodes.cbegin(),nodes.cend()).function()));
 
     BOOST_REQUIRE(ret == buff);
-    
-    const auto m = dht::message::Message::parseMessage(ret);
-    BOOST_REQUIRE(!!m);
-    BOOST_CHECK(m->getType() == Type::Reply);
-    BOOST_CHECK(m->getTransactionID() == transaction);
-    
-    const reply::FindNode find_node(*m);
+    const auto m = parseMessage(ret);
+
+    BOOST_CHECK(getType(m) == Type::Reply);
+    BOOST_CHECK(getTransactionID(m) == transaction);
+
+    auto *r = boost::get<reply::Reply>(&m);
+    BOOST_REQUIRE(r != nullptr);
+    auto *find_node = boost::get<reply::FindNode>(r);
+
     std::vector<dht::NodeSPtr> peers;
-    BOOST_REQUIRE_NO_THROW(peers = find_node.getNodes());
+    BOOST_REQUIRE_NO_THROW(peers = find_node->getNodes());
     BOOST_REQUIRE_EQUAL(peers.size(),nodes.size());
-    BOOST_CHECK(find_node.getType() == Type::Reply);
-    BOOST_CHECK(find_node.getTransactionID() == transaction);
-    
+    BOOST_CHECK(find_node->getType() == Type::Reply);
+    BOOST_CHECK(find_node->getTransactionID() == transaction);
+
     BOOST_CHECK(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH"));
     BOOST_CHECK_EQUAL(peers[0]->getEndpoint()->address().to_v4().to_ulong(), 0x45454747);
     BOOST_CHECK_EQUAL(peers[0]->getEndpoint()->port(), 0x4644);
-    
+
     BOOST_CHECK(peers[1]->write() == utils::makeBuffer("AAAAAAAAAAAAAAAAAAAA"));
     BOOST_CHECK_EQUAL(peers[1]->getEndpoint()->address().to_v4().to_ulong(), 0x45454747);
     BOOST_CHECK_EQUAL(peers[1]->getEndpoint()->port(), 0x4644);
-    
+
     BOOST_CHECK(peers[2]->write() == utils::makeBuffer("BBBBBBBBBBBBBBBBBBBB"));
     BOOST_CHECK_EQUAL(peers[2]->getEndpoint()->address().to_v4().to_ulong(), 0x45454747);
     BOOST_CHECK_EQUAL(peers[2]->getEndpoint()->port(), 0x4644);

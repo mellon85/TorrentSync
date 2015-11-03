@@ -18,10 +18,12 @@ namespace reply
 {
 using namespace torrentsync;
 
-const utils::Buffer NODES_FIELD  = Field::Reply + Field::Separator+ Field::Nodes;
-const utils::Buffer VALUES_FIELD = Field::Reply + Field::Separator + Field::Values;
+const utils::Buffer NODES = Field::Reply + Field::Separator+ Field::Nodes;
+const utils::Buffer VALUES = Field::Reply + Field::Separator + Field::Values;
+const utils::Buffer PEER_ID = Field::Reply + Field::Separator + Field::PeerID;
+const utils::Buffer TOKEN = Field::Reply + Field::Separator + Field::Token;
 
-GetPeers::GetPeers(const DataMap& dataMap) : dht::message::Reply(dataMap)
+GetPeers::GetPeers(const DataMap& dataMap) : dht::message::Message(dataMap)
 {
     check();
 }
@@ -110,7 +112,7 @@ const utils::Buffer GetPeers::make(
 
 boost::optional<std::vector<dht::NodeSPtr> > GetPeers::getNodes() const
 {
-    auto token = find(NODES_FIELD);
+    auto token = find(NODES);
     if(!token)
         return boost::optional<std::vector<dht::NodeSPtr> >();
 
@@ -127,7 +129,7 @@ boost::optional<std::vector<dht::NodeSPtr> > GetPeers::getNodes() const
 boost::optional<std::list<udp::endpoint>> GetPeers::getPeers() const
 {
     size_t index = 0;
-    auto token = find(VALUES_FIELD+"/"+
+    auto token = find(VALUES+"/"+
             boost::lexical_cast<std::string>(index));
     if(!token)
         return boost::optional<std::list< udp::endpoint> >();
@@ -137,7 +139,7 @@ boost::optional<std::list<udp::endpoint>> GetPeers::getPeers() const
     do
     {
         peers.push_back(unpackEndpoint(token->begin()));
-        token = find(VALUES_FIELD+"/"+
+        token = find(VALUES+"/"+
             boost::lexical_cast<std::string>(++index));
     } while (!!token);
 
@@ -150,26 +152,22 @@ void GetPeers::check() const
         throw MessageException(
             "Missing reply peer in find_node reply",
             ErrorType::protocolError);
-    const bool foundNodes = !!find(NODES_FIELD);
-    const bool foundPeers = !!find(VALUES_FIELD+"/0");
+    const bool foundNodes = !!find(NODES);
+    const bool foundPeers = !!find(VALUES+"/0");
     if ( !foundNodes && !foundPeers )
         throw MessageException(
             "Missing nodes/peers in find_node reply",
             ErrorType::protocolError);
 }
 
-GetPeers::GetPeers( Message&& m ) : Reply(std::move(m))
+bool isGetPeers(const BEncodeDecoder& d)
 {
-    check();
-}
-
-GetPeers::GetPeers( const Message& m ) : Reply(m)
-{
-    check();
+    if (d.find(PEER_ID) && d.find(TOKEN))
+        return true;
+    return false;
 }
 
 } /* reply */
 } /* message */
 } /* dht */
 } /* torrentsync */
-

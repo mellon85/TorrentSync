@@ -16,7 +16,7 @@ static const utils::Buffer PEER_ID = Field::Reply + Field::Separator + Field::Pe
 
 using namespace torrentsync;
 
-Ping::Ping(const DataMap& dataMap) : dht::message::Reply(dataMap)
+Ping::Ping(const DataMap& dataMap) : dht::message::Message(dataMap)
 {
     check();
 }
@@ -35,16 +35,6 @@ const utils::Buffer Ping::make(
     enc.addDictionaryElement(Field::Type,Type::Reply);
     enc.endDictionary();
     return enc.value();
-}
-
-Ping::Ping( Message&& m ) : Reply(std::move(m))
-{
-    check();
-}
-
-Ping::Ping( const Message& m ) : Reply(m)
-{
-    check();
 }
 
 void Ping::check() const

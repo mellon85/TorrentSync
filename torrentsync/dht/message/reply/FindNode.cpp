@@ -22,7 +22,12 @@ using namespace torrentsync;
 static const utils::Buffer NODES = Field::Reply + Field::Separator + Field::Nodes;
 static const utils::Buffer PEER_ID = Field::Reply + Field::Separator + Field::PeerID;
 
-FindNode::FindNode(const DataMap& dataMap) : dht::message::Reply(dataMap)
+FindNode::FindNode(const DataMap& dataMap) : dht::message::Message(dataMap)
+{
+    check();
+}
+
+FindNode::FindNode(DataMap&& dataMap) : dht::message::Message(std::move(dataMap))
 {
     check();
 }
@@ -96,16 +101,12 @@ void FindNode::check() const
                 ErrorType::protocolError);
 }
 
-FindNode::FindNode( Message&& m ) : Reply(std::move(m))
+bool isFindNode(const BEncodeDecoder& d)
 {
-    check();
+    if (d.find(PEER_ID) && d.find(NODES))
+        return true;
+    return false;
 }
-
-FindNode::FindNode( const Message& m ) : Reply(m)
-{
-    check();
-}
-
 } /* reply */
 } /* message */
 } /* dht */

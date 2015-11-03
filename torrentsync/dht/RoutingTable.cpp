@@ -3,7 +3,7 @@
 #include <torrentsync/utils/Finally.h>
 #include <torrentsync/dht/RoutingTable.h>
 
-#include <torrentsync/dht/message/Message.h>
+#include <torrentsync/dht/message/Messages.h>
 #include <torrentsync/dht/message/Constants.h>
 
 #include <iterator>
@@ -101,9 +101,9 @@ void RoutingTable::registerCallback(
 }
 
 boost::optional<Callback> RoutingTable::getCallback(
-    const message::Message& message)
+    const message::AnyMessage& message)
 {
-    auto its = _callbacks.equal_range(message.getTransactionID());
+    auto its = _callbacks.equal_range(msg::getTransactionID(message));
 
     boost::optional<Callback> ret;
     for( auto it = its.first; it != its.second; ++it )

@@ -2,6 +2,8 @@
 #include <torrentsync/dht/message/Message.h>
 #include <torrentsync/utils/log/Logger.h>
 
+namespace msg = torrentsync::dht::message;
+
 #include <ctime>
 
 namespace torrentsync
@@ -27,15 +29,15 @@ bool Callback::isOld() const noexcept
    return difftime(time(NULL),_creation_time) > TIME_LIMIT;
 }
 
-bool Callback::verifyConstraints( const dht::message::Message& message ) const noexcept
+bool Callback::verifyConstraints(const dht::message::AnyMessage& message) const noexcept
 {
-    if ( !!_source && *_source != NodeData(message.getID()) )
+    if (!!_source && *_source != NodeData(msg::getID(message)))
     {
         LOG(DEBUG, "Constraint failed: source is different");
         return false;
     }
 
-    if ( !(_transactionID == message.getTransactionID()) )
+    if ( !(_transactionID == msg::getTransactionID(message)))
     {
         LOG(DEBUG, "Constraint failed: transaction is different");
         return false;
@@ -45,27 +47,28 @@ bool Callback::verifyConstraints( const dht::message::Message& message ) const n
 }
 
 void Callback::call(
-    const dht::message::Message& m,
+    const dht::message::AnyMessage& m,
     dht::Node& node) const
 {
     _callback(
-        payload_type(m,node),*this);
+        payload_type(m, node),*this);
 }
 
 void Callback::timeout() const
 {
-    _callback(
-        boost::optional<payload_type>(), *this);
+    _callback(boost::optional<payload_type>(), *this);
 }
 
 bool Callback::operator==( const Callback& c ) const
 {
     const bool equality = _transactionID == c._transactionID;
+#ifndef NDEBUG
     if (equality)
     {
         assert( _source == c._source);
         assert( _creation_time == c._creation_time);
     }
+#endif
     return equality;
 }
 

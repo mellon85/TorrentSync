@@ -60,7 +60,7 @@ public:
     RoutingTable(
         boost::asio::io_service& io_service);
 
-    virtual ~RoutingTable() = default;
+    ~RoutingTable() = default;
 
     //! @return DHT table endpoint
     udp::endpoint getEndpoint() const;
@@ -88,12 +88,12 @@ protected:
     //! It will send it asynchronously putting them in a queue of at
     //! most MAX_SEND_QUEUE length.
     //! @throws boost::system::system_error
-    virtual void sendMessage(
+    void sendMessage(
         const utils::Buffer&,
         const udp::endpoint& addr);
 
     //! @TODO
-    virtual void recvMessage(
+    void recvMessage(
         const boost::system::error_code& error,
         utils::Buffer buffer,
         std::size_t bytes_transferred,
@@ -109,6 +109,11 @@ protected:
     void initializeTable();
 
 private:
+
+    void processIncomingMessage(
+        torrentsync::dht::message::AnyMessage& message,
+        const utils::Buffer& buffer,
+        const boost::asio::ip::udp::endpoint& sender );
 
     //! true of false based on the table situation
     std::atomic<bool> _initialization_completed;
@@ -132,7 +137,7 @@ private:
     //! returns the most specific callback, and will be removed from the
     //! callbacks.
     boost::optional<Callback> getCallback(
-        const message::Message& message);
+        const message::AnyMessage& message);
 
     //! Registers a callback to be called when we receive a message.
     //! It will be executed only once and before any other processing.
@@ -168,10 +173,10 @@ private:
     //! IO service of for the routing table
     boost::asio::io_service& _io_service;
 
-    //! Inbound socket 
+    //! Inbound socket
     udp::socket _recv_socket;
 
-    //! Outbound socket 
+    //! Outbound socket
     udp::socket _send_socket;
 
     //! Counter of the number of messages to be sent in the queue
@@ -214,29 +219,29 @@ private:
     //! ************** Message handlers *****************
 
     //! Handle ping queries.
-    void handlePingQuery(
+    void handleQuery(
         const dht::message::query::Ping&,
         const dht::Node&);
 
     /** Handle ping reply
      * nothing to do in this case.
-     * The default behaviour is to try to add the 
+     * The default behaviour is to try to add the
      * nome to the known nodes or to mark it as a good node.
      */
-    void handlePingReply(
+    void handleReply(
         const dht::message::reply::Ping&,
         const dht::Node&);
 
     //! Handle find_node queries.
-    void handleFindNodeQuery(
+    void handleQuery(
         const dht::message::query::FindNode&,
         const dht::Node&);
 
     /** Handle find_node replies
-     * This handler should never be called. find_node queries should always 
+     * This handler should never be called. find_node queries should always
      * belong to a use case not randomly received.
      */
-    void handleFindNodeReply(
+    void handleReply(
         const dht::message::reply::FindNode&,
         const dht::Node&);
 
@@ -279,7 +284,7 @@ void RoutingTable::load( Archive &ar, const unsigned int version)
     size_t nodes_count;
     ar >> nodes_count;
     throw std::runtime_error("Not Implemented Yet");
-    // @TODO 
+    // @TODO
     // refresh all the nodes
     // 1. ping all known and insert them in the routing table with the normal procedure
     // 2. perform normal startup operation and let the bucket refreshing do it's job
@@ -289,4 +294,3 @@ void RoutingTable::load( Archive &ar, const unsigned int version)
 }; // torrentsync
 
 BOOST_CLASS_VERSION(torrentsync::dht::RoutingTable, 0);
-

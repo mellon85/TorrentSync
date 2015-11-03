@@ -7,6 +7,8 @@
 #include <torrentsync/dht/NodeData.h>
 #include <torrentsync/dht/message/Constants.h>
 
+#include <boost/variant.hpp>
+
 namespace torrentsync
 {
 namespace dht
@@ -33,28 +35,9 @@ using namespace torrentsync;
 class Message
 {
 public:
-    virtual ~Message() = default;
-
-    Message( Message&& ) = default;
-
-    Message( const Message& ) = default;
-
-    /*! Parse a generic message and returns an instance of it.
-     * This method must be used to parse messages.
-     * @param istream the input stream to read from
-     * @return a shared pointer with the message
-     * @throw MessageException in case the message was not
-     * parsed or missed mantatory parts.
-     * @throw MethodUnknownException in case the query received is of an
-     * unknown type.
-     */
-    static std::unique_ptr<Message> parseMessage(
-        std::istream& istream );
-    static std::unique_ptr<Message> parseMessage(
-        const utils::Buffer& buffer );
-    static std::unique_ptr<Message> parseMessage(
-        const utils::Buffer& buffer,
-        const size_t size );
+    ~Message() = default;
+    Message(Message&&) = default;
+    Message(const Message&) = default;
 
     //! returns the type of the message
     //! @return a member of Type namespace
@@ -82,22 +65,18 @@ public:
 
     //! move assignment
     Message& operator=( Message&& ) = default;
+    Message& operator=( const Message& ) = default;
 
 protected:
     //! Default constructor
     Message() = default;
 
-    //! Constructor 
+    //! Constructor
     Message(const DataMap& data);
 
 private:
     //! Map containing all the data for the message
     DataMap _data;
-
-    //! returns an optional buffer from the data map if found.
-    static const boost::optional<utils::Buffer> find(
-        const utils::Buffer& key,
-        const DataMap& data);
 };
 
 } /* message */

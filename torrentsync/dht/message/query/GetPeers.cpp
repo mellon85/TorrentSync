@@ -17,7 +17,7 @@ static const utils::Buffer PEER_ID   = Field::Arguments + Field::Separator + Fie
 
 using namespace torrentsync;
 
-GetPeers::GetPeers(const DataMap& dataMap) : dht::message::Query(dataMap)
+GetPeers::GetPeers(const DataMap& dataMap) : dht::message::Message(dataMap)
 {
     if (!find(PEER_ID))
         throw MessageException("Missing Routing Table ID in GetPeers Query",
