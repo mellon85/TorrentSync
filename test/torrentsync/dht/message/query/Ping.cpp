@@ -42,8 +42,8 @@ BOOST_AUTO_TEST_CASE(parse)
     auto* p = boost::get<query::Ping>(q);
     BOOST_REQUIRE(p != nullptr);
 
-    BOOST_REQUIRE(p->getID() == "GGGGGGGGHHHHHHHHIIII");
-    BOOST_REQUIRE(p->getTransactionID() == "aa");
+    BOOST_REQUIRE(getID(m) == "GGGGGGGGHHHHHHHHIIII");
+    BOOST_REQUIRE(getTransactionID(m) == "aa");
 }
 
 BOOST_AUTO_TEST_CASE(parseBinary)
@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE(parseBinary)
     id[3] = '\t';
     id[6] = '\0';
 
-    BOOST_REQUIRE(p->getID() == id);
-    BOOST_REQUIRE(p->getTransactionID() == "aa");
+    BOOST_REQUIRE(getID(m) == id);
+    BOOST_REQUIRE(getTransactionID(m) == "aa");
 }
 
 BOOST_AUTO_TEST_CASE(parseRandom)
@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE(parseRandom)
         auto* p = boost::get<query::Ping>(q);
         BOOST_REQUIRE(p != nullptr);
 
-        BOOST_REQUIRE(p->getID() == ab);
-        BOOST_REQUIRE(p->getTransactionID() == "aa");
+        BOOST_REQUIRE(getID(m) == ab);
+        BOOST_REQUIRE(getTransactionID(m) == "aa");
     }
 }
 
