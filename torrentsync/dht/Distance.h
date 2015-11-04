@@ -2,22 +2,18 @@
 
 #include <torrentsync/dht/NodeData.h>
 
-namespace torrentsync
-{
-namespace dht
-{
+namespace torrentsync {
+namespace dht {
 
 class Node;
 
-class Distance : public NodeData
-{
+class Distance : public NodeData {
 public:
-    Distance() {};
-    ~Distance() {};
-    
+  Distance(){};
+  ~Distance(){};
+
 private:
-    friend class torrentsync::dht::Node;
-    
+  friend class torrentsync::dht::Node;
 };
 
 }; // dht

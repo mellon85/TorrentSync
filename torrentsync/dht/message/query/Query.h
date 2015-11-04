@@ -4,20 +4,14 @@
 
 #include <boost/variant.hpp>
 
-namespace torrentsync
-{
-namespace dht
-{
-namespace message
-{
-namespace query
-{
+namespace torrentsync {
+namespace dht {
+namespace message {
+namespace query {
 
-typedef boost::variant<
-    torrentsync::dht::message::query::FindNode,
-    torrentsync::dht::message::query::GetPeers,
-    torrentsync::dht::message::query::Ping > Query;
-
+typedef boost::variant<torrentsync::dht::message::query::FindNode,
+                       torrentsync::dht::message::query::GetPeers,
+                       torrentsync::dht::message::query::Ping> Query;
 };
 };
 };

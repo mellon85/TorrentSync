@@ -1,51 +1,39 @@
-#include <torrentsync/App.h> 
+#include <torrentsync/App.h>
 #include <boost/asio.hpp>
 #include <torrentsync/utils/log/Logger.h>
 
-namespace torrentsync
-{
+namespace torrentsync {
 
-App::App( /* configuration */ ) :
-    _service(),
-    _work(_service),
-    _stop_signal(_service, SIGINT, SIGTERM),
-    _table(_service)
-{
-    // Initializes the various part of the application
-    setupSignalHandlers();
+App::App(/* configuration */)
+    : _service(), _work(_service), _stop_signal(_service, SIGINT, SIGTERM),
+      _table(_service) {
+  // Initializes the various part of the application
+  setupSignalHandlers();
 
-    _table.initializeNetwork(boost::asio::ip::udp::endpoint());
+  _table.initializeNetwork(boost::asio::ip::udp::endpoint());
 }
 
-void App::runloop()
-{
-    // runs the main threads and all the io_services
-    LOG(DEBUG,"App * Runloop started");
-    _service.run();
-    LOG(DEBUG,"App * Runloop ended");
+void App::runloop() {
+  // runs the main threads and all the io_services
+  LOG(DEBUG, "App * Runloop started");
+  _service.run();
+  LOG(DEBUG, "App * Runloop ended");
 }
 
-void App::setupSignalHandlers()
-{
-    _stop_signal.async_wait([&](
-        const boost::system::error_code& error,
-        int signal_number) -> void{
-            if (!error)
-            {
-                LOG(INFO,"Received signal: " << signal_number);
-                if (signal_number == SIGTERM || signal_number == SIGINT)
-                {
-                    _service.stop();
-                }
-            }
-            else
-            {
-                LOG(ERROR, "App * Error in signal handler: " <<
-                    error.message() << " (" << error << ")" );
-            }
-        });
-    LOG(DEBUG,"App * Signals configured");
+void App::setupSignalHandlers() {
+  _stop_signal.async_wait(
+      [&](const boost::system::error_code &error, int signal_number) -> void {
+        if (!error) {
+          LOG(INFO, "Received signal: " << signal_number);
+          if (signal_number == SIGTERM || signal_number == SIGINT) {
+            _service.stop();
+          }
+        } else {
+          LOG(ERROR, "App * Error in signal handler: " << error.message()
+                                                       << " (" << error << ")");
+        }
+      });
+  LOG(DEBUG, "App * Signals configured");
 }
-
 
 }; // torrentsync

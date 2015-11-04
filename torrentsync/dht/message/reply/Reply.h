@@ -5,21 +5,15 @@
 
 #include <boost/variant.hpp>
 
-namespace torrentsync
-{
-namespace dht
-{
-namespace message
-{
-namespace reply
-{
+namespace torrentsync {
+namespace dht {
+namespace message {
+namespace reply {
 
-typedef boost::variant<
-    torrentsync::dht::message::reply::Error,
-    torrentsync::dht::message::reply::FindNode,
-    torrentsync::dht::message::reply::GetPeers,
-    torrentsync::dht::message::reply::Ping > Reply;
-
+typedef boost::variant<torrentsync::dht::message::reply::Error,
+                       torrentsync::dht::message::reply::FindNode,
+                       torrentsync::dht::message::reply::GetPeers,
+                       torrentsync::dht::message::reply::Ping> Reply;
 };
 };
 };

@@ -4,141 +4,115 @@
 
 #include <boost/integer_traits.hpp>
 
-namespace torrentsync
-{
-namespace dht
-{
+namespace torrentsync {
+namespace dht {
 
-const time_t Node::good_interval              = 15 * 60;  // 15 minutes
+const time_t Node::good_interval = 15 * 60; // 15 minutes
 const size_t Node::allowed_unanswered_queries = 10;
 
-utils::Buffer packEndpoint( const udp::endpoint& endpoint )
-{
-    utils::Buffer buff;
-    buff.reserve(PACKED_PEER_SIZE);
+utils::Buffer packEndpoint(const udp::endpoint &endpoint) {
+  utils::Buffer buff;
+  buff.reserve(PACKED_PEER_SIZE);
 
-    auto networkOrderAddress        = htonl(endpoint.address().to_v4().to_ulong());
-    const uint16_t portNetworkOrder = htons(endpoint.port());
+  auto networkOrderAddress = htonl(endpoint.address().to_v4().to_ulong());
+  const uint16_t portNetworkOrder = htons(endpoint.port());
 
-    buff.push_back(networkOrderAddress);
-    buff.push_back(networkOrderAddress >> 8);
-    buff.push_back(networkOrderAddress >> 16);
-    buff.push_back(networkOrderAddress >> 24);
+  buff.push_back(networkOrderAddress);
+  buff.push_back(networkOrderAddress >> 8);
+  buff.push_back(networkOrderAddress >> 16);
+  buff.push_back(networkOrderAddress >> 24);
 
-    buff.push_back(portNetworkOrder);
-    buff.push_back(portNetworkOrder >> 8);
+  buff.push_back(portNetworkOrder);
+  buff.push_back(portNetworkOrder >> 8);
 
-    return buff;
+  return buff;
 }
 
-udp::endpoint unpackEndpoint( torrentsync::utils::Buffer::const_iterator begin )
-{
-    const uint32_t address= *((uint32_t*)&*begin);
-    begin += sizeof(address);
+udp::endpoint unpackEndpoint(torrentsync::utils::Buffer::const_iterator begin) {
+  const uint32_t address = *((uint32_t *)&*begin);
+  begin += sizeof(address);
 
-    const boost::asio::ip::address_v4 new_address(ntohl(address));
+  const boost::asio::ip::address_v4 new_address(ntohl(address));
 
-    const uint16_t port = *((uint16_t*)&*begin);
+  const uint16_t port = *((uint16_t *)&*begin);
 
-    udp::endpoint ep(new_address, ntohs(port));
-    return ep;
+  udp::endpoint ep(new_address, ntohs(port));
+  return ep;
 }
 
-Node::Node()
-{
-    setGood();
+Node::Node() { setGood(); }
+
+Node::Node(const Node &addr) : Node() {
+  *this = addr;
+  setGood();
 }
 
-Node::Node( const Node& addr ) : Node()
-{
-    *this = addr;
-    setGood();
+Node::Node(const torrentsync::utils::Buffer &data,
+           const boost::optional<udp::endpoint> &endpoint)
+    : NodeData(data), _endpoint(endpoint) {
+  setGood();
 }
 
-Node::Node(
-    const torrentsync::utils::Buffer& data,
-    const boost::optional<udp::endpoint>& endpoint ) :
-      NodeData(data), _endpoint(endpoint)
-{
-    setGood();
+Node::Node(utils::Buffer::const_iterator begin,
+           utils::Buffer::const_iterator end)
+    : Node() {
+  read(begin, end);
 }
 
-Node::Node(
-    utils::Buffer::const_iterator begin,
-    utils::Buffer::const_iterator end) : Node()
-{
-    read(begin,end);
+void Node::setGood() noexcept {
+  _last_time_good = time(0);
+  _last_unanswered_queries = 0;
 }
 
-void Node::setGood() noexcept
-{
-    _last_time_good = time(0);
-    _last_unanswered_queries = 0;
+bool Node::isGood() const noexcept {
+  return _last_time_good > time(0) - good_interval;
 }
 
-bool Node::isGood() const noexcept
-{
-    return _last_time_good > time(0)-good_interval;
+bool Node::isQuestionable() const noexcept {
+  return !isGood() && _last_unanswered_queries <= allowed_unanswered_queries;
 }
 
-bool Node::isQuestionable() const noexcept
-{
-    return !isGood() && _last_unanswered_queries <= allowed_unanswered_queries;
+bool Node::isBad() const noexcept {
+  return !isGood() && _last_unanswered_queries > allowed_unanswered_queries;
 }
 
-bool Node::isBad() const noexcept
-{
-    return !isGood() && _last_unanswered_queries >  allowed_unanswered_queries;
+const time_t &Node::getLastTimeGood() const noexcept { return _last_time_good; }
+
+const boost::optional<udp::endpoint> &Node::getEndpoint() const noexcept {
+  return _endpoint;
 }
 
-const time_t& Node::getLastTimeGood() const noexcept
-{
-    return _last_time_good;
+void Node::setEndpoint(udp::endpoint &endpoint) { _endpoint = endpoint; }
+
+void Node::read(torrentsync::utils::Buffer::const_iterator begin,
+                torrentsync::utils::Buffer::const_iterator end) {
+  NodeData::read(begin, end);
+  begin += NodeData::addressDataLength;
+
+  if (end > begin && static_cast<size_t>(end - begin) < PACKED_PEER_SIZE) {
+    LOG(ERROR, "Peer - parsePeer: not enough data to parse. Expected "
+                   << PACKED_PEER_SIZE << ", found: " << (end - begin));
+    throw std::invalid_argument(
+        "Not enough data to parse Peer contact information");
+  }
+
+  _endpoint = unpackEndpoint(begin);
 }
 
-const boost::optional<udp::endpoint>& Node::getEndpoint() const noexcept
-{
-    return _endpoint;
+utils::Buffer Node::getPackedNode() const {
+  utils::Buffer buff = NodeData::write();
+  buff.reserve(PACKED_NODE_SIZE);
+
+  auto peer = getPackedPeer();
+
+  buff.insert(buff.end(), peer.begin(), peer.end());
+  return buff;
 }
 
-void Node::setEndpoint( udp::endpoint& endpoint )
-{
-    _endpoint = endpoint;
-}
-
-void Node::read(
-    torrentsync::utils::Buffer::const_iterator begin,
-    torrentsync::utils::Buffer::const_iterator end)
-{
-    NodeData::read(begin,end);
-    begin += NodeData::addressDataLength;
-
-    if ( end > begin && static_cast<size_t>(end-begin) < PACKED_PEER_SIZE)
-    {
-        LOG(ERROR,"Peer - parsePeer: not enough data to parse. Expected " << PACKED_PEER_SIZE << ", found: " << (end-begin) );
-        throw std::invalid_argument("Not enough data to parse Peer contact information");
-    }
-
-    _endpoint = unpackEndpoint(begin);
-}
-
-utils::Buffer Node::getPackedNode() const
-{
-    utils::Buffer buff = NodeData::write();
-    buff.reserve(PACKED_NODE_SIZE);
-
-    auto peer = getPackedPeer();
-
-    buff.insert(buff.end(),peer.begin(),peer.end());
-    return buff;
-}
-
-utils::Buffer Node::getPackedPeer() const
-{
-    assert(!!_endpoint);
-    return packEndpoint(*_endpoint);
+utils::Buffer Node::getPackedPeer() const {
+  assert(!!_endpoint);
+  return packEndpoint(*_endpoint);
 }
 
 }; // dht
 }; // torrentsync
-

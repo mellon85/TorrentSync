@@ -5,18 +5,11 @@
 
 #include <boost/variant.hpp>
 
-namespace torrentsync
-{
-namespace dht
-{
-namespace message
-{
+namespace torrentsync {
+namespace dht {
+namespace message {
 
-typedef boost::variant<
-    reply::Reply,
-    query::Query
-  > AnyMessage;
-
+typedef boost::variant<reply::Reply, query::Query> AnyMessage;
 
 /*! Parse a generic message and returns an instance of it.
  * This method must be used to parse messages.
@@ -27,15 +20,14 @@ typedef boost::variant<
  * @throw MethodUnknownException in case the query received is of an
  * unknown type.
  */
-AnyMessage parseMessage(std::istream& istream );
-AnyMessage parseMessage(const utils::Buffer& buffer );
-AnyMessage parseMessage(const utils::Buffer& buffer, const size_t size);
+AnyMessage parseMessage(std::istream &istream);
+AnyMessage parseMessage(const utils::Buffer &buffer);
+AnyMessage parseMessage(const utils::Buffer &buffer, const size_t size);
 
-utils::Buffer getTransactionID(const AnyMessage&);
-utils::Buffer getID(const AnyMessage&);
-utils::Buffer getType(const AnyMessage&);
-std::string getString(const AnyMessage&);
-
+utils::Buffer getTransactionID(const AnyMessage &);
+utils::Buffer getID(const AnyMessage &);
+utils::Buffer getType(const AnyMessage &);
+std::string getString(const AnyMessage &);
 };
 };
 };

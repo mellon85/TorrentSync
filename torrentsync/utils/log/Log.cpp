@@ -2,26 +2,14 @@
 
 #include <torrentsync/utils/log/Log.h>
 
-namespace torrentsync
-{
-namespace utils
-{
-namespace log
-{
+namespace torrentsync {
+namespace utils {
+namespace log {
 
-static const std::string levels[] = {
-    "DATA",
-    "DEBUG",
-    "INFO",
-    "WARN",
-    "ERROR" };
+static const std::string levels[] = {"DATA", "DEBUG", "INFO", "WARN", "ERROR"};
 
-const std::string& levelToString( const Level level )
-{
-    return levels[level];
-}
+const std::string &levelToString(const Level level) { return levels[level]; }
 
 } // level
 } // utils
 } // torrentsync
-

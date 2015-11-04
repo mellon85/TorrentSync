@@ -3,45 +3,36 @@
 #include <torrentsync/dht/message/reply/Ping.h>
 #include <torrentsync/utils/Buffer.h>
 
-namespace torrentsync
-{
-namespace dht
-{
-namespace message
-{
-namespace reply
-{
+namespace torrentsync {
+namespace dht {
+namespace message {
+namespace reply {
 
-static const utils::Buffer PEER_ID = Field::Reply + Field::Separator + Field::PeerID;
+static const utils::Buffer PEER_ID =
+    Field::Reply + Field::Separator + Field::PeerID;
 
 using namespace torrentsync;
 
-Ping::Ping(const DataMap& dataMap) : dht::message::Message(dataMap)
-{
-    check();
+Ping::Ping(const DataMap &dataMap) : dht::message::Message(dataMap) { check(); }
+
+const utils::Buffer Ping::make(const utils::Buffer &transactionID,
+                               const dht::NodeData &source) {
+  BEncodeEncoder enc;
+  enc.startDictionary();
+  enc.addElement(Field::Reply);
+  enc.startDictionary();
+  enc.addDictionaryElement(Field::PeerID, source.write());
+  enc.endDictionary();
+  enc.addDictionaryElement(Field::TransactionID, transactionID);
+  enc.addDictionaryElement(Field::Type, Type::Reply);
+  enc.endDictionary();
+  return enc.value();
 }
 
-const utils::Buffer Ping::make(
-    const utils::Buffer& transactionID,
-    const dht::NodeData& source)
-{
-    BEncodeEncoder enc;
-    enc.startDictionary();
-    enc.addElement(Field::Reply);
-    enc.startDictionary();
-    enc.addDictionaryElement(Field::PeerID,source.write());
-    enc.endDictionary();
-    enc.addDictionaryElement(Field::TransactionID,transactionID);
-    enc.addDictionaryElement(Field::Type,Type::Reply);
-    enc.endDictionary();
-    return enc.value();
-}
-
-void Ping::check() const
-{
-    if (!find(PEER_ID))
-        throw MessageException("Missing Peer ID in Ping Reply",
-                ErrorType::protocolError);
+void Ping::check() const {
+  if (!find(PEER_ID))
+    throw MessageException("Missing Peer ID in Ping Reply",
+                           ErrorType::protocolError);
 }
 
 } /* query */
