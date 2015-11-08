@@ -5,7 +5,6 @@
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/DHTConstants.h>
 
-#include <torrentsync/utils/Yield.h>
 #include <boost/lexical_cast.hpp>
 
 namespace torrentsync {
@@ -21,76 +20,6 @@ const utils::Buffer TOKEN = Field::Reply + Field::Separator + Field::Token;
 
 GetPeers::GetPeers(const DataMap &dataMap) : dht::message::Message(dataMap) {
   check();
-}
-
-const utils::Buffer
-GetPeers::make(const utils::Buffer &transactionID, const utils::Buffer &token,
-               const dht::NodeData &source,
-               const std::function<boost::optional<dht::NodeSPtr>()> yield) {
-  utils::Buffer nodeData(PACKED_NODE_SIZE * DHT_FIND_NODE_COUNT);
-
-  BEncodeEncoder enc;
-  enc.startDictionary();
-  enc.addElement(Field::Reply);
-  enc.startDictionary();
-  enc.addDictionaryElement(Field::PeerID, source.write());
-
-  utils::Buffer nodes_list;
-  nodes_list.reserve(PACKED_NODE_SIZE * MAX_NODES_PER_GETPEERS);
-  utils::for_each(yield, [&](const dht::NodeSPtr &node) {
-    nodes_list += node->getPackedNode();
-  });
-
-  if (nodes_list.size() == 0)
-    throw dht::message::MessageException("GetPeers message has no nodes",
-                                         dht::message::ErrorType::serverError);
-
-  enc.addDictionaryElement(torrentsync::dht::message::Field::Nodes, nodes_list);
-
-  enc.addDictionaryElement(torrentsync::dht::message::Field::Token, token);
-
-  enc.endDictionary();
-  enc.addDictionaryElement(Field::TransactionID, transactionID);
-  enc.addDictionaryElement(Field::Type, Type::Reply);
-  enc.endDictionary();
-  return enc.value();
-}
-
-const utils::Buffer
-GetPeers::make(const utils::Buffer &transactionID, const utils::Buffer &token,
-               const dht::NodeData &source,
-               const std::function<boost::optional<udp::endpoint>()> yield) {
-  utils::Buffer nodeData(PACKED_NODE_SIZE * DHT_FIND_NODE_COUNT);
-
-  BEncodeEncoder enc;
-  enc.startDictionary();
-  enc.addElement(Field::Reply);
-  enc.startDictionary();
-  enc.addDictionaryElement(Field::PeerID, source.write());
-
-  enc.addDictionaryElement(torrentsync::dht::message::Field::Token, token);
-
-  enc.addElement(torrentsync::dht::message::Field::Values);
-  enc.startList();
-
-  size_t elementCount = 0;
-  utils::for_each(yield, [&](const udp::endpoint &endpoint) {
-    auto peer_buffer = dht::packEndpoint(endpoint);
-    enc.addElement(peer_buffer);
-    ++elementCount;
-  });
-
-  if (elementCount == 0)
-    throw dht::message::MessageException("GetPeers message has no peers",
-                                         dht::message::ErrorType::serverError);
-
-  enc.endList();
-
-  enc.endDictionary();
-  enc.addDictionaryElement(Field::TransactionID, transactionID);
-  enc.addDictionaryElement(Field::Type, Type::Reply);
-  enc.endDictionary();
-  return enc.value();
 }
 
 boost::optional<std::vector<dht::NodeSPtr>> GetPeers::getNodes() const {
@@ -135,10 +64,32 @@ void GetPeers::check() const {
                            ErrorType::protocolError);
 }
 
+utils::Buffer GetPeers::make_internal(const utils::Buffer &transactionID,
+                                      const utils::Buffer &token,
+                                      const dht::NodeData &source,
+                                      const utils::Buffer &nodes) {
+  BEncodeEncoder enc;
+  enc.startDictionary();
+  enc.addElement(Field::Reply);
+  enc.startDictionary();
+  enc.addDictionaryElement(Field::PeerID, source.write());
+
+  if (nodes.size() == 0)
+    throw dht::message::MessageException("GetPeers message has no nodes",
+                                         dht::message::ErrorType::serverError);
+
+  enc.addDictionaryElement(torrentsync::dht::message::Field::Nodes, nodes);
+  enc.addDictionaryElement(torrentsync::dht::message::Field::Token, token);
+
+  enc.endDictionary();
+  enc.addDictionaryElement(Field::TransactionID, transactionID);
+  enc.addDictionaryElement(Field::Type, Type::Reply);
+  enc.endDictionary();
+  return enc.value();
+}
+
 bool isGetPeers(const BEncodeDecoder &d) {
-  if (d.find(PEER_ID) && d.find(TOKEN))
-    return true;
-  return false;
+  return d.find(PEER_ID) && d.find(TOKEN);
 }
 
 } /* reply */

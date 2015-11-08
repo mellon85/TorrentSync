@@ -3,7 +3,6 @@
 #include <torrentsync/dht/message/reply/GetPeers.h>
 #include <torrentsync/dht/message/Messages.h>
 #include <torrentsync/dht/Node.h>
-#include <torrentsync/utils/Yield.h>
 
 #include <test/torrentsync/dht/CommonNodeTest.h>
 
@@ -39,10 +38,9 @@ BOOST_AUTO_TEST_CASE(reply_nodes) {
   nodes.push_back(match);
 
   utils::Buffer ret;
-  BOOST_REQUIRE_NO_THROW(
-      ret = reply::GetPeers::make(
-          transaction, utils::makeBuffer(token), source,
-          utils::makeYield(nodes.cbegin(), nodes.cend()).function()));
+  BOOST_REQUIRE_NO_THROW(ret = reply::GetPeers::make(transaction,
+                                                     utils::makeBuffer(token),
+                                                     source, nodes));
 
   BOOST_REQUIRE(ret == buff);
 
@@ -80,11 +78,9 @@ BOOST_AUTO_TEST_CASE(reply_nodes_failed) {
   std::list<dht::NodeSPtr> nodes;
 
   utils::Buffer ret;
-  BOOST_REQUIRE_THROW(
-      ret = reply::GetPeers::make(
-          transaction, utils::makeBuffer(token), source,
-          utils::makeYield(nodes.cbegin(), nodes.cend()).function()),
-      dht::message::MessageException);
+  BOOST_REQUIRE_THROW(ret = reply::GetPeers::make(
+                          transaction, utils::makeBuffer(token), source, nodes),
+                      dht::message::MessageException);
 }
 
 BOOST_AUTO_TEST_CASE(reply_peers) {
@@ -107,10 +103,9 @@ BOOST_AUTO_TEST_CASE(reply_peers) {
   endpoints.push_back(endpoint);
 
   utils::Buffer ret;
-  BOOST_REQUIRE_NO_THROW(
-      ret = reply::GetPeers::make(
-          transaction, utils::makeBuffer(token), source,
-          utils::makeYield(endpoints.cbegin(), endpoints.cend()).function()));
+  BOOST_REQUIRE_NO_THROW(ret = reply::GetPeers::make(transaction,
+                                                     utils::makeBuffer(token),
+                                                     source, endpoints));
 
   BOOST_REQUIRE(ret == buff);
 
@@ -146,11 +141,9 @@ BOOST_AUTO_TEST_CASE(reply_peers_failed) {
   std::list<boost::asio::ip::udp::endpoint> nodes;
 
   utils::Buffer ret;
-  BOOST_REQUIRE_THROW(
-      ret = reply::GetPeers::make(
-          transaction, utils::makeBuffer(token), source,
-          utils::makeYield(nodes.cbegin(), nodes.cend()).function()),
-      dht::message::MessageException);
+  BOOST_REQUIRE_THROW(ret = reply::GetPeers::make(
+                          transaction, utils::makeBuffer(token), source, nodes),
+                      dht::message::MessageException);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
