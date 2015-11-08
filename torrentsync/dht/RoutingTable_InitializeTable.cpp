@@ -45,17 +45,24 @@ void RoutingTable::initializeTable() {
     using namespace boost::asio;
     initializeTable();
 
-    std::lock_guard<std::mutex> lock(_initializer_mutex);
+    if (e.value() != 0) {
+      LOG(ERROR,
+          "Error in RoutingTable initializeTable timer: " << e.message());
+      return;
+    }
+
+    // still running from previous execution! skip this round
+    // otherwise get the lock and go on
+    std::unique_lock<std::mutex> lock_table(_initializer_mutex, std::try_to_lock);
+    if (!lock_table.owns_lock())
+    {
+        LOG(DEBUG, "RoutingTable * Initializations till running");
+        return;
+    }
 
     LOG(DEBUG, "RoutingTable * " << _initial_addresses.size()
                                  << " initializing addresses");
 
-    if (e.value() != 0) {
-      LOG(ERROR,
-          "Error in RoutingTable initializeTable timer: " << e.message());
-      initializeTable();
-      return;
-    }
 
     if (_initial_addresses.empty()) {
       bootstrap();
