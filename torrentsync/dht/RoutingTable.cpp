@@ -44,8 +44,7 @@ void RoutingTable::tableMaintenance() {
   const auto timer = std::make_shared<boost::asio::deadline_timer>(
       _io_service, boost::posix_time::minutes(5));
 
-  timer->async_wait([&, timer](const boost::system::error_code &e)
-  {
+  timer->async_wait([&, timer](const boost::system::error_code &e) {
     LOG(DEBUG, "table maintenance running");
     tableMaintenance();
     static std::mutex running;
@@ -56,19 +55,26 @@ void RoutingTable::tableMaintenance() {
       return;
     }
 
-    if (!running.try_lock())
-    {
-        LOG(DEBUG, "RoutingTable * Initializations till running");
-        return;
+    if (!running.try_lock()) {
+      LOG(DEBUG, "RoutingTable * Initializations till running");
+      return;
     }
 
     std::lock_guard<std::mutex> lock(_table_mutex);
     throw std::runtime_error("Not Implemented Yet");
-    // @TODO
-    // - clean the buckets
-    // - must also set _initialization_completed to false in case all known
-    // nodes disappear.
 
+    bool good_nodes_known = false;
+
+    // @TODO
+    // - clean the buckets. set good_nodes_known when a good node is found
+    // - start bucket refilling.
+    //   if a bucket is low, start a procedure to look for a random
+    //   address in the bucket. Asking one of the element of the buckert,
+    //   or any other node untl the bucket is full again.
+    // start initialization procedure in case all known nodes disappear.
+    if (!good_nodes_known) {
+      initializeTable();
+    }
   });
 }
 

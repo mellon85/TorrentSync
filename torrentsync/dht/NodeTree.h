@@ -32,7 +32,7 @@ public:
 
   //! The constructor initializes the container and saves a reference to the
   //! current node address
-  NodeTree(const NodeData);
+  NodeTree(const NodeData &);
 
   //! destructor
   ~NodeTree();

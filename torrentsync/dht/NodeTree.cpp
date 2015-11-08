@@ -12,7 +12,7 @@ bool sortByBounds(NodeTree::Bucket const *const x,
   return x->getUpperBound() < y->getLowerBound();
 }
 
-NodeTree::NodeTree(const NodeData nodeNode)
+NodeTree::NodeTree(const NodeData &nodeNode)
     : _buckets(sortByBounds), _node(nodeNode) {
   clear();
 }
