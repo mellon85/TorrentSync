@@ -40,11 +40,36 @@ udp::endpoint RoutingTable::getEndpoint() const {
 }
 
 void RoutingTable::tableMaintenance() {
-  // @TODO
-  // - clean the buckets
-  // - must also set _initialization_completed to false in case all known
-  // nodes disappear.
-  throw std::runtime_error("Not Implemented Yet");
+
+  const auto timer = std::make_shared<boost::asio::deadline_timer>(
+      _io_service, boost::posix_time::minutes(5));
+
+  timer->async_wait([&, timer](const boost::system::error_code &e)
+  {
+    LOG(DEBUG, "table maintenance running");
+    tableMaintenance();
+    static std::mutex running;
+
+    if (e.value() != 0) {
+      LOG(ERROR,
+          "Error in RoutingTable tableMaintenance timer: " << e.message());
+      return;
+    }
+
+    if (!running.try_lock())
+    {
+        LOG(DEBUG, "RoutingTable * Initializations till running");
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(_table_mutex);
+    throw std::runtime_error("Not Implemented Yet");
+    // @TODO
+    // - clean the buckets
+    // - must also set _initialization_completed to false in case all known
+    // nodes disappear.
+
+  });
 }
 
 void RoutingTable::initializeNetwork(const udp::endpoint &endpoint) {
