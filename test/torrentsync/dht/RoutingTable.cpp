@@ -12,8 +12,6 @@ using boost::asio::ip::udp;
 
 BOOST_AUTO_TEST_SUITE(torrentsync_dht_RoutingTable);
 
-BOOST_AUTO_TEST_CASE(initializing_addresses)
-{
-}
+BOOST_AUTO_TEST_CASE(initializing_addresses) {}
 
 BOOST_AUTO_TEST_SUITE_END();

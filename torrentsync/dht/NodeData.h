@@ -23,13 +23,18 @@ class NodeData {
 public:
   //! NodeData constructor. Will not initialize any fields. The address
   //! data must be initialized before usage or it will contain stack data.
-  inline NodeData(){};
+  NodeData() = default;
+  NodeData(const NodeData &) = default;
+  NodeData(NodeData &&) = default;
 
   //! constructor expects to receive a buffer with the binary data to parse
   NodeData(const torrentsync::utils::Buffer &);
 
   //! Destructor
-  ~NodeData();
+  ~NodeData() = default;
+
+  NodeData &operator=(const NodeData &) = default;
+  NodeData &operator=(NodeData &&) = default;
 
   inline bool operator==(const NodeData &addr) const;
   inline bool operator!=(const NodeData &addr) const;

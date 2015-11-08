@@ -41,8 +41,6 @@ NodeData::NodeData(const utils::Buffer &buff) {
   p3 = htonl(data[4]);
 }
 
-NodeData::~NodeData() {}
-
 Distance NodeData::operator^(const NodeData &addr) const noexcept {
   Distance ret;
   ret.p1 = p1 ^ addr.p1;

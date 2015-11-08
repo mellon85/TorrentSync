@@ -8,7 +8,6 @@ namespace torrentsync {
 namespace dht {
 
 const time_t Node::good_interval = 15 * 60; // 15 minutes
-const size_t Node::allowed_unanswered_queries = 10;
 
 utils::Buffer packEndpoint(const udp::endpoint &endpoint) {
   utils::Buffer buff;
@@ -42,30 +41,19 @@ udp::endpoint unpackEndpoint(torrentsync::utils::Buffer::const_iterator begin) {
 
 Node::Node() { setGood(); }
 
-Node::Node(const Node &addr) : Node() {
-  *this = addr;
-  setGood();
-}
-
 Node::Node(const torrentsync::utils::Buffer &data,
            const boost::optional<udp::endpoint> &endpoint)
     : NodeData(data), _endpoint(endpoint) {
   setGood();
 }
 
-Node::Node(utils::Buffer::const_iterator begin,
-           utils::Buffer::const_iterator end)
-    : Node() {
-  read(begin, end);
-}
-
 void Node::setGood() noexcept {
-  _last_time_good = time(0);
+  _last_time_good = time(nullptr);
   _last_unanswered_queries = 0;
 }
 
 bool Node::isGood() const noexcept {
-  return _last_time_good > time(0) - good_interval;
+  return _last_time_good > time(nullptr) - good_interval;
 }
 
 bool Node::isQuestionable() const noexcept {
@@ -82,22 +70,7 @@ const boost::optional<udp::endpoint> &Node::getEndpoint() const noexcept {
   return _endpoint;
 }
 
-void Node::setEndpoint(udp::endpoint &endpoint) { _endpoint = endpoint; }
-
-void Node::read(torrentsync::utils::Buffer::const_iterator begin,
-                torrentsync::utils::Buffer::const_iterator end) {
-  NodeData::read(begin, end);
-  begin += NodeData::addressDataLength;
-
-  if (end > begin && static_cast<size_t>(end - begin) < PACKED_PEER_SIZE) {
-    LOG(ERROR, "Peer - parsePeer: not enough data to parse. Expected "
-                   << PACKED_PEER_SIZE << ", found: " << (end - begin));
-    throw std::invalid_argument(
-        "Not enough data to parse Peer contact information");
-  }
-
-  _endpoint = unpackEndpoint(begin);
-}
+void Node::setEndpoint(const udp::endpoint &endpoint) { _endpoint = endpoint; }
 
 utils::Buffer Node::getPackedNode() const {
   utils::Buffer buff = NodeData::write();
