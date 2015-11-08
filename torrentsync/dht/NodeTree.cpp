@@ -152,10 +152,11 @@ const boost::optional<NodeSPtr> NodeTree::getNode(const NodeData &data) const
 // three buckets, the right one and the 2 adjacent ones.
 // In case we have a lot of nodes it will be precise, if not then we can't
 // expect to have a precise result anyway.
-const std::list<NodeSPtr>
+// TODO this is ugly. the nodes should be sorted by distance
+const std::vector<NodeSPtr>
 NodeTree::getClosestNodes(const NodeData &data) const {
-  std::list<NodeSPtr> nodes;
-
+  std::vector<NodeSPtr> nodes;
+  nodes.reserve(DHT_FIND_NODE_COUNT);
   std::set<NodeSPtr, std::function<bool(const NodeSPtr &, const NodeSPtr &)>>
   knownNodes([&data](const NodeSPtr &x, const NodeSPtr &y) {
     return (*x ^ data) <= (*y ^ data);

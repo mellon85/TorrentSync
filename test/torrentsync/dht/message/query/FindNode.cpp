@@ -3,7 +3,6 @@
 #include <torrentsync/dht/message/query/FindNode.h>
 #include <torrentsync/dht/message/Messages.h>
 #include <torrentsync/dht/Node.h>
-#include <torrentsync/utils/Yield.h>
 
 #include <test/torrentsync/dht/CommonNodeTest.h>
 

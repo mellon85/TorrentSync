@@ -2,6 +2,7 @@
 
 #include <torrentsync/dht/message/Message.h>
 #include <torrentsync/utils/Buffer.h>
+#include <torrentsync/dht/DHTConstants.h>
 #include <torrentsync/dht/Node.h>
 #include <boost/optional.hpp>
 
@@ -37,9 +38,17 @@ public:
    * @param yield a function that returns the closest nodes to send
    *              until an invalid value is returned
    */
-  static const utils::Buffer
+  template <class Container>
+  static typename std::enable_if<!std::is_same<utils::Buffer, Container>::value,
+                                 utils::Buffer>::type
   make(const utils::Buffer &transactionID, const dht::NodeData &source,
-       const std::function<boost::optional<std::shared_ptr<Node>>()> yield);
+       Container &&container);
+
+  template <class Container>
+  static typename std::enable_if<std::is_same<utils::Buffer, Container>::value,
+                                 utils::Buffer>::type
+  make(const utils::Buffer &transactionID, const dht::NodeData &source,
+       Container &&container);
 
   //! returns the parsed nodes
   std::vector<dht::NodeSPtr> getNodes() const;
@@ -49,9 +58,35 @@ public:
 
 private:
   void check() const;
+
+  static utils::Buffer make_internal(const utils::Buffer &transactionID,
+                                     const dht::NodeData &source,
+                                     const utils::Buffer &nodeData);
 };
 
 bool isFindNode(const BEncodeDecoder &);
+
+template <class Container>
+typename std::enable_if<!std::is_same<utils::Buffer, Container>::value,
+                        utils::Buffer>::type
+FindNode::make(const utils::Buffer &transactionID, const dht::NodeData &source,
+               Container &&container) {
+  utils::Buffer nodeData;
+  nodeData.reserve(PACKED_NODE_SIZE * DHT_FIND_NODE_COUNT);
+
+  for (const auto &it : container)
+    nodeData += it->getPackedNode();
+
+  return make_internal(transactionID, source, nodeData);
+}
+
+template <class Container>
+static typename std::enable_if<std::is_same<utils::Buffer, Container>::value,
+                               utils::Buffer>::type
+make(const utils::Buffer &transactionID, const dht::NodeData &source,
+     Container &&container) {
+  return make_internal(transactionID, source, container);
+}
 
 } /* reply */
 } /* message */

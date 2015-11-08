@@ -58,7 +58,7 @@ public:
   const boost::optional<NodeSPtr> getNode(const NodeData &data) const noexcept;
 
   //! find the closest (DHT_FIND_NODE_COUNT) addresses to this address we know
-  const std::list<NodeSPtr> getClosestNodes(const NodeData &data) const;
+  const std::vector<NodeSPtr> getClosestNodes(const NodeData &data) const;
 
 protected:
   typedef std::set<Bucket *, bool (*)(Bucket const *const, Bucket const *const)>

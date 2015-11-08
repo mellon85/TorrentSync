@@ -6,8 +6,6 @@
 #include <torrentsync/dht/DHTConstants.h>
 #include <torrentsync/utils/log/Logger.h>
 
-#include <torrentsync/utils/Yield.h>
-
 namespace torrentsync {
 namespace dht {
 namespace message {
@@ -27,28 +25,6 @@ FindNode::FindNode(const DataMap &dataMap) : dht::message::Message(dataMap) {
 FindNode::FindNode(DataMap &&dataMap)
     : dht::message::Message(std::move(dataMap)) {
   check();
-}
-
-const utils::Buffer
-FindNode::make(const utils::Buffer &transactionID, const dht::NodeData &source,
-               const std::function<boost::optional<dht::NodeSPtr>()> nodes) {
-  utils::Buffer nodeData;
-  nodeData.reserve(PACKED_NODE_SIZE * DHT_FIND_NODE_COUNT);
-
-  utils::for_each(
-      nodes, [&](const dht::NodeSPtr &it) { nodeData += it->getPackedNode(); });
-
-  BEncodeEncoder enc;
-  enc.startDictionary();
-  enc.addElement(Field::Reply);
-  enc.startDictionary();
-  enc.addDictionaryElement(Field::PeerID, source.write());
-  enc.addDictionaryElement(Field::Nodes, nodeData);
-  enc.endDictionary();
-  enc.addDictionaryElement(Field::TransactionID, transactionID);
-  enc.addDictionaryElement(Field::Type, Type::Reply);
-  enc.endDictionary();
-  return enc.value();
 }
 
 std::vector<dht::NodeSPtr> FindNode::getNodes() const {
@@ -87,11 +63,26 @@ void FindNode::check() const {
                            ErrorType::protocolError);
 }
 
-bool isFindNode(const BEncodeDecoder &d) {
-  if (d.find(PEER_ID) && d.find(NODES))
-    return true;
-  return false;
+utils::Buffer FindNode::make_internal(const utils::Buffer &transactionID,
+                                      const dht::NodeData &source,
+                                      const utils::Buffer &nodeData) {
+  BEncodeEncoder enc;
+  enc.startDictionary();
+  enc.addElement(Field::Reply);
+  enc.startDictionary();
+  enc.addDictionaryElement(Field::PeerID, source.write());
+  enc.addDictionaryElement(Field::Nodes, nodeData);
+  enc.endDictionary();
+  enc.addDictionaryElement(Field::TransactionID, transactionID);
+  enc.addDictionaryElement(Field::Type, Type::Reply);
+  enc.endDictionary();
+  return enc.value();
 }
+
+bool isFindNode(const BEncodeDecoder &d) {
+  return d.find(PEER_ID) && d.find(NODES);
+}
+
 } /* reply */
 } /* message */
 } /* dht */

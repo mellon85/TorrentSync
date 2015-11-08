@@ -83,7 +83,7 @@ void RoutingTable::initializeTable() {
 
       // create and send the message
       const utils::Buffer msg = dht::message::query::FindNode::make(
-          transaction, _table.getTableNode(), _table.getTableNode());
+          transaction, _table.getTableNode(), _table.getTableNode().write());
 
       registerCallback(
           [&](const boost::optional<Callback::payload_type> data,

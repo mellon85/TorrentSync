@@ -47,8 +47,8 @@ public:
   RoutingTable &operator=(const RoutingTable &) = delete;
 
   // movable
-  RoutingTable(RoutingTable &&) = default;
-  RoutingTable &operator=(RoutingTable &&) = default;
+  RoutingTable(RoutingTable &&) = delete;
+  RoutingTable &operator=(RoutingTable &&) = delete;
 
   //! Constructor
   //! @param endpoint the port and address to bind

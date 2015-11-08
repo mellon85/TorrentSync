@@ -6,7 +6,6 @@
 #include <torrentsync/dht/message/reply/FindNode.h>
 #include <torrentsync/dht/message/reply/Error.h>
 #include <torrentsync/dht/Callback.h>
-#include <torrentsync/utils/Yield.h>
 #include <torrentsync/utils/log/Logger.h>
 
 #include <exception> // for not implemented stuff
@@ -36,14 +35,12 @@ void RoutingTable::handleReply(const dht::message::reply::Ping &message,
 void RoutingTable::handleQuery(const dht::message::query::FindNode &message,
                                const dht::Node &node) {
   LOG(DEBUG, "Find Query received " << message.getID() << " " << node);
-  assert(!!(node.getEndpoint()));
+  assert(node.getEndpoint());
 
   std::lock_guard<std::mutex> lock_table(_table_mutex);
-  auto nodes = _table.getClosestNodes(node);
-  sendMessage(msg::reply::FindNode::make(
-                  message.getTransactionID(), _table.getTableNode(),
-                  utils::makeYield<dht::NodeSPtr>(nodes.cbegin(), nodes.cend())
-                      .function()),
+  sendMessage(msg::reply::FindNode::make(message.getTransactionID(),
+                                         _table.getTableNode(),
+                                         _table.getClosestNodes(node)),
               *(node.getEndpoint()));
 }
 

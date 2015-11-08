@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(getClosestNode_1)
         });
         BOOST_REQUIRE_EQUAL(size(),v.size());
 
-        std::list<NodeSPtr> nodes = getClosestNodes(utils::parseIDFromHex(generateRandomNode()));
+        auto nodes = getClosestNodes(utils::parseIDFromHex(generateRandomNode()));
         BOOST_REQUIRE_LE(nodes.size(),DHT_FIND_NODE_COUNT);
         clear();
     }
@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE(getClosestNode_2)
         std::vector<NodeSPtr> v;
         for( size_t _t = 0; _t < 1000; ++_t )
         {
-            NodeSPtr n = NodeSPtr(new Node(utils::parseIDFromHex(generateRandomNode())));
+            NodeSPtr n = std::make_shared<Node>(utils::parseIDFromHex(generateRandomNode()));
             if (addNode(n))
                 v += n;
         }
@@ -447,14 +447,14 @@ BOOST_AUTO_TEST_CASE(getClosestNode_2)
 
         // take a random address and get the close nodes
         Node addr = utils::parseIDFromHex(generateRandomNode());
-        std::list<NodeSPtr> nodes = getClosestNodes(addr);
+        auto nodes = getClosestNodes(addr);
 
         // sort the nodes for easy search
         std::sort(v.begin(),v.end(),[](const NodeSPtr& a, const NodeSPtr& b){
-                return *a <= *b; 
+                return *a <= *b;
             });
 
-        // verify that the result is nodes from the 24 close nodes
+        // verify that the result is nodes from the closest nodes
         auto it = v.begin();
         while (it != v.end() && **it < addr)
             ++it;
@@ -464,15 +464,15 @@ BOOST_AUTO_TEST_CASE(getClosestNode_2)
         auto min = it - std::min(distance_to_begin,std::max((size_t)12,distance_to_end));
         auto max = it + std::min(distance_to_end,std::max((size_t)12,distance_to_begin));
 
-        // all elements of nodes should be in this interval
-        std::for_each( nodes.begin(), nodes.end(), [&](const NodeSPtr n)
+        // all elements of nodes should be in this interval  
+        for(const auto& n : nodes)
         {
             BOOST_REQUIRE(std::find_if( min, max, [&](const NodeSPtr& p) -> bool {
                     return *p == *n;
                 }) != v.end());
-        });
+        };
         BOOST_REQUIRE_LE(nodes.size(),DHT_FIND_NODE_COUNT);
-        
+
         clear();
     }
 }
@@ -491,9 +491,9 @@ BOOST_AUTO_TEST_CASE(getClosestNode_perfectmatch)
         BOOST_REQUIRE_EQUAL(size(),v.size());
 
         // take a random address and get the close nodes
-        std::list<NodeSPtr> nodes = getClosestNodes(*v[rand()%v.size()]);
-        BOOST_REQUIRE_LE(nodes.size(),1);
-        
+        auto nodes = getClosestNodes(*v[rand()%v.size()]);
+        BOOST_REQUIRE_LE(nodes.size(), 1);
+
         clear();
     }
 }

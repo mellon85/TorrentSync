@@ -3,7 +3,6 @@
 #include <torrentsync/dht/message/reply/FindNode.h>
 #include <torrentsync/dht/message/Messages.h>
 #include <torrentsync/dht/Node.h>
-#include <torrentsync/utils/Yield.h>
 
 #include <test/torrentsync/dht/CommonNodeTest.h>
 
@@ -41,7 +40,7 @@ BOOST_AUTO_TEST_CASE(reply_perfectMatch)
         ret = reply::FindNode::make(
             transaction,
             source,
-            utils::makeYield(nodes.cbegin(),nodes.cend()).function()));
+            nodes));
 
     BOOST_REQUIRE(ret == buff);
 
@@ -94,7 +93,7 @@ BOOST_AUTO_TEST_CASE(reply_multiple)
         ret = reply::FindNode::make(
             transaction,
             source,
-            utils::makeYield(nodes.cbegin(),nodes.cend()).function()));
+            nodes));
 
     BOOST_REQUIRE(ret == buff);
     const auto m = parseMessage(ret);
