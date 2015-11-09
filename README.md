@@ -1,9 +1,20 @@
-Current target:
+TorrentSync
+===========
+
+The aim of this software is to provide an opensource alternative to BTSync that
+is more usable than git-annex.
+
+The software must work without a centralized server and is currently the Torrent
+DHT protocol is being implemented for discovering members of the same shared
+folder system.
+
+
+The Current target:
 
 Implementing working DHT as of BEP 005
 Later on BEP 32,42
 
-TorrentSync
+Status
 ===========
 
 Needed components
@@ -14,7 +25,8 @@ Torrent DHT implementation to find nodes
   * Protocol implementation
     partially done
   * Bootstrap via cache
-  * Randeveouzes mechanism
+  * Rendezvouses mechanism
+  * Decode messages in place with boost::range.
 
 Transport system
   * Metadata synchronization protocol
@@ -24,8 +36,11 @@ Transport system
 
 Files
   * Checksum management
+    - Merkle tree
   * Checksum builder and reader
+    - libnettle?
   * File changes notification systems interface
+    - inotify, ..
 
 Glue stuff together
   * Main app
