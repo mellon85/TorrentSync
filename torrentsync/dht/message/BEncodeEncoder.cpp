@@ -8,6 +8,8 @@ namespace torrentsync {
 namespace dht {
 namespace message {
 
+BEncodeEncoder::BEncodeEncoder() : used_bytes(0), result(1024) {}
+
 void BEncodeEncoder::addDictionaryElement(const std::string &k,
                                           const std::string &v) {
   addDictionaryElement(k.cbegin(), k.cend(), v.cbegin(), v.cend());

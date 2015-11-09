@@ -25,12 +25,6 @@ typedef std::runtime_error BEncodeException;
 //! Decoder for a bencoded message
 class BEncodeDecoder {
 public:
-  //! Constructor
-  BEncodeDecoder() {}
-
-  //! Destructor
-  ~BEncodeDecoder() {}
-
   /*! Parse the message from a istream
    *  @param stream stream parser
    */

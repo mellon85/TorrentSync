@@ -18,7 +18,7 @@ using namespace torrentsync;
 //! root is always a dictionary
 class BEncodeEncoder {
 public:
-  BEncodeEncoder() : used_bytes(0), result(1024) {}
+  BEncodeEncoder();
 
   void addElement(const std::string &v);
 
