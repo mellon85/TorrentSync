@@ -10,16 +10,17 @@ Needed components
 
 Torrent DHT implementation to find nodes
   * Routing table
-    partially done
+    partially done, missing bucket refilling, ..
   * Protocol implementation
     partially done
   * Bootstrap via cache
+  * Randeveouzes mechanism
 
 Transport system
   * Metadata synchronization protocol
   * File synchronization protocol
   * File synchronization algorithm
-  * Conflict reslution
+  * Conflict resolution
 
 Files
   * Checksum management
@@ -28,20 +29,18 @@ Files
 
 Glue stuff together
   * Main app
-    
+
 Additional stuff
   * NAT, UPNP
   * Hole punching systems
-  * bandwith reduction by checksum hashtable checking if we have the data already
-  
+  * bandwidth reduction by checksum hash table checking if we have the data already
+
 Ongoing
 =======
 
 Torrent DHT implementation to find nodes
   * Messages implementation
-    done:
-        find_node
-        ping
+    announce
 
 Done
 ====
@@ -51,9 +50,14 @@ Automation
   * testing scripts
 
 Torrent DHT implementation to find nodes
-  * Routing Table internal structure 
+  * Routing Table internal structure
   * Bootstrap via fixed nodes
-  
+  * Messages implementation
+    done:
+        find_node
+        ping
+        get_peers
+
 Glue stuff together
   * Minimal app for development testing
 
