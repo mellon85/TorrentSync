@@ -8,6 +8,10 @@ The software must work without a centralized server and is currently the Torrent
 DHT protocol is being implemented for discovering members of the same shared
 folder system.
 
+The main aim is to be able to run this on very low end hardware without
+performance issues. All the network code is asynchronous and doesn't require any
+additional thread to be efficient, even though more thread can be started and
+made to enter the boost::asio runloop.
 
 The Current target:
 
