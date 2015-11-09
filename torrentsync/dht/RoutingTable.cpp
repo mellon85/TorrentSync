@@ -73,6 +73,7 @@ void RoutingTable::tableMaintenance() {
     //   or any other node untl the bucket is full again.
     // start initialization procedure in case all known nodes disappear.
     if (!good_nodes_known) {
+      _initialization_completed = false;
       initializeTable();
     }
   });
