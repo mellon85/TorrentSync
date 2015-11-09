@@ -7,8 +7,6 @@
 namespace torrentsync {
 namespace dht {
 
-const time_t Node::good_interval = 15 * 60; // 15 minutes
-
 utils::Buffer packEndpoint(const udp::endpoint &endpoint) {
   utils::Buffer buff;
   buff.reserve(PACKED_PEER_SIZE);
@@ -64,7 +62,7 @@ bool Node::isBad() const noexcept {
   return !isGood() && _last_unanswered_queries > allowed_unanswered_queries;
 }
 
-const time_t &Node::getLastTimeGood() const noexcept { return _last_time_good; }
+time_t Node::getLastTimeGood() const noexcept { return _last_time_good; }
 
 const boost::optional<udp::endpoint> &Node::getEndpoint() const noexcept {
   return _endpoint;

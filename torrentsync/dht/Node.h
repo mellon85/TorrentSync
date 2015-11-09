@@ -43,9 +43,9 @@ public:
 
   bool isQuestionable() const noexcept;
   bool isBad() const noexcept;
-  const time_t &getLastTimeGood() const noexcept;
+  time_t getLastTimeGood() const noexcept;
 
-  static const time_t good_interval;
+  static constexpr time_t good_interval = 15*60; // 15 minutes
 
   //! Maximum number of unanswered queries
   static constexpr size_t allowed_unanswered_queries = 10;
