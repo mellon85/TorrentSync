@@ -185,9 +185,11 @@ public:
   FakeNode(const std::string &str) : Node(utils::parseIDFromHex(str)) {}
 
   time_t &getTime() { return Node::_last_time_good; }
-  decltype(Node::_last_unanswered_queries) &getLastUnansweredQueries() {
+  auto getLastUnansweredQueries() -> decltype(Node::_last_unanswered_queries) {
     return Node::_last_unanswered_queries;
   }
+
+  void setLastUnansweredQueries(uint8_t v) { Node::_last_unanswered_queries = v; }
 };
 
 BOOST_AUTO_TEST_CASE(removeBad) {
@@ -223,8 +225,8 @@ BOOST_AUTO_TEST_CASE(removeBad) {
         if (af->getTime() > 0)
           ++setbad;
         af->getTime() = 0;
-        af->getLastUnansweredQueries() =
-            torrentsync::dht::Node::allowed_unanswered_queries + 1;
+        af->setLastUnansweredQueries(
+            torrentsync::dht::Node::allowed_unanswered_queries + 1);
         BOOST_REQUIRE(af->isBad());
       }
       BOOST_REQUIRE_NO_THROW(bucket.removeBad());
@@ -266,8 +268,8 @@ BOOST_AUTO_TEST_CASE(removeBad_2) {
         if (af->getTime() > 0)
           ++setbad;
         af->getTime() = 0;
-        af->getLastUnansweredQueries() =
-            torrentsync::dht::Node::allowed_unanswered_queries + 1;
+        af->setLastUnansweredQueries(
+            torrentsync::dht::Node::allowed_unanswered_queries + 1);
         BOOST_REQUIRE(af->isBad());
       }
       BOOST_REQUIRE_NO_THROW(bucket.removeBad());
