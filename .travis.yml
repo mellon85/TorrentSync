@@ -2,7 +2,6 @@ sudo: false
 language: cpp
 compiler:
   - clang
-  - g++
 
 addons:
   apt:
@@ -10,13 +9,13 @@ addons:
         - ubuntu-toolchain-r-test
         - boost-latest
     packages:
-        - gcc-4.9
-        - g++-4.9
+        #- gcc-4.9
+        #- g++-4.9
         - libboost1.55-all-dev
 
 # Configure g++ version
-install:
-  - if [ "$CXX" == "g++" ]; then CXX=/usr/bin/g++-4.9; fi
+#install:
+#  - if [ "$CXX" == "g++" ]; then CXX=/usr/bin/g++-4.9; fi
 
 # command to run tests
 script:
