@@ -2,47 +2,37 @@ sudo: false
 language: cpp
 compiler:
   - clang
-  - gcc
+  - g++
 
-# Setup different environments to test
-env:
-  - CPP14=0
-  - CPP14=1
-
-# Setup repos etc before installation
-before_install:
-  - if [ "$CXX" == "g++" ]; then add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
-  - if [ "$CXX" == "clang++" -a "$CPP14" == "0" ]; then add-apt-repository -y ppa:h-rayflood/llvm; fi
-  - apt-get update -qq
+addons:
+  apt:
+    sources:
+        - ubuntu-toolchain-r-test
+        - boost-latest
+        - h-rayflood-llvm
+    packages:
+        - g++-4.9
+        - libboost1.55-all-dev
 
 # Install dependencies
 install:
-  - apt-get install -qq libboost-dev
-  - apt-get install -qq libssl-dev
   # install g++ 4.8, if tests are run with g++
-  - if [ "$CXX" == "g++" ]; then apt-get install -qq g++-4.8; fi
-  - if [ "$CXX" == "g++" ]; then update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
-
-  # install clang-3.4 if CPP14==1
-  - if [ "$CXX" == "clang++" -a "$CPP14" == "0" ]; then apt-get install --allow-unauthenticated -qq clang-3.3; fi
-  - if [ "$CXX" == "clang++" ]; then cwd=$(pwd); fi
+  - if [ "$CXX" == "g++" -a $CLANG -eq 0 ]; then update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
+  - if [ "$CXX" == "g++" -a $CLANG -eq 0 ]; then CXX=g++; fi
 
   # Install libc++ if tests are run with clang++
-  - if [ "$CXX" == "clang++" -a "$CPP14" == "0" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk@181765 libcxx; fi
-  - if [ "$CXX" == "clang++" -a "$CPP14" == "1" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk@201601 libcxx; fi
+  #- if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk@201601 libcxx; fi
+  #- if [ "$CXX" == "clang++" ]; then cd libcxx/lib && bash buildit; fi
+  #- if [ "$CXX" == "clang++" ]; then cp ./libc++.so.1.0 /usr/lib/; fi
+  #- if [ "$CXX" == "clang++" ]; then mkdir /usr/include/c++/v1; fi
+  #- if [ "$CXX" == "clang++" ]; then cd .. && cp -r include/* /usr/include/c++/v1/; fi
+  #- if [ "$CXX" == "clang++" ]; then cd /usr/lib && ln -sf libc++.so.1.0 libc++.so; fi
+  #- if [ "$CXX" == "clang++" ]; then ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi
 
-  - if [ "$CXX" == "clang++" ]; then cd libcxx/lib && bash buildit; fi
-  - if [ "$CXX" == "clang++" ]; then cp ./libc++.so.1.0 /usr/lib/; fi
-  - if [ "$CXX" == "clang++" ]; then mkdir /usr/include/c++/v1; fi
-  - if [ "$CXX" == "clang++" ]; then cd .. && cp -r include/* /usr/include/c++/v1/; fi
-  - if [ "$CXX" == "clang++" ]; then cd /usr/lib && ln -sf libc++.so.1.0 libc++.so; fi
-  - if [ "$CXX" == "clang++" ]; then ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi
-
-  - if [ "$CXX" == "clang++" -a "$CPP14" == "0" ]; then CXX=clang++-3.3; fi
+  - if [ "$CXX" == "clang++" ]; then CXX=clang++-3.3; fi
 
 # command to run tests
-script: 
-  - cd tests
-  - cmake ./
+script:
+  - cmake .
   - make
   - ./unittest
