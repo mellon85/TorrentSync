@@ -2,27 +2,32 @@ sudo: false
 language: cpp
 compiler: clang
 
-apt:
-  sources:
-    - boost-latest
-    - ubuntu-toolchain-r-test
-  packages:
-    - valgrind
-    - libboost1.55-all-dev
-    - g++-5
-
 matrix:
   include:
 
-    - env: COMPILER=clang-3.6
-      addons: &clang36
+    - env: COMPILER=clang++-3.6
+      addons:
         apt:
           sources:
             - llvm-toolchain-precise-3.6
+            - boost-latest
+            - ubuntu-toolchain-r-test
           packages:
             - clang-3.6
+            - valgrind
+            - libboost1.55-all-dev
+            - g++-5
 
     - env: COMPILER=g++-5
+      addons:
+        apt:
+          sources:
+            - boost-latest
+            - ubuntu-toolchain-r-test
+          packages:
+            - valgrind
+            - libboost1.55-all-dev
+            - g++-5
 
 install:
   - CXX="$COMPILER"
