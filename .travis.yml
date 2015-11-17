@@ -12,7 +12,6 @@ addons:
     packages:
         - g++-4.9
         - libboost1.55-all-dev
-        - coreutils
 
 # Configure g++ version
 install:
@@ -21,5 +20,5 @@ install:
 # command to run tests
 script:
   - cmake .
-  - make
+  - make VERBOSE=1
   - ./unittest
