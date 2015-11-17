@@ -22,7 +22,6 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - clang-3.6
-            - valgrind
             - libboost1.55-all-dev
             - g++-5
           coverity_scan:
@@ -42,7 +41,6 @@ matrix:
 #            - boost-latest
 #            - ubuntu-toolchain-r-test
 #          packages:
-#            - valgrind
 #            - libboost1.55-all-dev
 #            - g++-5
 
@@ -52,4 +50,4 @@ install:
 script:
   - cmake .
   - make -j VERBOSE=1
-  - valgrind ./unittest
+  - ./unittest
