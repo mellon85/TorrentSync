@@ -15,7 +15,7 @@ addons:
 
 # Install dependencies
 install:
-  - CXX=/usr/bin/g++-4.9
+  - if [ "$CXX" == "g++" ]; then CXX=/usr/bin/g++-4.9; fi
   - if [ "$CXX" == "clang++" ]; then CXX=clang++-3.3; fi
 
 # command to run tests
