@@ -13,7 +13,7 @@
 #include <boost/asio.hpp>
 
 //! list of known bootstrap servers for the DHT network
-static constexpr std::array< // domain/ip address, port, needs to be resolved
+static const std::array< // domain/ip address, port, needs to be resolved
     std::pair<const char *, const char *>, 3> BOOTSTRAP_ADDRESSES = {
     std::make_pair("router.bittorrent.com", "8991"),
     std::make_pair("router.utorrent.com", "6881"),
