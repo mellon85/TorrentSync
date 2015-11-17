@@ -1,6 +1,6 @@
 sudo: false
+cache: apt
 language: cpp
-compiler: clang
 
 matrix:
   include:
