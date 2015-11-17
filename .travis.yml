@@ -9,16 +9,14 @@ addons:
     sources:
         - ubuntu-toolchain-r-test
         - boost-latest
-        - h-rayflood-llvm
     packages:
         - g++-4.9
         - libboost1.55-all-dev
 
 # Install dependencies
 install:
-  # install g++ 4.8, if tests are run with g++
-  - if [ "$CXX" == "g++" -a $CLANG -eq 0 ]; then update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50; fi
-  - if [ "$CXX" == "g++" -a $CLANG -eq 0 ]; then CXX=g++; fi
+  # install g++ 4.8
+  - update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
 
   # Install libc++ if tests are run with clang++
   #- if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk@201601 libcxx; fi
