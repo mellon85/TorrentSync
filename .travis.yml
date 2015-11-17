@@ -16,7 +16,8 @@ addons:
 # Install dependencies
 install:
   # install g++ 4.8
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
+  - update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
+  - CXX=/usr/bin/g++-4.9
 
   # Install libc++ if tests are run with clang++
   #- if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk@201601 libcxx; fi
