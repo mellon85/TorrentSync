@@ -1,0 +1,53 @@
+sudo: false
+cache: apt
+language: cpp
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "mKVvXqOYRr8f6gnjvigHoo5oYXmuHesDpjNOVZRuu33Of5PxJ55HQQvh3JtyrsMGGTU9TmsaevAP+BGhwhQLJ5dFWEASX2HhOlPhRtW1AP9Aj1CRtdQYCCJPm7ig0xGUS75S6oF/s/BG/Gw+Xs0vYbqGZrCKEh3SlYwNPzT6XfY="
+
+
+
+matrix:
+  include:
+
+    - env: COMPILER=clang++-3.6
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-precise-3.6
+            - boost-latest
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-3.6
+            - libboost1.55-all-dev
+            - g++-5
+          coverity_scan:
+            project:
+              name: "mellon85/TorrentSync"
+              description: "Build submitted via Travis CI"
+            notification_email: mellon85@gmail.com
+            build_command_prepend: "cmake ."
+            build_command: "make -j"
+            branch_pattern: coverity_scan
+
+# can't link on travis :(
+#    - env: COMPILER=g++-5
+#      addons:
+#        apt:
+#          sources:
+#            - boost-latest
+#            - ubuntu-toolchain-r-test
+#          packages:
+#            - libboost1.55-all-dev
+#            - g++-5
+
+install:
+  - CXX="$COMPILER"
+
+script:
+  - cmake .
+  - make -j VERBOSE=1
+  - ./unittest
