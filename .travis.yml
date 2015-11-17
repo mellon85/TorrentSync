@@ -12,6 +12,7 @@ addons:
     packages:
         - g++-4.9
         - libboost1.55-all-dev
+        - coreutils
 
 # Install dependencies
 install:
