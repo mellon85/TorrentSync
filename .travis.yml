@@ -15,19 +15,7 @@ addons:
 
 # Install dependencies
 install:
-  # install g++ 4.8
-  - update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50
   - CXX=/usr/bin/g++-4.9
-
-  # Install libc++ if tests are run with clang++
-  #- if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk@201601 libcxx; fi
-  #- if [ "$CXX" == "clang++" ]; then cd libcxx/lib && bash buildit; fi
-  #- if [ "$CXX" == "clang++" ]; then cp ./libc++.so.1.0 /usr/lib/; fi
-  #- if [ "$CXX" == "clang++" ]; then mkdir /usr/include/c++/v1; fi
-  #- if [ "$CXX" == "clang++" ]; then cd .. && cp -r include/* /usr/include/c++/v1/; fi
-  #- if [ "$CXX" == "clang++" ]; then cd /usr/lib && ln -sf libc++.so.1.0 libc++.so; fi
-  #- if [ "$CXX" == "clang++" ]; then ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi
-
   - if [ "$CXX" == "clang++" ]; then CXX=clang++-3.3; fi
 
 # command to run tests
