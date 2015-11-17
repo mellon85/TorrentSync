@@ -1,23 +1,32 @@
 sudo: false
 language: cpp
-compiler:
-  - clang
+compiler: clang
 
-addons:
-  apt:
-    sources:
-        - ubuntu-toolchain-r-test
-        - boost-latest
-    packages:
-        #- gcc-4.9
-        #- g++-4.9
-        - libboost1.55-all-dev
+apt:
+  sources:
+    - boost-latest
+    - ubuntu-toolchain-r-test
+  packages:
+    - valgrind
+    - libboost1.55-all-dev
+    - g++-5
 
-# Configure g++ version
-#install:
-#  - if [ "$CXX" == "g++" ]; then CXX=/usr/bin/g++-4.9; fi
+matrix:
+  include:
 
-# command to run tests
+    - env: COMPILER=clang-3.6
+      addons: &clang36
+        apt:
+          sources:
+            - llvm-toolchain-precise-3.6
+          packages:
+            - clang-3.6
+
+    - env: COMPILER=g++-5
+
+install:
+  - CXX="$COMPILER"
+
 script:
   - cmake .
   - make VERBOSE=1
