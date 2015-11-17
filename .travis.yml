@@ -31,7 +31,7 @@ matrix:
             notification_email: mellon85@gmail.com
             build_command_prepend: "cmake ."
             build_command: "make -j"
-            branch_pattern: coverity_scan
+            branch_pattern: develop
 
 # can't link on travis :(
 #    - env: COMPILER=g++-5
