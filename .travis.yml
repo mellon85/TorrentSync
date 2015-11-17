@@ -14,10 +14,9 @@ addons:
         - libboost1.55-all-dev
         - coreutils
 
-# Install dependencies
+# Configure g++ version
 install:
   - if [ "$CXX" == "g++" ]; then CXX=/usr/bin/g++-4.9; fi
-  - if [ "$CXX" == "clang++" ]; then CXX=clang++-3.3; fi
 
 # command to run tests
 script:
