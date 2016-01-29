@@ -29,10 +29,6 @@ using namespace torrentsync;
 //! Abstract class representing every message
 class Message {
 public:
-  ~Message() = default;
-  Message(Message &&) = default;
-  Message(const Message &) = default;
-
   //! returns the type of the message
   //! @return a member of Type namespace
   //! @throw MessageException in case the field is not available.
@@ -55,10 +51,6 @@ public:
 
   //! converts the message to a human readable representation
   const std::string string() const;
-
-  //! move assignment
-  Message &operator=(Message &&) = default;
-  Message &operator=(const Message &) = default;
 
 protected:
   //! Default constructor

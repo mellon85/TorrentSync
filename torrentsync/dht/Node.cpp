@@ -74,9 +74,9 @@ utils::Buffer Node::getPackedNode() const {
   utils::Buffer buff = NodeData::write();
   buff.reserve(PACKED_NODE_SIZE);
 
-  auto peer = getPackedPeer();
+  const auto peer = getPackedPeer();
 
-  buff.insert(buff.end(), peer.begin(), peer.end());
+  buff.insert(buff.end(), std::begin(peer), std::end(peer));
   return buff;
 }
 

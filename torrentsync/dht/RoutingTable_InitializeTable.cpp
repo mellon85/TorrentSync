@@ -56,7 +56,7 @@ void RoutingTable::initializeTable() {
     std::unique_lock<std::mutex> lock_table(_initializer_mutex, std::try_to_lock);
     if (!lock_table.owns_lock())
     {
-        LOG(DEBUG, "RoutingTable * Initializations till running");
+        LOG(DEBUG, "RoutingTable * Initializations still running");
         return;
     }
 
@@ -117,7 +117,7 @@ void RoutingTable::initializeTable() {
                 if (!!t->getEndpoint())
                   _initial_addresses.push_front(*t->getEndpoint());
                 LOG(DEBUG, "Distance: " << (*t ^ _table.getTableNode()));
-                std::lock_guard<std::mutex> lock_table(_table_mutex);
+                std::lock_guard<std::mutex> callback_lock_table(_table_mutex);
                 _table.addNode(t);
               }
             }

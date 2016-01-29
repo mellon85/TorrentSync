@@ -1,16 +1,11 @@
 
 #include <sstream>
 #include <algorithm>
-#include <cctype>
-#include <stdexcept>
-#include <random>
 
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/mersenne_twister.hpp>
 
 #include <torrentsync/dht/NodeData.h>
 #include <torrentsync/dht/Distance.h>
-#include <torrentsync/utils/Buffer.h>
 #include <torrentsync/utils/log/Logger.h>
 
 #include <netinet/in.h>
@@ -20,8 +15,6 @@ namespace dht {
 
 const size_t NodeData::ADDRESS_STRING_LENGTH = 40;
 const size_t NodeData::addressDataLength = 20;
-
-static std::random_device random;
 
 NodeData::NodeData(const utils::Buffer &buff) {
   if (buff.size() != addressDataLength) {
@@ -65,12 +58,12 @@ const std::string NodeData::string() const {
   return ss.str();
 }
 
-const NodeData NodeData::minValue(utils::Buffer(
+const NodeData NodeData::minValue{utils::Buffer(
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}));
-const NodeData NodeData::maxValue(utils::Buffer(
+     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})};
+const NodeData NodeData::maxValue{utils::Buffer(
     {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}));
+     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF})};
 
 MaybeBounds NodeData::splitInHalf(const NodeData &low, const NodeData &high) {
   NodeData half_low, half_high;
@@ -87,9 +80,9 @@ MaybeBounds NodeData::splitInHalf(const NodeData &low, const NodeData &high) {
     return MaybeBounds();
 
   // create the mask to set/unset the new bit to add to next addresses
-  NodeData new_bit = mask;
-  const bool p2_first_bit = new_bit.p2 & 1;
-  const bool p1_first_bit = new_bit.p1 & 1;
+  NodeData new_bit{mask};
+  const bool p2_first_bit = static_cast<bool>(new_bit.p2 & 1);
+  const bool p1_first_bit = static_cast<bool>(new_bit.p1 & 1);
   new_bit.p1 >>= 1;
   new_bit.p1 |= 0x8000000000000000;
   new_bit.p2 >>= p1_first_bit;
@@ -125,6 +118,7 @@ const NodeData NodeData::getRandom() {
   NodeData data;
   using namespace torrentsync::utils;
 
+  std::random_device random;
   data.p1 = dist64(random);
   data.p2 = dist64(random);
   data.p3 = dist(random);
@@ -164,26 +158,26 @@ torrentsync::utils::Buffer NodeData::write() const {
   torrentsync::utils::Buffer buff;
   buff.reserve(20);
 
-  buff.push_back(p1 >> 56 & 0xFF);
-  buff.push_back(p1 >> 48 & 0xFF);
-  buff.push_back(p1 >> 40 & 0xFF);
-  buff.push_back(p1 >> 32 & 0xFF);
-  buff.push_back(p1 >> 24 & 0xFF);
-  buff.push_back(p1 >> 16 & 0xFF);
-  buff.push_back(p1 >> 8 & 0xFF);
-  buff.push_back(p1 >> 0 & 0xFF);
-  buff.push_back(p2 >> 56 & 0xFF);
-  buff.push_back(p2 >> 48 & 0xFF);
-  buff.push_back(p2 >> 40 & 0xFF);
-  buff.push_back(p2 >> 32 & 0xFF);
-  buff.push_back(p2 >> 24 & 0xFF);
-  buff.push_back(p2 >> 16 & 0xFF);
-  buff.push_back(p2 >> 8 & 0xFF);
-  buff.push_back(p2 >> 0 & 0xFF);
-  buff.push_back(p3 >> 24 & 0xFF);
-  buff.push_back(p3 >> 16 & 0xFF);
-  buff.push_back(p3 >> 8 & 0xFF);
-  buff.push_back(p3 >> 0 & 0xFF);
+  buff.push_back(static_cast<uint8_t>(p1 >> 56 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p1 >> 48 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p1 >> 40 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p1 >> 32 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p1 >> 24 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p1 >> 16 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p1 >> 8 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p1 >> 0 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p2 >> 56 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p2 >> 48 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p2 >> 40 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p2 >> 32 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p2 >> 24 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p2 >> 16 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p2 >> 8 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p2 >> 0 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p3 >> 24 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p3 >> 16 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p3 >> 8 & 0xFF));
+  buff.push_back(static_cast<uint8_t>(p3 >> 0 & 0xFF));
 
   return buff;
 }

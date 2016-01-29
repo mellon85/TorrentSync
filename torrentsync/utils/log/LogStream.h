@@ -27,6 +27,7 @@ public:
   LogStream &operator=(const LogStream &) = delete;
 
   template <class T> LogStream &operator<<(const T &t);
+  LogStream &operator<<(const logend_t &t);
 
 private:
   std::list<Sink> &_sinks;
@@ -38,7 +39,6 @@ private:
   std::unique_ptr<std::stringstream> _buffer;
 };
 
-template <> LogStream &LogStream::operator<<<logend_t>(const logend_t &t);
 template <class T> LogStream &LogStream::operator<<(const T &t) {
   *_buffer << t;
   return *this;

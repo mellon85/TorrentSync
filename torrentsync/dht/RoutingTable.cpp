@@ -41,7 +41,7 @@ udp::endpoint RoutingTable::getEndpoint() const {
 
 void RoutingTable::tableMaintenance() {
 
-  const auto timer = std::make_shared<boost::asio::deadline_timer>(
+  auto timer = std::make_shared<boost::asio::deadline_timer>(
       _io_service, boost::posix_time::minutes(5));
 
   timer->async_wait([&, timer](const boost::system::error_code &e) {

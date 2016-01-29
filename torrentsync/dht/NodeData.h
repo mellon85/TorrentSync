@@ -36,12 +36,12 @@ public:
   NodeData &operator=(const NodeData &) = default;
   NodeData &operator=(NodeData &&) = default;
 
-  inline bool operator==(const NodeData &addr) const;
-  inline bool operator!=(const NodeData &addr) const;
-  inline bool operator<(const NodeData &addr) const;
-  inline bool operator<=(const NodeData &addr) const;
-  inline bool operator>(const NodeData &addr) const;
-  inline bool operator>=(const NodeData &addr) const;
+  inline bool operator==(const NodeData &addr) const noexcept;
+  inline bool operator!=(const NodeData &addr) const noexcept;
+  inline bool operator<(const NodeData &addr) const noexcept;
+  inline bool operator<=(const NodeData &addr) const noexcept;
+  inline bool operator>(const NodeData &addr) const noexcept;
+  inline bool operator>=(const NodeData &addr) const noexcept;
 
   const std::string string() const;
 
@@ -81,31 +81,31 @@ private:
   uint32_t p3; // 128 -> 159
 };
 
-inline bool NodeData::operator==(const NodeData &addr) const {
+inline bool NodeData::operator==(const NodeData &addr) const noexcept {
   return p1 == addr.p1 && p2 == addr.p2 && p3 == addr.p3;
 }
 
-inline bool NodeData::operator!=(const NodeData &addr) const {
+inline bool NodeData::operator!=(const NodeData &addr) const noexcept {
   return p1 != addr.p1 || p2 != addr.p2 || p3 != addr.p3;
 }
 
-inline bool NodeData::operator<(const NodeData &addr) const {
+inline bool NodeData::operator<(const NodeData &addr) const noexcept {
   return p1 < addr.p1 || (p1 == addr.p1 && p2 < addr.p2) ||
          (p1 == addr.p1 && p2 == addr.p2 && p3 < addr.p3);
 }
 
-inline bool NodeData::operator<=(const NodeData &addr) const {
+inline bool NodeData::operator<=(const NodeData &addr) const noexcept {
   return p1 < addr.p1 || (p1 == addr.p1 && p2 < addr.p2) ||
          (p1 == addr.p1 && p2 == addr.p2 && p3 < addr.p3) ||
          (p1 == addr.p1 && p2 == addr.p2 && p3 == addr.p3);
 }
 
-inline bool NodeData::operator>(const NodeData &addr) const {
+inline bool NodeData::operator>(const NodeData &addr) const noexcept {
   return p1 > addr.p1 || (p1 == addr.p1 && p2 > addr.p2) ||
          (p1 == addr.p1 && p2 == addr.p2 && p3 > addr.p3);
 }
 
-inline bool NodeData::operator>=(const NodeData &addr) const {
+inline bool NodeData::operator>=(const NodeData &addr) const noexcept {
   return p1 > addr.p1 || (p1 == addr.p1 && p2 > addr.p2) ||
          (p1 == addr.p1 && p2 == addr.p2 && p3 > addr.p3) ||
          (p1 == addr.p1 && p2 == addr.p2 && p3 == addr.p3);

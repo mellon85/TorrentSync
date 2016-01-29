@@ -6,8 +6,9 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-
+#include <cstdint>
 #include <torrentsync/utils/Buffer.h>
+#include <stdint.h>
 
 namespace torrentsync {
 namespace dht {
@@ -32,37 +33,14 @@ public:
 
   void addInteger(uint64_t);
 
-  template <class T> void addList(const T begin, const T end) {
-    startList();
-    while (begin != end) {
-      addElement(*begin);
-      ++begin;
-    }
-    endList();
-  }
+  template <class T> void addList(const T begin, const T end);
 
-  void startList() {
-    checkAndExpand(1);
-    result[used_bytes++] = 'l';
-  }
-  void endList() {
-    checkAndExpand(1);
-    result[used_bytes++] = 'e';
-  }
-  void startDictionary() {
-    checkAndExpand(1);
-    result[used_bytes++] = 'd';
-  }
-  void endDictionary() {
-    lastKey.clear();
-    checkAndExpand(1);
-    result[used_bytes++] = 'e';
-  }
+  void startList();
+  void endList();
+  void startDictionary();
+  void endDictionary();
 
-  utils::Buffer value() const {
-    result.resize(used_bytes);
-    return result;
-  } // copy to a buffer and pass it back..
+  utils::Buffer value() const;
 
 private:
   template <class It> void addElement(It begin, const It end);
@@ -79,6 +57,15 @@ private:
 
   utils::Buffer lastKey;
 };
+
+template <class T> void BEncodeEncoder::addList(const T begin, const T end) {
+    startList();
+    while (begin != end) {
+        addElement(*begin);
+        ++begin;
+    }
+    endList();
+}
 
 } // torrentsync
 } // dht

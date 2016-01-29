@@ -29,7 +29,7 @@ void LogStream::flush() {
   }
 }
 
-template <> LogStream &LogStream::operator<<<logend_t>(const logend_t &t) {
+LogStream &LogStream::operator<<(const logend_t &t) {
   if (_buffer.get()) {
     *_buffer << std::endl;
     std::for_each(_sinks.begin(), _sinks.end(), [&](Sink &sink) {

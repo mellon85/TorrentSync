@@ -252,7 +252,7 @@ void RoutingTable::load(Archive &ar, const unsigned int version) {
   if (version > 0) {
     throw std::invalid_argument("Unsupported file version");
   }
-  size_t nodes_count;
+  size_t nodes_count = 0;
   ar >> nodes_count;
   throw std::runtime_error("Not Implemented Yet");
   // @TODO

@@ -2,8 +2,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include <cassert>
-
 namespace torrentsync {
 namespace dht {
 namespace message {
@@ -34,7 +32,7 @@ void BEncodeEncoder::addElement(const utils::Buffer &v) {
 }
 
 void BEncodeEncoder::addInteger(uint64_t v) {
-  const size_t digits = ceil(log10(v));
+  const uint64_t digits = static_cast<uint64_t>(ceil(log10(v)));
 
   checkAndExpand(digits + 2);
   *(result.begin() + used_bytes++) = 'i';
@@ -82,6 +80,32 @@ void BEncodeEncoder::checkAndExpand(const size_t add) {
     result.resize(((result.size() / 1024) + 1) * 1024);
   }
 }
+
+void BEncodeEncoder::startList() {
+  checkAndExpand(1);
+  result[used_bytes++] = 'l';
+}
+
+void BEncodeEncoder::endList() {
+  checkAndExpand(1);
+  result[used_bytes++] = 'e';
+}
+
+void BEncodeEncoder::startDictionary() {
+  checkAndExpand(1);
+  result[used_bytes++] = 'd';
+}
+
+void BEncodeEncoder::endDictionary() {
+  lastKey.clear();
+  checkAndExpand(1);
+  result[used_bytes++] = 'e';
+}
+
+utils::Buffer BEncodeEncoder::value() const {
+  result.resize(used_bytes);
+  return result;
+} // copy to a buffer and pass it back..
 
 } // torrentsync
 } // dht

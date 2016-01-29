@@ -1,12 +1,8 @@
 #include <torrentsync/dht/message/BEncodeDecoder.h>
-#include <cassert>
 
 #include <boost/lexical_cast.hpp>
 
 #include <boost/iostreams/stream.hpp>
-#include <boost/iostreams/device/array.hpp>
-
-#include <iostream>
 
 namespace torrentsync {
 namespace dht {

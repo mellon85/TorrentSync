@@ -62,7 +62,7 @@ void RoutingTable::processIncomingMessage(
   {
     const auto endpoint = (*node)->getEndpoint();
     // message dropped if t he data is still fresh but with a different IP.
-    if (!!endpoint && *endpoint != sender)
+    if (!endpoint && *endpoint != sender)
       return;
   } else {
     // create new node
