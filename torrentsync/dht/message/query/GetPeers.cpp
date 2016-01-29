@@ -13,6 +13,8 @@ static const utils::Buffer INFO_HASH =
 static const utils::Buffer PEER_ID =
     Field::Arguments + Field::Separator + Field::PeerID;
 
+using torrentsync::utils::DataMap;
+
 using namespace torrentsync;
 
 GetPeers::GetPeers(const DataMap &dataMap) : dht::message::Message(dataMap) {

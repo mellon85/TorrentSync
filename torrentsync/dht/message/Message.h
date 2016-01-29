@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include <torrentsync/dht/message/BEncodeDecoder.h>
+#include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/NodeData.h>
 #include <torrentsync/dht/message/Constants.h>
 
@@ -57,11 +57,11 @@ protected:
   Message() = default;
 
   //! Constructor
-  Message(const DataMap &data);
+  Message(const torrentsync::utils::DataMap &data);
 
 private:
   //! Map containing all the data for the message
-  DataMap _data;
+  torrentsync::utils::DataMap _data;
 };
 
 } /* message */

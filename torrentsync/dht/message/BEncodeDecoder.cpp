@@ -8,6 +8,8 @@ namespace torrentsync {
 namespace dht {
 namespace message {
 
+using torrentsync::utils::DataMap;
+
 using namespace torrentsync;
 
 void BEncodeDecoder::parseMessage(std::istream &stream) {

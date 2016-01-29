@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <algorithm>
+#include <map>
 
 namespace torrentsync {
 namespace utils {
@@ -16,6 +17,8 @@ Buffer makeBuffer(const uint8_t *, const size_t);
 std::string toString(const Buffer &);
 
 const Buffer parseIDFromHex(const std::string &str);
+
+typedef std::map<utils::Buffer, utils::Buffer> DataMap;
 
 }; // utils
 }; // torrentsync

@@ -33,7 +33,7 @@ public:
 
   void addInteger(uint64_t);
 
-  template <class T> void addList(const T begin, const T end);
+  template <class T> void addList(T&& begin, T&& end);
 
   void startList();
   void endList();
@@ -58,7 +58,7 @@ private:
   utils::Buffer lastKey;
 };
 
-template <class T> void BEncodeEncoder::addList(const T begin, const T end) {
+template <class T> void BEncodeEncoder::addList(T&& begin, T&& end) {
     startList();
     while (begin != end) {
         addElement(*begin);

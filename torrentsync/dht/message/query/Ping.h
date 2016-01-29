@@ -15,7 +15,7 @@ namespace query {
 class Ping : public dht::message::Message {
 public:
   //! Ping constructor to initialize the class from a raw data map
-  Ping(const DataMap &dataMap);
+  Ping(const torrentsync::utils::DataMap &dataMap);
 
   Ping(Ping &&) = default;
   Ping(const Ping &) = default;

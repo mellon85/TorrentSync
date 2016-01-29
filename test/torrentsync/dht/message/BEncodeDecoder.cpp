@@ -10,6 +10,7 @@ BOOST_AUTO_TEST_SUITE(torrentsync_dht_message_BEncodeDecoder);
 
 using namespace torrentsync::dht::message;
 using namespace torrentsync;
+using torrentsync::utils::DataMap;
 
 #define TEST_FIELD(key, value)                                                 \
   {                                                                            \

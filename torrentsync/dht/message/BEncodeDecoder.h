@@ -18,7 +18,6 @@ namespace message {
 
 using namespace torrentsync;
 
-typedef std::map<utils::Buffer, utils::Buffer> DataMap;
 
 typedef std::runtime_error BEncodeException;
 
@@ -30,7 +29,7 @@ public:
    */
   void parseMessage(std::istream &stream);
 
-  const DataMap &getData() const noexcept { return data; }
+  const torrentsync::utils::DataMap &getData() const noexcept { return data; }
 
   boost::optional<utils::Buffer> find(const utils::Buffer &key) const;
 
@@ -50,7 +49,7 @@ private:
   std::vector<structureStackE> structureStack;
 
   //! Container of all the parsed data
-  DataMap data;
+  torrentsync::utils::DataMap data;
 
   utils::Buffer appendPath();
 };

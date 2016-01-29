@@ -1,6 +1,7 @@
 #pragma once
 
 #include <torrentsync/dht/message/Message.h>
+#include <torrentsync/dht/message/BEncodeDecoder.h>
 #include <torrentsync/utils/Buffer.h>
 #include <torrentsync/dht/DHTConstants.h>
 #include <torrentsync/dht/Node.h>
@@ -22,8 +23,8 @@ namespace reply {
 class FindNode : public dht::message::Message {
 public:
   //! FindNode constructor to initialize the class from a raw data map
-  FindNode(const DataMap &dataMap);
-  FindNode(DataMap &&dataMap);
+  FindNode(const torrentsync::utils::DataMap &dataMap);
+  FindNode(torrentsync::utils::DataMap &&dataMap);
 
   FindNode(const FindNode &) = default;
   FindNode(FindNode &&) = default;

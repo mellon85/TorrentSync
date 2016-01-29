@@ -11,6 +11,8 @@ namespace reply {
 static const utils::Buffer PEER_ID =
     Field::Reply + Field::Separator + Field::PeerID;
 
+using torrentsync::utils::DataMap;
+
 using namespace torrentsync;
 
 Ping::Ping(const DataMap &dataMap) : dht::message::Message(dataMap) { check(); }

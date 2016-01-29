@@ -11,6 +11,8 @@ namespace dht {
 namespace message {
 namespace reply {
 
+using torrentsync::utils::DataMap;
+
 using namespace torrentsync;
 
 static const utils::Buffer NODES =

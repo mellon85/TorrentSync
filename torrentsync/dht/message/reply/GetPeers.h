@@ -19,13 +19,16 @@ class Node;
 using namespace torrentsync;
 
 namespace message {
+
+class BEncodeDecoder;
+
 namespace reply {
 
 //! Abstract class representing every message
 class GetPeers : public dht::message::Message {
 public:
   //! GetPeers constructor to initialize the class from a raw data map
-  GetPeers(const DataMap &dataMap);
+  GetPeers(const torrentsync::utils::DataMap &dataMap);
 
   GetPeers(GetPeers &&) = default;
   GetPeers(const GetPeers &) = default;

@@ -1,3 +1,4 @@
+#include <torrentsync/dht/message/BEncodeDecoder.h>
 #include <torrentsync/dht/message/Message.h>
 #include <torrentsync/dht/message/query/Ping.h>
 #include <torrentsync/dht/message/query/FindNode.h>
@@ -11,6 +12,8 @@
 namespace torrentsync {
 namespace dht {
 namespace message {
+
+using torrentsync::utils::DataMap;
 
 //! constructor
 Message::Message(const DataMap &data) : _data(data) {}

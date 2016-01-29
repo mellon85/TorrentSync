@@ -9,6 +9,7 @@ BOOST_AUTO_TEST_SUITE(torrentsync_dht_message_BEncodeEncoder);
 
 using namespace torrentsync;
 using namespace torrentsync::dht::message;
+using torrentsync::utils::DataMap;
 
 BOOST_AUTO_TEST_CASE(constructor_destructor) { BEncodeEncoder enc; }
 

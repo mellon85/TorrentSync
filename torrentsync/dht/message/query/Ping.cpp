@@ -10,6 +10,9 @@ namespace query {
 
 static const utils::Buffer PEER_ID =
     Field::Arguments + Field::Separator + Field::PeerID;
+
+using torrentsync::utils::DataMap;
+
 using namespace torrentsync;
 
 Ping::Ping(const DataMap &dataMap) : dht::message::Message(dataMap) {

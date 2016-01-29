@@ -19,7 +19,7 @@ namespace query {
 class FindNode : public dht::message::Message {
 public:
   //! FindNode constructor to initialize the class from a raw data map
-  FindNode(const DataMap &dataMap);
+  FindNode(const torrentsync::utils::DataMap &dataMap);
 
   FindNode(FindNode &&) = default;
   FindNode(const FindNode &) = default;

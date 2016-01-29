@@ -13,6 +13,8 @@ namespace dht {
 namespace message {
 namespace reply {
 
+using torrentsync::utils::DataMap;
+
 using namespace torrentsync;
 
 static const std::map<ErrorType::error_type, std::string> stringMessage = {

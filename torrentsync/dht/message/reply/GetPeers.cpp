@@ -1,4 +1,5 @@
 #include <torrentsync/dht/message/BEncodeEncoder.h>
+#include <torrentsync/dht/message/BEncodeDecoder.h>
 #include <torrentsync/dht/NodeData.h>
 #include <torrentsync/dht/Node.h>
 #include <torrentsync/dht/message/reply/GetPeers.h>
@@ -11,6 +12,9 @@ namespace torrentsync {
 namespace dht {
 namespace message {
 namespace reply {
+
+using torrentsync::utils::DataMap;
+
 using namespace torrentsync;
 
 const utils::Buffer NODES = Field::Reply + Field::Separator + Field::Nodes;

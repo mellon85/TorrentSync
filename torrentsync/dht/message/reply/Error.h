@@ -15,7 +15,7 @@ namespace reply {
 class Error : public dht::message::Message {
 public:
   //! Ping constructor to initialize the class from a raw data map
-  Error(const DataMap &dataMap);
+  Error(const torrentsync::utils::DataMap &dataMap);
 
   Error(Error &) = default;
   Error(Error &&) = default;
