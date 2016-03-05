@@ -1,0 +1,64 @@
+#pragma once
+
+#include <string>
+#include <memory>
+#include <torrentsync/db/DatastoreImpl.h>
+
+namespace torrentsync
+{
+namespace db
+{
+
+/**
+ * Forward delcaration to hide the database implementation details
+ */
+class DatastoreImpl;
+
+/**
+ * Interface to the application data store
+ *
+ * Current implementation is based over Kyoto Cabinet
+ */
+class Datastore
+{
+public:
+
+    /**
+     * Construtor of the database interface
+     * \param path The file path of the database
+     */
+    Datastore(const std::string& path);
+
+    /**
+     * Copying not allowed
+     */
+    Datastore(const Datastore&) = delete;
+
+    /**
+     * Copying not allowed
+     */
+    void operator=(const Datastore&) = delete;
+
+    /**
+     * Moving is allowed
+     */
+    Datastore(Datastore&&) = default;
+
+    /**
+     * Moving is allowed
+     */
+    Datastore& operator=(Datastore&&) = default;
+
+    // @TODO operations
+    // add file
+    // add directory
+    // create iterator class to have a rolling synchronization message streaming
+    //  from the database
+
+private:
+    // Datastore implementation pointer
+    std::unique_ptr<DatastoreImpl> impl;
+};
+
+} /* db */
+} /* torrentsync */

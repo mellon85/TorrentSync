@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 project (TorrentSync)
 
 include(CheckCXXCompilerFlag)
+include(FindPkgConfig)
+
 SET(CMAKE_BUILD_TYPE Debug)
 
 enable_testing()
@@ -69,6 +71,8 @@ set(SOURCES
     torrentsync/utils/log/Log.cpp
     torrentsync/utils/log/LogStream.cpp
     torrentsync/utils/log/Logger.cpp
+    torrentsync/dbm/Datastore.cpp
+    torrentsync/dbm/DatastoreImpl.cpp
 )
 set(SOURCES_UT
     test/torrentsync/dht/Callback.cpp
@@ -94,6 +98,9 @@ set(SOURCES_UT
 find_package(Threads)
 set(COMMON_LIBS ${CMAKE_THREAD_LIBS_INIT})
 
+# Kyoto Cabinet
+pkg_check_modules(KyotoCabinet kyotocabinet)
+
 # common source code lib
 add_library(TorrentSync STATIC ${SOURCES})
 
@@ -117,8 +124,11 @@ set(COMMON_BOOST_LIBS
     ${Boost_SERIALIZATION_LIBRARIES}
     ${Boost_THREAD_LIBRARIES}
     ${Boost_SYSTEM_LIBRARIES}
-    ${Boost_DATE_TIME_LIBRARIES})
-include_directories(${Boost_INCLUDE_DIRS})
+    ${Boost_DATE_TIME_LIBRARIES}
+    ${KyotoCabinet_LIBRARIES})
+include_directories(
+    ${Boost_INCLUDE_DIRS}
+    ${KyotoCabinet_INCLUDES_DIRS})
 
 # main executable
 add_executable(TorrentSyncExecutable

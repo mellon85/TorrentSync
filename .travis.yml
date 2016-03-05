@@ -16,6 +16,7 @@ matrix:
             - clang-3.6
             - libboost1.55-all-dev
             - g++-5
+            - libkyotocabinet-dev
 
 # can't link on travis :(
 #    - env: COMPILER=g++-5
@@ -35,3 +36,4 @@ script:
   - cmake .
   - make -j VERBOSE=1
   - ./unittest
+
