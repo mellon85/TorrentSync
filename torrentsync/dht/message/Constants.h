@@ -29,9 +29,13 @@ extern const utils::Buffer Target;
 extern const utils::Buffer Nodes;
 
 // get_peers
-extern const utils::Buffer InfoHash;
+extern const utils::Buffer InfoHash; // and announce
 extern const utils::Buffer Values;
 extern const utils::Buffer Token; // and announce
+
+// announce
+extern const utils::Buffer ImpliedPort;
+extern const utils::Buffer Port;
 
 extern const utils::Buffer Separator;
 };
@@ -40,6 +44,7 @@ namespace Messages {
 extern const utils::Buffer Ping;
 extern const utils::Buffer FindNode;
 extern const utils::Buffer GetPeers;
+extern const utils::Buffer Announce;
 };
 
 #define MAX_NODES_PER_GETPEERS 8

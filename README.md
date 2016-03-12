@@ -58,8 +58,7 @@ Ongoing
 =======
 
 Torrent DHT implementation to find nodes
-  * Messages implementation
-    announce
+  * implement announce behaviour and messages
 
 Done
 ====

@@ -31,6 +31,8 @@ public:
 
   void addDictionaryElement(const std::string &k, const utils::Buffer &v);
 
+  void addDictionaryElement(const utils::Buffer&k, int v);
+
   void addInteger(uint64_t);
 
   template <class T> void addList(T&& begin, T&& end);

@@ -57,6 +57,7 @@ set(SOURCES
     torrentsync/dht/message/Constants.cpp
     torrentsync/dht/message/Message.cpp
     torrentsync/dht/message/Messages.cpp
+    torrentsync/dht/message/query/Announce.cpp
     torrentsync/dht/message/query/FindNode.cpp
     torrentsync/dht/message/query/GetPeers.cpp
     torrentsync/dht/message/query/Ping.cpp
@@ -80,6 +81,7 @@ set(SOURCES_UT
     test/torrentsync/dht/message/BEncodeDecoder.cpp
     test/torrentsync/dht/message/BEncodeEncoder.cpp
     test/torrentsync/dht/message/query/GetPeers.cpp
+    test/torrentsync/dht/message/query/Announce.cpp
     test/torrentsync/dht/message/query/FindNode.cpp
     test/torrentsync/dht/message/query/Ping.cpp
     test/torrentsync/dht/message/reply/Error.cpp

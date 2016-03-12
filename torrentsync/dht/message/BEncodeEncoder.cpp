@@ -23,6 +23,12 @@ void BEncodeEncoder::addDictionaryElement(const utils::Buffer &k,
   addDictionaryElement(k.cbegin(), k.cend(), v.cbegin(), v.cend());
 }
 
+void BEncodeEncoder::addDictionaryElement(const utils::Buffer &k, int v)
+{
+    addDictionaryElement(k, utils::makeBuffer(
+                boost::lexical_cast<std::string>(v)));
+}
+
 void BEncodeEncoder::addElement(const std::string &s) {
   addElement(s.cbegin(), s.cend());
 }
