@@ -1,5 +1,5 @@
 #include <torrentsync/dbm/DatastoreImpl.h>
-#include <kcdb.h>
+#include <system_error>
 
 namespace torrentsync
 {
@@ -8,15 +8,23 @@ namespace dbm
 
 DatastoreImpl::~DatastoreImpl()
 {
-    db.close();
+    sqlite3_close_v2(db);
 }
 
 DatastoreImpl::DatastoreImpl(const std::string& path, bool readOnly)
 {
-    uint32_t flags = db.OTRYLOCK | db.OCREATE;
+    int flags = SQLITE_OPEN_CREATE;
     if (!readOnly)
-        flags = db.OWRITER;
-    db.open(path, flags);
+        flags |= SQLITE_OPEN_READONLY;
+    else
+        flags |= SQLITE_OPEN_READWRITE;
+
+    int rc = sqlite3_open_v2(path.c_str(), &db, flags, NULL);
+    if (rc != SQLITE_OK)
+    {
+        throw std::system_error(rc, std::generic_category(),
+                "Failed to open the database");
+    }
 }
 
 } /* dbm */

@@ -1,5 +1,4 @@
-sudo: required
-dist: trusty
+sudo: false
 cache: apt
 language: cpp
 
@@ -17,7 +16,7 @@ matrix:
             - clang-3.6
             - libboost1.55-all-dev
             - g++-5
-            - libkyotocabinet-dev
+            - libsqlite3-dev
 
 # can't link on travis :(
 #    - env: COMPILER=g++-5

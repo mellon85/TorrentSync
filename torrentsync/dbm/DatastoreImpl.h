@@ -1,6 +1,7 @@
 #pragma once
 
-#include <kchashdb.h>
+#include <sqlite3.h>
+#include <string>
 
 namespace torrentsync
 {
@@ -30,7 +31,7 @@ public:
     DatastoreImpl(DatastoreImpl&&) = default;
 
 private:
-    kyotocabinet::TreeDB db;
+    sqlite3 *db;
 };
 
 } /* dbm */

@@ -99,7 +99,7 @@ find_package(Threads)
 set(COMMON_LIBS ${CMAKE_THREAD_LIBS_INIT})
 
 # Kyoto Cabinet
-pkg_check_modules(KyotoCabinet kyotocabinet)
+pkg_check_modules(SQLite3 sqlite3)
 
 # common source code lib
 add_library(TorrentSync STATIC ${SOURCES})
@@ -125,10 +125,10 @@ set(COMMON_BOOST_LIBS
     ${Boost_THREAD_LIBRARIES}
     ${Boost_SYSTEM_LIBRARIES}
     ${Boost_DATE_TIME_LIBRARIES}
-    ${KyotoCabinet_LIBRARIES})
+    ${SQLite3_LIBRARIES})
 include_directories(
     ${Boost_INCLUDE_DIRS}
-    ${KyotoCabinet_INCLUDES_DIRS})
+    ${SQLite3_INCLUDES_DIRS})
 
 # main executable
 add_executable(TorrentSyncExecutable
