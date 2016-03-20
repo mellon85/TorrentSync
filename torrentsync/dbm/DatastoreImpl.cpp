@@ -1,5 +1,7 @@
 #include <torrentsync/dbm/DatastoreImpl.h>
 #include <system_error>
+#include <cassert>
+#include <thread>
 
 namespace torrentsync
 {
@@ -8,7 +10,12 @@ namespace dbm
 
 DatastoreImpl::~DatastoreImpl()
 {
+#ifdef sqlite3_close_v2
     sqlite3_close_v2(db);
+#else
+    int rc = sqlite3_close(db);
+    assert(rc == SQLITE_OK);
+#endif
 }
 
 DatastoreImpl::DatastoreImpl(const std::string& path, bool readOnly)
