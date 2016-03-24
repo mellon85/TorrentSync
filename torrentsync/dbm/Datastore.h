@@ -2,7 +2,9 @@
 
 #include <string>
 #include <memory>
-#include <torrentsync/db/DatastoreImpl.h>
+#include <torrentsync/dbm/DatastoreImpl.h>
+
+#include <boost/filesystem.hpp>
 
 namespace torrentsync
 {
@@ -27,7 +29,7 @@ public:
      * Construtor of the database interface
      * \param path The file path of the database
      */
-    Datastore(const std::string& path);
+    Datastore(const boost::filesystem::path& path);
 
     /**
      * Copying not allowed

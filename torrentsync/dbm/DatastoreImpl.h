@@ -2,6 +2,7 @@
 
 #include <sqlite3.h>
 #include <string>
+#include <boost/filesystem.hpp>
 
 namespace torrentsync
 {
@@ -14,12 +15,9 @@ public:
     /** Opens the database connection
      * \param path the database path
      * \param readOnly specify if the database has to be opened read only.
-     *        As per KyotoCabinet implementation only one writer can keep the
-     *        database opened at any one time.
-     *        To share it the database should not be kept opened but only opened
-     *        when needed and then closed.
+     * \note may throw a runtime exception if the database couldn't be opened
      */
-    DatastoreImpl(const std::string& path, bool readOnly);
+    DatastoreImpl(const boost::filesystem::path& path, bool readOnly);
 
     //! The destructor will close the database and synchronize it to disk
     ~DatastoreImpl();

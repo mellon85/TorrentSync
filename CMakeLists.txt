@@ -75,6 +75,7 @@ set(SOURCES
     torrentsync/dbm/DatastoreImpl.cpp
 )
 set(SOURCES_UT
+    test/torrentsync/dbm/Datastore.cpp
     test/torrentsync/dht/Callback.cpp
     test/torrentsync/dht/Node.cpp
     test/torrentsync/dht/NodeBucket.cpp
@@ -109,6 +110,7 @@ find_package(Boost
     COMPONENTS
     serialization
     system
+    filesystem
     date_time
     regex
     unit_test_framework)

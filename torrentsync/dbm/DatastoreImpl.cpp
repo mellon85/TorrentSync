@@ -18,7 +18,7 @@ DatastoreImpl::~DatastoreImpl()
 #endif
 }
 
-DatastoreImpl::DatastoreImpl(const std::string& path, bool readOnly)
+DatastoreImpl::DatastoreImpl(const boost::filesystem::path& path, bool readOnly)
 {
     int flags = SQLITE_OPEN_CREATE;
     if (!readOnly)
