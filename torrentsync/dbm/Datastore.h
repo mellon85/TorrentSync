@@ -3,8 +3,11 @@
 #include <string>
 #include <memory>
 #include <torrentsync/dbm/DatastoreImpl.h>
+#include <torrentsync/dbm/Transaction.h>
 
 #include <boost/filesystem.hpp>
+
+class sqlite3_stmt;
 
 namespace torrentsync
 {
@@ -62,6 +65,8 @@ public:
     // add directory
     // create iterator class to have a rolling synchronization message streaming
     //  from the database
+
+    Transaction getTransaction() const;
 
 private:
     // Datastore implementation pointer

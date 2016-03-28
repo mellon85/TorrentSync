@@ -1,13 +1,20 @@
 #pragma once
 
-#include <sqlite3.h>
 #include <string>
 #include <boost/filesystem.hpp>
+#include <torrentsync/dbm/Transaction.h>
+#include <torrentsync/dbm/util/Deleter.h>
+
+#include <sqlite3.h>
+
+class sqlite3;
+class sqlite3_stmt;
 
 namespace torrentsync
 {
 namespace dbm
 {
+
 
 class DatastoreImpl
 {
@@ -27,6 +34,8 @@ public:
 
     DatastoreImpl& operator=(DatastoreImpl&&) = default;
     DatastoreImpl(DatastoreImpl&&) = default;
+
+    sql_compiled compile(const std::string& sql);
 
 private:
     sqlite3 *db;

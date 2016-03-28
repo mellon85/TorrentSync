@@ -73,6 +73,8 @@ set(SOURCES
     torrentsync/utils/log/Logger.cpp
     torrentsync/dbm/Datastore.cpp
     torrentsync/dbm/DatastoreImpl.cpp
+    torrentsync/dbm/Schema.cpp
+    torrentsync/dbm/Transaction.cpp
 )
 set(SOURCES_UT
     test/torrentsync/dbm/Datastore.cpp

@@ -1,9 +1,11 @@
-#include <torrentsync/dbm/DatastoreImpl.h>
+#pragma once
 
 namespace torrentsync
 {
 namespace dbm
 {
+
+class Datastore;
 
 class Schema
 {
@@ -12,21 +14,24 @@ public:
        V_1
     };
 
-    Schema(const DatastoreImpl& impl);
+    Schema(const Datastore& impl);
 
-    Schema(const DatastoreImpl& impl, Version version);
+    Schema(const Datastore& impl, Version version);
 
     ~Schema() = default;
 
     Schema(const Schema&) = delete;
-    Schema(Schema&&) = delete;
-
-    Schema& operator=(Schema&&) = delete;
     Schema& operator=(const Schema&) = delete;
 
-private:
-    void make_schema_v1();
+    Schema(Schema&&) = default;
+    Schema& operator=(Schema&&) = default;
 
+private:
+    void make_schema_v1() const;
+
+    const Datastore& impl;
+
+    Version version;
 };
 
 } /* dbm */
