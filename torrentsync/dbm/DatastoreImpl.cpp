@@ -21,7 +21,7 @@ DatastoreImpl::~DatastoreImpl()
 DatastoreImpl::DatastoreImpl(const boost::filesystem::path& path, bool readOnly)
 {
     int flags = SQLITE_OPEN_CREATE;
-    if (!readOnly)
+    if (readOnly)
         flags |= SQLITE_OPEN_READONLY;
     else
         flags |= SQLITE_OPEN_READWRITE;

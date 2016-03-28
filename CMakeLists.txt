@@ -127,6 +127,7 @@ set(COMMON_BOOST_LIBS
     ${Boost_THREAD_LIBRARIES}
     ${Boost_SYSTEM_LIBRARIES}
     ${Boost_DATE_TIME_LIBRARIES}
+    ${Boost_FILESYSTEM_LIBRARIES}
     ${SQLite3_LIBRARIES})
 include_directories(
     ${Boost_INCLUDE_DIRS}

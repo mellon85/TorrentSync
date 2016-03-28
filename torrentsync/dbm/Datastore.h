@@ -8,7 +8,7 @@
 
 namespace torrentsync
 {
-namespace db
+namespace dbm
 {
 
 /**
@@ -29,12 +29,18 @@ public:
      * Construtor of the database interface
      * \param path The file path of the database
      */
-    Datastore(const boost::filesystem::path& path);
+    Datastore(const boost::filesystem::path& path,
+              bool readOnly = false);
 
     /**
      * Copying not allowed
      */
     Datastore(const Datastore&) = delete;
+
+    /**
+     * Destructor
+     */
+    ~Datastore();
 
     /**
      * Copying not allowed
@@ -62,5 +68,5 @@ private:
     std::unique_ptr<DatastoreImpl> impl;
 };
 
-} /* db */
+} /* dbm */
 } /* torrentsync */
