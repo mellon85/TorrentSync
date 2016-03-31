@@ -14,7 +14,13 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
         message(FATAL_ERROR "gcc must be version >= 4.8 but found ${GCC_VERSION}")
     endif()
 
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+    SET(CXX_HARDEN "${CXX_HARDEN} -D_FORTIFY_SOURCE=2")
+    SET(CXX_HARDEN "${CXX_HARDEN} -Wformat -Wformat-security")
+    SET(CXX_HARDEN "${CXX_HARDEN} -fPIC")
+    SET(CXX_HARDEN "${CXX_HARDEN} -Wl,-z,relro")
+    SET(CXX_HARDEN "${CXX_HARDEN} -Wl,-z,now")
+
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_HARDEN} -Wall -std=c++11")
     SET(CMAKE_CXX_FLAGS_RELEASE "-O2")
     SET(CMAKE_CXX_FLAGS_DEBUG "-ggdb -O0 -Wall -std=c++11")
 
