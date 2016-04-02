@@ -75,6 +75,7 @@ set(SOURCES
     torrentsync/dbm/DatastoreImpl.cpp
     torrentsync/dbm/Schema.cpp
     torrentsync/dbm/Transaction.cpp
+    torrentsync/dbm/util/Deleter.cpp
 )
 set(SOURCES_UT
     test/torrentsync/dbm/Datastore.cpp

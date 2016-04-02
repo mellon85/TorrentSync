@@ -4,6 +4,27 @@
 #include <thread>
 #include <sqlite3.h>
 
+namespace
+{
+namespace dbm = torrentsync::dbm;
+using dbm::QueryStatus;
+
+QueryStatus convertSQLiteRC(int rc)
+{
+    switch(rc)
+    {
+        case SQLITE_OK:
+            return QueryStatus::OK;
+        case SQLITE_ROW:
+            return QueryStatus::DATA_READY;
+        case SQLITE_BUSY:
+            return QueryStatus::RETRY;
+        default:
+            return QueryStatus::ERROR;
+    }
+}
+};
+
 namespace torrentsync
 {
 namespace dbm
@@ -35,7 +56,7 @@ DatastoreImpl::DatastoreImpl(const boost::filesystem::path& path, bool readOnly)
     }
 }
 
-torrentsync::dbm::sql_compiled
+torrentsync::dbm::Query
 DatastoreImpl::compile(const std::string& sql)
 {
     sqlite3_stmt *stmt;
@@ -47,7 +68,18 @@ DatastoreImpl::compile(const std::string& sql)
     if (rc != SQLITE_OK)
         throw std::runtime_error("Failed to compile: "+sql);
 
-    return sql_compiled(stmt);
+    return Query(stmt);
+}
+
+Transaction DatastoreImpl::getTransaction()
+{
+    return Transaction(*this);
+}
+
+QueryStatus DatastoreImpl::execute(Query& sql)
+{
+    const int rc = sqlite3_step(sql.get());
+    return convertSQLiteRC(rc);
 }
 
 } /* dbm */

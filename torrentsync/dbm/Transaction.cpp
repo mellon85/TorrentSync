@@ -8,10 +8,10 @@ namespace torrentsync
 namespace dbm
 {
 
-Transaction::Transaction(DatastoreImpl& impl) : impl(impl)
+Transaction::Transaction(DatastoreImpl& impl) : impl(impl), committed(false)
 {
     auto begin = impl.compile("BEGIN TRANSACTION");
-    const int rc = sqlite3_step(begin.get());
+    const int rc = impl.execute(begin);
     if (rc != SQLITE_OK)
     {
         // throw
@@ -20,10 +20,23 @@ Transaction::Transaction(DatastoreImpl& impl) : impl(impl)
 
 Transaction::~Transaction()
 {
+    if (committed)
+        return;
+
     auto end = impl.compile("ROLLBACK TRANSACTION");
-    if (end.get() != nullptr)
+    if (end)
     {
-        const int rc = sqlite3_step(end.get());
+        const int rc = impl.execute(end);
+        assert(rc == SQLITE_OK);
+    }
+}
+
+void Transaction::commit()
+{
+    auto commit = impl.compile("COMMIT");
+    if (commit)
+    {
+        const int rc = impl.execute(commit);
         assert(rc == SQLITE_OK);
     }
 }

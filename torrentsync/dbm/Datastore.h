@@ -4,6 +4,7 @@
 #include <memory>
 #include <torrentsync/dbm/DatastoreImpl.h>
 #include <torrentsync/dbm/Transaction.h>
+#include <torrentsync/dbm/Schema.h>
 
 #include <boost/filesystem.hpp>
 
@@ -66,7 +67,9 @@ public:
     // create iterator class to have a rolling synchronization message streaming
     //  from the database
 
-    Transaction getTransaction() const;
+    Transaction getTransaction();
+
+    Schema getSchema();
 
 private:
     // Datastore implementation pointer

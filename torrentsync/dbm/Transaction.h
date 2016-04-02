@@ -1,7 +1,5 @@
 #pragma once
 
-#include <torrentsync/dbm/DatastoreImpl.h>
-
 namespace torrentsync
 {
 namespace dbm
@@ -26,6 +24,8 @@ public:
 
 private:
     DatastoreImpl& impl;
+
+    bool committed;
 };
 
 } /* dbm */

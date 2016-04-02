@@ -5,7 +5,7 @@ namespace torrentsync
 namespace dbm
 {
 
-class Datastore;
+class DatastoreImpl;
 
 class Schema
 {
@@ -14,9 +14,9 @@ public:
        V_1
     };
 
-    Schema(const Datastore& impl);
+    Schema(DatastoreImpl& impl);
 
-    Schema(const Datastore& impl, Version version);
+    Schema(DatastoreImpl& impl, Version version);
 
     ~Schema() = default;
 
@@ -29,7 +29,7 @@ public:
 private:
     void make_schema_v1() const;
 
-    const Datastore& impl;
+    DatastoreImpl& impl;
 
     Version version;
 };

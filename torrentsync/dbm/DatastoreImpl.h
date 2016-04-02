@@ -3,6 +3,7 @@
 #include <string>
 #include <boost/filesystem.hpp>
 #include <torrentsync/dbm/Transaction.h>
+#include <torrentsync/dbm/Constants.h>
 #include <torrentsync/dbm/util/Deleter.h>
 
 #include <sqlite3.h>
@@ -14,7 +15,6 @@ namespace torrentsync
 {
 namespace dbm
 {
-
 
 class DatastoreImpl
 {
@@ -35,7 +35,18 @@ public:
     DatastoreImpl& operator=(DatastoreImpl&&) = default;
     DatastoreImpl(DatastoreImpl&&) = default;
 
-    sql_compiled compile(const std::string& sql);
+
+    Transaction getTransaction();
+
+    /**
+     * Compiles a query
+     */
+    Query compile(const std::string& sql);
+
+    /**
+     * Executes a query
+     */
+    QueryStatus execute(Query& sql);
 
 private:
     sqlite3 *db;

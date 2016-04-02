@@ -19,7 +19,7 @@ public:
 
 } /* util */
 
-typedef std::unique_ptr<sqlite3_stmt, util::Deleter> sql_compiled;
+typedef std::unique_ptr<sqlite3_stmt, util::Deleter> Query;
 
 } /* dbm */
 } /* torrentsync */

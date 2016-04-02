@@ -26,5 +26,10 @@ Datastore::Datastore(const boost::filesystem::path& path,
     impl.reset(ptr);
 }
 
+Transaction Datastore::getTransaction()
+{
+    return impl->getTransaction();
+}
+
 } /* dbm */
 } /* torrentsync */

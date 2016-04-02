@@ -6,18 +6,18 @@ namespace torrentsync
 namespace dbm
 {
 
-Schema::Schema(const Datastore& _impl) : impl(_impl)
+Schema::Schema(DatastoreImpl& _impl) : impl(_impl)
 {
     Transaction t = impl.getTransaction();
     // TODO detect version
 }
 
-Schema::Schema(const Datastore& _impl, Version _version) :
+Schema::Schema(DatastoreImpl& _impl, Version _version) :
     impl(_impl), version(_version)
 {
 
 }
 
-
+// PRAGMA journal_mode=WAL;
 } /* dbm */
 } /* torrentsync */
