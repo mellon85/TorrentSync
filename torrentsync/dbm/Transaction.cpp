@@ -40,6 +40,7 @@ void Transaction::commit()
     {
         const int rc = impl.execute(commit);
         assert(rc == SQLITE_OK);
+        done = true;
     }
 }
 
