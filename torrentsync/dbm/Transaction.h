@@ -22,10 +22,12 @@ public:
 
     void commit();
 
+    bool committed() const noexcept;
+
 private:
     DatastoreImpl& impl;
 
-    bool committed;
+    bool done;
 };
 
 } /* dbm */

@@ -8,7 +8,7 @@ namespace torrentsync
 namespace dbm
 {
 
-Transaction::Transaction(DatastoreImpl& impl) : impl(impl), committed(false)
+Transaction::Transaction(DatastoreImpl& impl) : impl(impl), done(false)
 {
     auto begin = impl.compile("BEGIN TRANSACTION");
     const int rc = impl.execute(begin);
@@ -20,7 +20,7 @@ Transaction::Transaction(DatastoreImpl& impl) : impl(impl), committed(false)
 
 Transaction::~Transaction()
 {
-    if (committed)
+    if (done)
         return;
 
     auto end = impl.compile("ROLLBACK TRANSACTION");
@@ -33,6 +33,8 @@ Transaction::~Transaction()
 
 void Transaction::commit()
 {
+    assert(!done);
+
     auto commit = impl.compile("COMMIT");
     if (commit)
     {
@@ -41,6 +43,10 @@ void Transaction::commit()
     }
 }
 
+bool Transaction::committed() const noexcept
+{
+    return done;
+}
 
 } /* dbm */
 } /* torrentsync */
