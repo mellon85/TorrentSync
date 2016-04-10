@@ -16,6 +16,8 @@ matrix:
             - clang-3.6
             - libboost1.55-all-dev
             - g++-5
+            - libgtest-dev
+            - google-mock
 
 # can't link on travis :(
 #    - env: COMPILER=g++-5

@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <torrentsync/dht/message/query/FindNode.h>
 #include <torrentsync/dht/message/Messages.h>
@@ -8,13 +8,13 @@
 
 #include <sstream>
 
-BOOST_AUTO_TEST_SUITE(torrentsync_dht_message_query_FindNode);
+
 
 using namespace torrentsync::dht::message;
 using namespace torrentsync::dht::message::query;
 using namespace torrentsync;
 
-BOOST_AUTO_TEST_CASE(generation_1) {
+TEST(FindNode, generation_1) {
   utils::Buffer ret;
 
   auto transaction = utils::makeBuffer("aa");
@@ -27,25 +27,25 @@ BOOST_AUTO_TEST_CASE(generation_1) {
   data.read(b.cbegin(), b.cend());
   target.read(tb.cbegin(), tb.cend());
 
-  BOOST_REQUIRE_NO_THROW(ret = FindNode::make(transaction, data, target));
-  BOOST_REQUIRE(ret == "d1:ad2:id20:abcdefghij01234567896:target20:"
+  EXPECT_NO_THROW(ret = FindNode::make(transaction, data, target));
+  ASSERT_TRUE(ret == "d1:ad2:id20:abcdefghij01234567896:target20:"
                        "mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe");
 }
 
-BOOST_AUTO_TEST_CASE(parse) {
+TEST(FindNode, parse) {
   auto b =
       utils::makeBuffer("d1:ad2:id20:abcdefghij01234567896:target20:"
                         "mnopqrstuvwxyz123456e1:q9:find_node1:t2:aa1:y1:qe");
 
   auto m = parseMessage(b);
-  BOOST_REQUIRE(getType(m) == Type::Query);
+  ASSERT_TRUE(getType(m) == Type::Query);
   auto *q = boost::get<Query>(&m);
   auto *p = boost::get<FindNode>(q);
 
-  BOOST_REQUIRE(p->getID() == "abcdefghij0123456789");
-  BOOST_REQUIRE(p->getTransactionID() == "aa");
-  BOOST_REQUIRE_NO_THROW(
-      BOOST_REQUIRE(p->getTarget() == "mnopqrstuvwxyz123456"));
+  ASSERT_TRUE(p->getID() == "abcdefghij0123456789");
+  ASSERT_TRUE(p->getTransactionID() == "aa");
+  EXPECT_NO_THROW(
+      ASSERT_TRUE(p->getTarget() == "mnopqrstuvwxyz123456"));
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+

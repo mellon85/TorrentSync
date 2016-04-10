@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <torrentsync/dht/message/reply/FindNode.h>
 #include <torrentsync/dht/message/Messages.h>
@@ -8,12 +8,12 @@
 
 #include <sstream>
 
-BOOST_AUTO_TEST_SUITE(torrentsync_dht_message_reply_FindNode);
+
 
 using namespace torrentsync::dht::message;
 using namespace torrentsync;
 
-BOOST_AUTO_TEST_CASE(reply_perfectMatch) {
+TEST(FindNode, reply_perfectMatch) {
   const std::string id1("4747474747474747474747474747474747474747");
   const std::string id2("4848484848484848484848484848484848484848");
   const auto transaction = utils::makeBuffer("aa");
@@ -35,31 +35,31 @@ BOOST_AUTO_TEST_CASE(reply_perfectMatch) {
   nodes.push_back(match);
 
   utils::Buffer ret;
-  BOOST_REQUIRE_NO_THROW(ret =
+  EXPECT_NO_THROW(ret =
                              reply::FindNode::make(transaction, source, nodes));
 
-  BOOST_REQUIRE(ret == buff);
+  ASSERT_TRUE(ret == buff);
 
   const auto m = parseMessage(ret);
-  BOOST_CHECK(getType(m) == Type::Reply);
-  BOOST_CHECK(getTransactionID(m) == transaction);
+  EXPECT_TRUE(getType(m) == Type::Reply);
+  EXPECT_TRUE(getTransactionID(m) == transaction);
 
   auto *r = boost::get<reply::Reply>(&m);
-  BOOST_REQUIRE(r != nullptr);
+  ASSERT_TRUE(r != nullptr);
   auto *find_node = boost::get<reply::FindNode>(r);
   std::vector<dht::NodeSPtr> peers;
-  BOOST_REQUIRE_NO_THROW(peers = find_node->getNodes());
-  BOOST_REQUIRE_EQUAL(peers.size(), nodes.size());
-  BOOST_CHECK(find_node->getType() == Type::Reply);
-  BOOST_CHECK(find_node->getTransactionID() == transaction);
+  EXPECT_NO_THROW(peers = find_node->getNodes());
+  EXPECT_EQ(peers.size(), nodes.size());
+  EXPECT_TRUE(find_node->getType() == Type::Reply);
+  EXPECT_TRUE(find_node->getTransactionID() == transaction);
 
-  BOOST_REQUIRE(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH"));
-  BOOST_REQUIRE_EQUAL(peers[0]->getEndpoint()->address().to_v4().to_ulong(),
+  ASSERT_TRUE(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH"));
+  EXPECT_EQ(peers[0]->getEndpoint()->address().to_v4().to_ulong(),
                       endpoint.address().to_v4().to_ulong());
-  BOOST_REQUIRE_EQUAL(peers[0]->getEndpoint()->port(), endpoint.port());
+  EXPECT_EQ(peers[0]->getEndpoint()->port(), endpoint.port());
 }
 
-BOOST_AUTO_TEST_CASE(reply_multiple) {
+TEST(FindNode, reply_multiple) {
   const std::string id1("4747474747474747474747474747474747474747");
   const std::string id2("4848484848484848484848484848484848484848");
   const std::string id3("4141414141414141414141414141414141414141");
@@ -81,46 +81,46 @@ BOOST_AUTO_TEST_CASE(reply_multiple) {
                                      0x4644));
 
   std::list<dht::NodeSPtr> nodes;
-  BOOST_REQUIRE_NO_THROW(
+  EXPECT_NO_THROW(
       nodes.push_back(dht::NodeSPtr(new dht::Node(target1.write(), endpoint)));
       nodes.push_back(dht::NodeSPtr(new dht::Node(target2.write(), endpoint)));
       nodes.push_back(
           dht::NodeSPtr(new dht::Node(target3.write(), endpoint))););
 
   utils::Buffer ret;
-  BOOST_REQUIRE_NO_THROW(ret =
+  EXPECT_NO_THROW(ret =
                              reply::FindNode::make(transaction, source, nodes));
 
-  BOOST_REQUIRE(ret == buff);
+  ASSERT_TRUE(ret == buff);
   const auto m = parseMessage(ret);
 
-  BOOST_CHECK(getType(m) == Type::Reply);
-  BOOST_CHECK(getTransactionID(m) == transaction);
+  EXPECT_TRUE(getType(m) == Type::Reply);
+  EXPECT_TRUE(getTransactionID(m) == transaction);
 
   auto *r = boost::get<reply::Reply>(&m);
-  BOOST_REQUIRE(r != nullptr);
+  ASSERT_TRUE(r != nullptr);
   auto *find_node = boost::get<reply::FindNode>(r);
 
   std::vector<dht::NodeSPtr> peers;
-  BOOST_REQUIRE_NO_THROW(peers = find_node->getNodes());
-  BOOST_REQUIRE_EQUAL(peers.size(), nodes.size());
-  BOOST_CHECK(find_node->getType() == Type::Reply);
-  BOOST_CHECK(find_node->getTransactionID() == transaction);
+  EXPECT_NO_THROW(peers = find_node->getNodes());
+  EXPECT_EQ(peers.size(), nodes.size());
+  EXPECT_TRUE(find_node->getType() == Type::Reply);
+  EXPECT_TRUE(find_node->getTransactionID() == transaction);
 
-  BOOST_CHECK(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH"));
-  BOOST_CHECK_EQUAL(peers[0]->getEndpoint()->address().to_v4().to_ulong(),
+  EXPECT_TRUE(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH"));
+  EXPECT_EQ(peers[0]->getEndpoint()->address().to_v4().to_ulong(),
                     0x45454747);
-  BOOST_CHECK_EQUAL(peers[0]->getEndpoint()->port(), 0x4644);
+  EXPECT_EQ(peers[0]->getEndpoint()->port(), 0x4644);
 
-  BOOST_CHECK(peers[1]->write() == utils::makeBuffer("AAAAAAAAAAAAAAAAAAAA"));
-  BOOST_CHECK_EQUAL(peers[1]->getEndpoint()->address().to_v4().to_ulong(),
+  EXPECT_TRUE(peers[1]->write() == utils::makeBuffer("AAAAAAAAAAAAAAAAAAAA"));
+  EXPECT_EQ(peers[1]->getEndpoint()->address().to_v4().to_ulong(),
                     0x45454747);
-  BOOST_CHECK_EQUAL(peers[1]->getEndpoint()->port(), 0x4644);
+  EXPECT_EQ(peers[1]->getEndpoint()->port(), 0x4644);
 
-  BOOST_CHECK(peers[2]->write() == utils::makeBuffer("BBBBBBBBBBBBBBBBBBBB"));
-  BOOST_CHECK_EQUAL(peers[2]->getEndpoint()->address().to_v4().to_ulong(),
+  EXPECT_TRUE(peers[2]->write() == utils::makeBuffer("BBBBBBBBBBBBBBBBBBBB"));
+  EXPECT_EQ(peers[2]->getEndpoint()->address().to_v4().to_ulong(),
                     0x45454747);
-  BOOST_CHECK_EQUAL(peers[2]->getEndpoint()->port(), 0x4644);
+  EXPECT_EQ(peers[2]->getEndpoint()->port(), 0x4644);
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+

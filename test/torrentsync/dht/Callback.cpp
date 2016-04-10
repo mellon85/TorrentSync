@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 #include <sstream>
 
 #include <torrentsync/dht/message/Message.h>
@@ -6,7 +6,7 @@
 #include <torrentsync/dht/Node.h>
 #include <test/torrentsync/dht/CommonNodeTest.h>
 
-BOOST_AUTO_TEST_SUITE(torrentsync_dht_Callback);
+
 
 using namespace torrentsync;
 namespace msg = torrentsync::dht::message;
@@ -25,26 +25,26 @@ static msg::AnyMessage getMessage() {
 
 static dht::Node node(utils::makeBuffer("01234567890123456789"));
 
-BOOST_AUTO_TEST_CASE(match_node_success) {
+TEST(Callback, match_node_success) {
   int v = 0;
 
   Callback call(
       [&v](boost::optional<Callback::payload_type> data,
            const dht::Callback &) -> void {
-        BOOST_REQUIRE(!!data);
+        ASSERT_TRUE(!!data);
         v += msg::getType(data->message).empty() ? 0 : 1;
       },
       buff, transaction);
 
-  BOOST_REQUIRE_EQUAL(false, call.isOld());
-  BOOST_REQUIRE_EQUAL(v, 0);
+  EXPECT_EQ(false, call.isOld());
+  EXPECT_EQ(v, 0);
   call.call(getMessage(), node);
-  BOOST_REQUIRE_EQUAL(v, 1);
+  EXPECT_EQ(v, 1);
 
-  BOOST_REQUIRE_EQUAL(true, call.verifyConstraints(getMessage()));
+  EXPECT_EQ(true, call.verifyConstraints(getMessage()));
 }
 
-BOOST_AUTO_TEST_CASE(match_node_failure) {
+TEST(Callback, match_node_failure) {
   int v = 0;
 
   utils::Buffer buff2 = utils::makeBuffer("G000GGG0HHHHHHHHIIII");
@@ -52,50 +52,50 @@ BOOST_AUTO_TEST_CASE(match_node_failure) {
   Callback call(
       [&v](boost::optional<Callback::payload_type> data,
            const dht::Callback &) -> void {
-        BOOST_REQUIRE(!!data);
+        ASSERT_TRUE(!!data);
         v += msg::getType(data->message).empty() ? 0 : 1;
       },
       dht::NodeData(buff2), transaction);
 
-  BOOST_REQUIRE_EQUAL(false, call.isOld());
-  BOOST_REQUIRE_EQUAL(false, call.verifyConstraints(getMessage()));
+  EXPECT_EQ(false, call.isOld());
+  EXPECT_EQ(false, call.verifyConstraints(getMessage()));
   call.call(getMessage(), node);
-  BOOST_REQUIRE_EQUAL(v, 1);
+  EXPECT_EQ(v, 1);
 }
 
-BOOST_AUTO_TEST_CASE(match_transaction_success) {
+TEST(Callback, match_transaction_success) {
   int v = 0;
 
   Callback call(
       [&v](boost::optional<Callback::payload_type> data,
            const dht::Callback &) -> void {
-        BOOST_REQUIRE(!!data);
+        ASSERT_TRUE(!!data);
         v += msg::getType(data->message).empty() ? 0 : 1;
       },
       buff, transaction);
 
-  BOOST_REQUIRE_EQUAL(false, call.isOld());
-  BOOST_REQUIRE_EQUAL(true, call.verifyConstraints(getMessage()));
+  EXPECT_EQ(false, call.isOld());
+  EXPECT_EQ(true, call.verifyConstraints(getMessage()));
   call.call(getMessage(), node);
-  BOOST_REQUIRE_EQUAL(v, 1);
+  EXPECT_EQ(v, 1);
 }
 
-BOOST_AUTO_TEST_CASE(match_transaction_failure) {
+TEST(Callback, match_transaction_failure) {
   int v = 0;
   auto transaction2 = utils::makeBuffer("a2");
 
   Callback call(
       [&v](boost::optional<Callback::payload_type> data,
            const dht::Callback &) -> void {
-        BOOST_REQUIRE(!!data);
+        ASSERT_TRUE(!!data);
         v += msg::getType(data->message).empty() ? 0 : 1;
       },
       buff, transaction2);
 
-  BOOST_REQUIRE_EQUAL(false, call.isOld());
-  BOOST_REQUIRE_EQUAL(false, call.verifyConstraints(getMessage()));
+  EXPECT_EQ(false, call.isOld());
+  EXPECT_EQ(false, call.verifyConstraints(getMessage()));
   call.call(getMessage(), node);
-  BOOST_REQUIRE_EQUAL(v, 1);
+  EXPECT_EQ(v, 1);
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+

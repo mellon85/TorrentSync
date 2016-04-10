@@ -1,5 +1,5 @@
 #include <boost/regex.hpp>
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -7,13 +7,13 @@
 #include <torrentsync/utils/log/Logger.h>
 #include <torrentsync/utils/log/LogStream.h>
 
-BOOST_AUTO_TEST_SUITE(torrentsync_utils_log);
+
 
 using namespace torrentsync::utils::log;
 
-BOOST_AUTO_TEST_CASE(initialize_and_close) { Logger::getInstance(); }
+TEST(Log, initialize_and_close) { Logger::getInstance(); }
 
-BOOST_AUTO_TEST_CASE(log_message) {
+TEST(Log, log_message) {
   std::stringstream *s_ptr = new std::stringstream();
   std::unique_ptr<std::stringstream> str(s_ptr);
 
@@ -23,11 +23,11 @@ BOOST_AUTO_TEST_CASE(log_message) {
                                    << " plpl" << logend;
   boost::regex regex("\\[\\d{8}T\\d{6}\\.\\d{1,6} \\w+\\] message plpl.{1,2}",
                      boost::regex::perl);
-  BOOST_REQUIRE(regex_match(s_ptr->str(), regex));
+  ASSERT_TRUE(regex_match(s_ptr->str(), regex));
   Logger::getInstance().destroy();
 }
 
-BOOST_AUTO_TEST_CASE(log_message2) {
+TEST(Log, log_message2) {
   std::stringstream *s_ptr = new std::stringstream();
   std::unique_ptr<std::stringstream> str(s_ptr);
   Logger::getInstance().addSink(std::move(str), DEBUG);
@@ -35,11 +35,11 @@ BOOST_AUTO_TEST_CASE(log_message2) {
                  << " plpl");
   boost::regex regex("\\[\\d{8}T\\d{6}\\.\\d{6} \\w+\\] message plpl.{1,2}",
                      boost::regex::perl);
-  BOOST_REQUIRE(regex_match(s_ptr->str(), regex));
+  ASSERT_TRUE(regex_match(s_ptr->str(), regex));
   Logger::getInstance().destroy();
 }
 
-BOOST_AUTO_TEST_CASE(log_multipleSink) {
+TEST(Log, log_multipleSink) {
   std::stringstream *s_ptr = new std::stringstream();
   std::unique_ptr<std::stringstream> str(s_ptr);
   std::stringstream *s_ptr2 = new std::stringstream();
@@ -53,12 +53,12 @@ BOOST_AUTO_TEST_CASE(log_multipleSink) {
 
   boost::regex regex("\\[\\d{8}T\\d{6}\\.\\d{6} \\w+\\] message plpl.{1,2}",
                      boost::regex::perl);
-  BOOST_REQUIRE(regex_match(s_ptr->str(), regex));
-  BOOST_REQUIRE(regex_match(s_ptr2->str(), regex));
+  ASSERT_TRUE(regex_match(s_ptr->str(), regex));
+  ASSERT_TRUE(regex_match(s_ptr2->str(), regex));
   Logger::getInstance().destroy();
 }
 
-BOOST_AUTO_TEST_CASE(log_moreMessages) {
+TEST(Log, log_moreMessages) {
   std::stringstream *s_ptr = new std::stringstream();
   std::unique_ptr<std::stringstream> str(s_ptr);
   Logger::getInstance().addSink(std::move(str), DEBUG);
@@ -69,11 +69,11 @@ BOOST_AUTO_TEST_CASE(log_moreMessages) {
   boost::regex regex1("\\[\\d{8}T\\d{6}\\.\\d{6} \\w+\\] "
                       "msg1.{1,2}\\[\\d{8}T\\d{6}\\.\\d{6} \\w+\\] msg2.{1,2}",
                       boost::regex::perl);
-  BOOST_REQUIRE(regex_match(s_ptr->str(), regex1));
+  ASSERT_TRUE(regex_match(s_ptr->str(), regex1));
   Logger::getInstance().destroy();
 }
 
-BOOST_AUTO_TEST_CASE(log_forceFlush) {
+TEST(Log, log_forceFlush) {
   std::stringstream *s_ptr = new std::stringstream();
   std::unique_ptr<std::stringstream> str(s_ptr);
   std::stringstream *s_ptr2 = new std::stringstream();
@@ -92,13 +92,13 @@ BOOST_AUTO_TEST_CASE(log_forceFlush) {
   boost::regex regex("\\[\\d{8}T\\d{6}\\.\\d{6} \\w+\\] "
                      "msg1.{1,2}\\[\\d{8}T\\d{6}\\.\\d{6} \\w+\\] msg2.{1,2}",
                      boost::regex::perl);
-  BOOST_REQUIRE(regex_match(s_ptr->str(), regex));
-  BOOST_REQUIRE(regex_match(s_ptr2->str(), regex));
+  ASSERT_TRUE(regex_match(s_ptr->str(), regex));
+  ASSERT_TRUE(regex_match(s_ptr2->str(), regex));
 
   Logger::getInstance().destroy();
 }
 
-BOOST_AUTO_TEST_CASE(log_levels) {
+TEST(Log, log_levels) {
   std::stringstream *s_ptr = new std::stringstream();
   std::unique_ptr<std::stringstream> str(s_ptr);
   std::stringstream *s_ptr2 = new std::stringstream();
@@ -125,10 +125,10 @@ BOOST_AUTO_TEST_CASE(log_levels) {
   boost::regex regex_1("\\[\\d{8}T\\d{6}\\.\\d{6} \\w+\\] error.{1,2}",
                        boost::regex::perl);
 
-  BOOST_CHECK(regex_match(s_ptr->str(), regex_3));
-  BOOST_CHECK(regex_match(s_ptr2->str(), regex_2));
-  BOOST_CHECK(regex_match(s_ptr3->str(), regex_1));
+  EXPECT_TRUE(regex_match(s_ptr->str(), regex_3));
+  EXPECT_TRUE(regex_match(s_ptr2->str(), regex_2));
+  EXPECT_TRUE(regex_match(s_ptr3->str(), regex_1));
   Logger::getInstance().destroy();
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+

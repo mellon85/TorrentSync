@@ -1,5 +1,5 @@
 
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/assign/std/vector.hpp>
@@ -20,86 +20,86 @@ template <size_t Size> struct less<torrentsync::dht::NodeBucket<Size>> {
 };
 };
 
-BOOST_AUTO_TEST_SUITE(torrentsync_dht_NodeBucket);
+
 
 using namespace torrentsync::dht;
 using namespace torrentsync;
 using namespace boost::assign;
 
-BOOST_AUTO_TEST_CASE(constructor) {
+TEST(NodeBucket, constructor) {
   NodeData lowbound = NodeData(
       utils::parseIDFromHex("0000000000000000000000000000000000000000"));
   NodeData highbound = NodeData(
       utils::parseIDFromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
   NodeBucket<8> bucket(lowbound, highbound);
 
-  BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
-  BOOST_REQUIRE(bucket.getUpperBound() == highbound);
-  BOOST_REQUIRE_EQUAL(bucket.size(), 0);
-  BOOST_REQUIRE_EQUAL(bucket.maxSize(), 8);
+  ASSERT_TRUE(bucket.getLowerBound() == lowbound);
+  ASSERT_TRUE(bucket.getUpperBound() == highbound);
+  EXPECT_EQ(bucket.size(), 0);
+  EXPECT_EQ(bucket.maxSize(), 8);
 
   for (int i = 0; i < TEST_LOOP_COUNT; ++i) {
     const std::string str = generateRandomNode();
     std::shared_ptr<Node> addr(new Node(utils::parseIDFromHex(str)));
-    BOOST_REQUIRE_EQUAL(true, bucket.inBounds(addr));
+    EXPECT_EQ(true, bucket.inBounds(addr));
   }
 
-  BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
-  BOOST_REQUIRE(bucket.getUpperBound() == highbound);
-  BOOST_REQUIRE_EQUAL(bucket.size(), 0);
-  BOOST_REQUIRE_EQUAL(bucket.maxSize(), 8);
+  ASSERT_TRUE(bucket.getLowerBound() == lowbound);
+  ASSERT_TRUE(bucket.getUpperBound() == highbound);
+  EXPECT_EQ(bucket.size(), 0);
+  EXPECT_EQ(bucket.maxSize(), 8);
   bucket.clear();
 }
 
-BOOST_AUTO_TEST_CASE(outside) {
+TEST(NodeBucket, outside) {
   NodeData lowbound = NodeData(
       utils::parseIDFromHex("0000000000000000000000000000000000000000"));
   NodeData highbound = NodeData(
       utils::parseIDFromHex("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
   NodeBucket<8> bucket(lowbound, highbound);
 
-  BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
-  BOOST_REQUIRE(bucket.getUpperBound() == highbound);
-  BOOST_REQUIRE_EQUAL(bucket.size(), 0);
-  BOOST_REQUIRE_EQUAL(bucket.maxSize(), 8);
+  ASSERT_TRUE(bucket.getLowerBound() == lowbound);
+  ASSERT_TRUE(bucket.getUpperBound() == highbound);
+  EXPECT_EQ(bucket.size(), 0);
+  EXPECT_EQ(bucket.maxSize(), 8);
 
   for (int i = 0; i < TEST_LOOP_COUNT; ++i) {
     std::string str = generateRandomNode("F");
     std::shared_ptr<Node> addr(new Node(utils::parseIDFromHex(str)));
-    BOOST_REQUIRE_EQUAL(false, bucket.inBounds(addr));
+    EXPECT_EQ(false, bucket.inBounds(addr));
   }
 
-  BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
-  BOOST_REQUIRE(bucket.getUpperBound() == highbound);
-  BOOST_REQUIRE_EQUAL(bucket.size(), 0);
-  BOOST_REQUIRE_EQUAL(bucket.maxSize(), 8);
+  ASSERT_TRUE(bucket.getLowerBound() == lowbound);
+  ASSERT_TRUE(bucket.getUpperBound() == highbound);
+  EXPECT_EQ(bucket.size(), 0);
+  EXPECT_EQ(bucket.maxSize(), 8);
 }
 
-BOOST_AUTO_TEST_CASE(inside) {
+TEST(NodeBucket, inside) {
   NodeData lowbound = NodeData(
       utils::parseIDFromHex("0000000000000000000000000000000000000000"));
   NodeData highbound = NodeData(
       utils::parseIDFromHex("000002003400FFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
   NodeBucket<2> bucket(lowbound, highbound);
 
-  BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
-  BOOST_REQUIRE(bucket.getUpperBound() == highbound);
-  BOOST_REQUIRE_EQUAL(bucket.size(), 0);
-  BOOST_REQUIRE_EQUAL(bucket.maxSize(), 2);
+  ASSERT_TRUE(bucket.getLowerBound() == lowbound);
+  ASSERT_TRUE(bucket.getUpperBound() == highbound);
+  EXPECT_EQ(bucket.size(), 0);
+  EXPECT_EQ(bucket.maxSize(), 2);
 
   for (int i = 0; i < TEST_LOOP_COUNT; ++i) {
     std::string str = generateRandomNode("000002003400");
     std::shared_ptr<Node> addr(new Node(utils::parseIDFromHex(str)));
-    BOOST_REQUIRE_EQUAL(true, bucket.inBounds(addr));
+    EXPECT_EQ(true, bucket.inBounds(addr));
   }
 
-  BOOST_REQUIRE(bucket.getLowerBound() == lowbound);
-  BOOST_REQUIRE(bucket.getUpperBound() == highbound);
-  BOOST_REQUIRE_EQUAL(bucket.size(), 0);
-  BOOST_REQUIRE_EQUAL(bucket.maxSize(), 2);
+  ASSERT_TRUE(bucket.getLowerBound() == lowbound);
+  ASSERT_TRUE(bucket.getUpperBound() == highbound);
+  EXPECT_EQ(bucket.size(), 0);
+  EXPECT_EQ(bucket.maxSize(), 2);
 }
 
-BOOST_AUTO_TEST_CASE(bucket_ordering) {
+TEST(NodeBucket, bucket_ordering) {
   NodeData a1 =
       utils::parseIDFromHex("0000000000000000000000000000000000000000");
   NodeData a2 =
@@ -109,16 +109,16 @@ BOOST_AUTO_TEST_CASE(bucket_ordering) {
   NodeData a2_1 =
       utils::parseIDFromHex("0000020034010000000000000000000000000000");
 
-  BOOST_REQUIRE(a1 <= a2);
-  BOOST_REQUIRE(a2 <= a3);
+  ASSERT_TRUE(a1 <= a2);
+  ASSERT_TRUE(a2 <= a3);
 
   NodeBucket<3> b1(a1, a2);
   NodeBucket<3> b2(a2_1, a3);
 
-  BOOST_REQUIRE(std::less<NodeBucket<3>>()(b1, b2));
+  ASSERT_TRUE(std::less<NodeBucket<3>>()(b1, b2));
 }
 
-BOOST_AUTO_TEST_CASE(add_remove) {
+TEST(NodeBucket, add_remove) {
   NodeData bot =
       utils::parseIDFromHex("0000000000000000000000000000000000000000");
   NodeData top =
@@ -133,50 +133,50 @@ BOOST_AUTO_TEST_CASE(add_remove) {
       std::shared_ptr<Node> a = std::shared_ptr<Node>(
           new Node(utils::parseIDFromHex(generateRandomNode("0"))));
       addresses.push_back(a);
-      BOOST_REQUIRE_NO_THROW(BOOST_REQUIRE(bucket.add(a)));
+      EXPECT_NO_THROW(ASSERT_TRUE(bucket.add(a)));
       std::shared_ptr<Node> f = std::shared_ptr<Node>(
           new Node(utils::parseIDFromHex(generateRandomNode("F"))));
-      BOOST_REQUIRE_THROW(bucket.add(f), std::invalid_argument);
+      EXPECT_THROW(bucket.add(f), std::invalid_argument);
 
       std::for_each(addresses.begin(), addresses.end(),
                     [&](const std::shared_ptr<Node> &va) {
-                      BOOST_REQUIRE(std::find(bucket.cbegin(), bucket.cend(),
+                      ASSERT_TRUE(std::find(bucket.cbegin(), bucket.cend(),
                                               va) != bucket.cend());
                     });
-      BOOST_REQUIRE_EQUAL(bucket.size(), i + 1);
+      EXPECT_EQ(bucket.size(), i + 1);
     }
     std::shared_ptr<Node> a = std::shared_ptr<Node>(
         new Node(utils::parseIDFromHex(generateRandomNode("0"))));
-    BOOST_REQUIRE_EQUAL(false, bucket.add(a));
-    BOOST_REQUIRE_EQUAL(bucket.size(), 10);
+    EXPECT_EQ(false, bucket.add(a));
+    EXPECT_EQ(bucket.size(), 10);
 
     std::for_each(addresses.begin(), addresses.end(),
                   [&](const std::shared_ptr<Node> &va) {
-                    BOOST_REQUIRE(std::find(bucket.cbegin(), bucket.cend(),
+                    ASSERT_TRUE(std::find(bucket.cbegin(), bucket.cend(),
                                             va) != bucket.cend());
                   });
 
     for (int i = addresses.size(); i > 0; --i) {
-      BOOST_REQUIRE(addresses.size() > 0);
+      ASSERT_TRUE(addresses.size() > 0);
       const int index = rand() % addresses.size();
       const int start_size = addresses.size();
       std::shared_ptr<Node> a = addresses[index];
       addresses.erase(addresses.begin() + index);
-      BOOST_REQUIRE(a.get() > 0);
+      ASSERT_TRUE(a.get() > 0);
 
-      BOOST_REQUIRE_NO_THROW(BOOST_REQUIRE(bucket.remove(*a)));
-      BOOST_REQUIRE_EQUAL(bucket.size(), start_size - 1);
+      EXPECT_NO_THROW(ASSERT_TRUE(bucket.remove(*a)));
+      EXPECT_EQ(bucket.size(), start_size - 1);
 
       std::for_each(addresses.begin(), addresses.end(),
                     [&](const std::shared_ptr<Node> &va) {
-                      BOOST_REQUIRE(std::find(bucket.cbegin(), bucket.cend(),
+                      ASSERT_TRUE(std::find(bucket.cbegin(), bucket.cend(),
                                               va) != bucket.cend());
                     });
-      BOOST_REQUIRE(std::find(bucket.cbegin(), bucket.cend(), a) ==
+      ASSERT_TRUE(std::find(bucket.cbegin(), bucket.cend(), a) ==
                     bucket.cend());
     }
 
-    BOOST_REQUIRE_EQUAL(bucket.size(), 0);
+    EXPECT_EQ(bucket.size(), 0);
   }
 }
 
@@ -192,7 +192,7 @@ public:
   void setLastUnansweredQueries(uint8_t v) { Node::_last_unanswered_queries = v; }
 };
 
-BOOST_AUTO_TEST_CASE(removeBad) {
+TEST(NodeBucket, removeBad) {
   NodeData bot =
       utils::parseIDFromHex("0000000000000000000000000000000000000000");
   NodeData top =
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(removeBad) {
       std::for_each(addresses.begin(), addresses.end(),
                     [&](std::shared_ptr<Node> &a) { // deep copy into bucket
                       std::shared_ptr<Node> new_a(new Node(*a));
-                      BOOST_REQUIRE_NO_THROW(BOOST_REQUIRE(bucket.add(new_a)));
+                      EXPECT_NO_THROW(ASSERT_TRUE(bucket.add(new_a)));
                     });
 
       const int setbad_count = rand() % bucket.size();
@@ -227,15 +227,15 @@ BOOST_AUTO_TEST_CASE(removeBad) {
         af->getTime() = 0;
         af->setLastUnansweredQueries(
             torrentsync::dht::Node::allowed_unanswered_queries + 1);
-        BOOST_REQUIRE(af->isBad());
+        ASSERT_TRUE(af->isBad());
       }
-      BOOST_REQUIRE_NO_THROW(bucket.removeBad());
-      BOOST_REQUIRE_EQUAL(bucket.size(), size - setbad);
+      EXPECT_NO_THROW(bucket.removeBad());
+      EXPECT_EQ(bucket.size(), size - setbad);
     }
   }
 }
 
-BOOST_AUTO_TEST_CASE(removeBad_2) {
+TEST(NodeBucket, removeBad_2) {
   NodeData bot = NodeData(
       utils::parseIDFromHex("0000000000000000000000000000000000000000"));
   NodeData top = NodeData(
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE(removeBad_2) {
       std::for_each(addresses.begin(), addresses.end(),
                     [&](std::shared_ptr<Node> &a) { // deep copy into bucket
                       std::shared_ptr<Node> new_a(new Node(*a));
-                      BOOST_REQUIRE_NO_THROW(BOOST_REQUIRE(bucket.add(new_a)));
+                      EXPECT_NO_THROW(ASSERT_TRUE(bucket.add(new_a)));
                     });
 
       const int setbad_count = rand() % bucket.size();
@@ -270,16 +270,16 @@ BOOST_AUTO_TEST_CASE(removeBad_2) {
         af->getTime() = 0;
         af->setLastUnansweredQueries(
             torrentsync::dht::Node::allowed_unanswered_queries + 1);
-        BOOST_REQUIRE(af->isBad());
+        ASSERT_TRUE(af->isBad());
       }
-      BOOST_REQUIRE_NO_THROW(bucket.removeBad());
-      BOOST_REQUIRE_EQUAL(bucket.size(), size - setbad);
+      EXPECT_NO_THROW(bucket.removeBad());
+      EXPECT_EQ(bucket.size(), size - setbad);
     }
-    BOOST_REQUIRE_EQUAL(bucket.size(), 0);
+    EXPECT_EQ(bucket.size(), 0);
   }
 }
 
-BOOST_AUTO_TEST_CASE(addIsSorted) {
+TEST(NodeBucket, addIsSorted) {
   NodeData bot =
       utils::parseIDFromHex("0000000000000000000000000000000000000000");
   NodeData top =
@@ -304,12 +304,12 @@ BOOST_AUTO_TEST_CASE(addIsSorted) {
     std::vector<Node>::iterator it2 = sorted_addresses.begin();
     for (NodeBucket<10>::const_iterator it = bucket.cbegin();
          it != bucket.cend(); ++it, ++it2) {
-      BOOST_REQUIRE_EQUAL(**it, *it2);
+      EXPECT_EQ(**it, *it2);
     }
   } while (std::next_permutation(addresses.begin(), addresses.end()));
 }
 
-BOOST_AUTO_TEST_CASE(addIsSortedRandom) {
+TEST(NodeBucket, addIsSortedRandom) {
   NodeData bot =
       utils::parseIDFromHex("0000000000000000000000000000000000000000");
   NodeData top =
@@ -331,12 +331,12 @@ BOOST_AUTO_TEST_CASE(addIsSortedRandom) {
     std::vector<Node>::iterator it2 = sorted_addresses.begin();
     for (NodeBucket<10>::const_iterator it = bucket.cbegin();
          it != bucket.cend(); ++it, ++it2) {
-      BOOST_REQUIRE_EQUAL(**it, *it2);
+      EXPECT_EQ(**it, *it2);
     }
   }
 }
 
-BOOST_AUTO_TEST_CASE(add_and_find) {
+TEST(NodeBucket, add_and_find) {
   NodeData bot =
       utils::parseIDFromHex("0000000000000000000000000000000000000000");
   NodeData top =
@@ -360,19 +360,19 @@ BOOST_AUTO_TEST_CASE(add_and_find) {
     });
     std::for_each(addresses.begin(), addresses.end(), [&](const Node &addr) {
       boost::optional<NodeSPtr> b = bucket.find(addr);
-      BOOST_CHECK(!!b);
-      BOOST_REQUIRE(b.get());
-      BOOST_REQUIRE_EQUAL(**b, addr);
+      EXPECT_TRUE(!!b);
+      EXPECT_NE(b.get(), nullptr);
+      EXPECT_EQ(**b, addr);
     });
     for (int i = 0; i < TEST_LOOP_COUNT; ++i) {
       boost::optional<NodeSPtr> b =
           bucket.find(utils::parseIDFromHex(generateRandomNode("F")));
-      BOOST_CHECK(!b);
+      EXPECT_TRUE(!b);
     }
   } while (std::next_permutation(addresses.begin(), addresses.end()));
 }
 
-BOOST_AUTO_TEST_CASE(addRandom_and_find) {
+TEST(NodeBucket, addRandom_and_find) {
   NodeData bot =
       utils::parseIDFromHex("0000000000000000000000000000000000000000");
   NodeData top =
@@ -393,16 +393,16 @@ BOOST_AUTO_TEST_CASE(addRandom_and_find) {
     });
     std::for_each(addresses.begin(), addresses.end(), [&](const Node &addr) {
       boost::optional<NodeSPtr> b = bucket.find(addr);
-      BOOST_CHECK(!!b);
-      BOOST_REQUIRE(b.get());
-      BOOST_CHECK_EQUAL(**b, addr);
+      EXPECT_TRUE(!!b);
+      EXPECT_NE(b.get(), nullptr);
+      EXPECT_EQ(**b, addr);
     });
     for (int i = 0; i < TEST_LOOP_COUNT; ++i) {
       boost::optional<NodeSPtr> b =
           bucket.find(utils::parseIDFromHex(generateRandomNode("F")));
-      BOOST_CHECK(!b);
+      EXPECT_TRUE(!b);
     }
   }
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+

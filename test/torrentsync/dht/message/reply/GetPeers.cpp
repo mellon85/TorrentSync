@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <torrentsync/dht/message/reply/GetPeers.h>
 #include <torrentsync/dht/message/Messages.h>
@@ -8,12 +8,12 @@
 
 #include <sstream>
 
-BOOST_AUTO_TEST_SUITE(torrentsync_dht_message_reply_GetPeers);
+
 
 using namespace torrentsync::dht::message;
 using namespace torrentsync;
 
-BOOST_AUTO_TEST_CASE(reply_nodes) {
+TEST(GetPeers, reply_nodes) {
   const std::string id1("4747474747474747474747474747474747474747");
   const std::string id2("4848484848484848484848484848484848484848");
   const std::string token("46464646");
@@ -38,35 +38,35 @@ BOOST_AUTO_TEST_CASE(reply_nodes) {
   nodes.push_back(match);
 
   utils::Buffer ret;
-  BOOST_REQUIRE_NO_THROW(ret = reply::GetPeers::make(transaction,
+  EXPECT_NO_THROW(ret = reply::GetPeers::make(transaction,
                                                      utils::makeBuffer(token),
                                                      source, nodes));
 
-  BOOST_REQUIRE(ret == buff);
+  ASSERT_TRUE(ret == buff);
 
   const auto m = parseMessage(ret);
-  BOOST_CHECK(getType(m) == Type::Reply);
-  BOOST_CHECK(getTransactionID(m) == transaction);
+  EXPECT_TRUE(getType(m) == Type::Reply);
+  EXPECT_TRUE(getTransactionID(m) == transaction);
 
   std::vector<dht::NodeSPtr> peers;
   auto *r = boost::get<reply::Reply>(&m);
-  BOOST_REQUIRE(r != nullptr);
+  ASSERT_TRUE(r != nullptr);
   auto *get_peers = boost::get<reply::GetPeers>(r);
 
-  BOOST_REQUIRE_NO_THROW(BOOST_REQUIRE(!!get_peers->getNodes());
-                         BOOST_REQUIRE(!get_peers->getPeers()));
-  BOOST_REQUIRE_NO_THROW(peers = *get_peers->getNodes());
-  BOOST_REQUIRE_EQUAL(peers.size(), nodes.size());
-  BOOST_CHECK(get_peers->getType() == Type::Reply);
-  BOOST_CHECK(get_peers->getTransactionID() == transaction);
+  EXPECT_NO_THROW(ASSERT_TRUE(!!get_peers->getNodes());
+                         ASSERT_TRUE(!get_peers->getPeers()));
+  EXPECT_NO_THROW(peers = *get_peers->getNodes());
+  EXPECT_EQ(peers.size(), nodes.size());
+  EXPECT_TRUE(get_peers->getType() == Type::Reply);
+  EXPECT_TRUE(get_peers->getTransactionID() == transaction);
 
-  BOOST_REQUIRE(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH"));
-  BOOST_REQUIRE_EQUAL(peers[0]->getEndpoint()->address().to_v4().to_ulong(),
+  ASSERT_TRUE(peers[0]->write() == utils::makeBuffer("HHHHHHHHHHHHHHHHHHHH"));
+  EXPECT_EQ(peers[0]->getEndpoint()->address().to_v4().to_ulong(),
                       0x45454747);
-  BOOST_REQUIRE_EQUAL(peers[0]->getEndpoint()->port(), 0x4644);
+  EXPECT_EQ(peers[0]->getEndpoint()->port(), 0x4644);
 }
 
-BOOST_AUTO_TEST_CASE(reply_nodes_failed) {
+TEST(GetPeers, reply_nodes_failed) {
   const std::string id1("4747474747474747474747474747474747474747");
   const std::string id2("4848484848484848484848484848484848484848");
   const std::string token("46464646");
@@ -78,12 +78,12 @@ BOOST_AUTO_TEST_CASE(reply_nodes_failed) {
   std::list<dht::NodeSPtr> nodes;
 
   utils::Buffer ret;
-  BOOST_REQUIRE_THROW(ret = reply::GetPeers::make(
+  EXPECT_THROW(ret = reply::GetPeers::make(
                           transaction, utils::makeBuffer(token), source, nodes),
                       dht::message::MessageException);
 }
 
-BOOST_AUTO_TEST_CASE(reply_peers) {
+TEST(GetPeers, reply_peers) {
   const std::string id1("4747474747474747474747474747474747474747");
   const std::string token("46464646");
   const auto transaction = utils::makeBuffer("aa");
@@ -103,35 +103,35 @@ BOOST_AUTO_TEST_CASE(reply_peers) {
   endpoints.push_back(endpoint);
 
   utils::Buffer ret;
-  BOOST_REQUIRE_NO_THROW(ret = reply::GetPeers::make(transaction,
+  EXPECT_NO_THROW(ret = reply::GetPeers::make(transaction,
                                                      utils::makeBuffer(token),
                                                      source, endpoints));
 
-  BOOST_REQUIRE(ret == buff);
+  ASSERT_TRUE(ret == buff);
 
   const auto m = parseMessage(ret);
-  BOOST_CHECK(getType(m) == Type::Reply);
-  BOOST_CHECK(getTransactionID(m) == transaction);
+  EXPECT_TRUE(getType(m) == Type::Reply);
+  EXPECT_TRUE(getTransactionID(m) == transaction);
 
   auto *r = boost::get<reply::Reply>(&m);
-  BOOST_REQUIRE(r != nullptr);
+  ASSERT_TRUE(r != nullptr);
   auto *get_peers = boost::get<reply::GetPeers>(r);
-  BOOST_REQUIRE(get_peers != nullptr);
+  ASSERT_TRUE(get_peers != nullptr);
 
   std::list<boost::asio::ip::udp::endpoint> peers;
 
-  BOOST_CHECK(get_peers->getType() == Type::Reply);
-  BOOST_CHECK(get_peers->getTransactionID() == transaction);
-  BOOST_REQUIRE_NO_THROW(BOOST_REQUIRE(!get_peers->getNodes());
-                         BOOST_REQUIRE(!!get_peers->getPeers()));
-  BOOST_REQUIRE_NO_THROW(peers = *get_peers->getPeers());
+  EXPECT_TRUE(get_peers->getType() == Type::Reply);
+  EXPECT_TRUE(get_peers->getTransactionID() == transaction);
+  EXPECT_NO_THROW(ASSERT_TRUE(!get_peers->getNodes());
+                         ASSERT_TRUE(!!get_peers->getPeers()));
+  EXPECT_NO_THROW(peers = *get_peers->getPeers());
 
-  BOOST_REQUIRE_EQUAL(peers.size(), endpoints.size());
-  BOOST_REQUIRE(*peers.begin() == *endpoints.begin());
-  BOOST_REQUIRE(*(++peers.begin()) == *(++endpoints.begin()));
+  EXPECT_EQ(peers.size(), endpoints.size());
+  ASSERT_TRUE(*peers.begin() == *endpoints.begin());
+  ASSERT_TRUE(*(++peers.begin()) == *(++endpoints.begin()));
 }
 
-BOOST_AUTO_TEST_CASE(reply_peers_failed) {
+TEST(GetPeers, reply_peers_failed) {
   const std::string id1("4747474747474747474747474747474747474747");
   const std::string token("46464646");
   const auto transaction = utils::makeBuffer("aa");
@@ -141,9 +141,9 @@ BOOST_AUTO_TEST_CASE(reply_peers_failed) {
   std::list<boost::asio::ip::udp::endpoint> nodes;
 
   utils::Buffer ret;
-  BOOST_REQUIRE_THROW(ret = reply::GetPeers::make(
+  EXPECT_THROW(ret = reply::GetPeers::make(
                           transaction, utils::makeBuffer(token), source, nodes),
                       dht::message::MessageException);
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+

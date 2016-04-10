@@ -1,5 +1,5 @@
 
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
 
 #include <cstdlib>
@@ -11,55 +11,53 @@
 #include <test/torrentsync/dht/CommonNodeTest.h>
 
 namespace {
-class NodeFixture : public torrentsync::dht::Node {
+class NodeF : public torrentsync::dht::Node, public ::testing::Test {
 public:
-  NodeFixture() {}
+  NodeF() {}
 };
 };
-
-BOOST_FIXTURE_TEST_SUITE(torrentsync_dht_Node, NodeFixture);
 
 using namespace torrentsync;
 
-BOOST_AUTO_TEST_CASE(distance_0) {
+TEST_F(NodeF, distance_0) {
   const std::string data = "ffffffffffffffff0000000000000001aaaaaaaa";
   auto dataBuff = utils::parseIDFromHex(data);
 
   std::unique_ptr<Node> addr1;
-  BOOST_REQUIRE_NO_THROW(addr1.reset(new Node(dataBuff)));
+  EXPECT_NO_THROW(addr1.reset(new Node(dataBuff)));
   std::unique_ptr<Node> addr2;
-  BOOST_REQUIRE_NO_THROW(addr2.reset(new Node(dataBuff)));
+  EXPECT_NO_THROW(addr2.reset(new Node(dataBuff)));
 
-  BOOST_REQUIRE_EQUAL(data, addr1->string());
-  BOOST_REQUIRE(boost::iequals(data, addr2->string()));
+  EXPECT_EQ(data, addr1->string());
+  ASSERT_TRUE(boost::iequals(data, addr2->string()));
 
   const dht::Distance dist = *addr1 ^ *addr2;
-  BOOST_REQUIRE_EQUAL(dist.string(),
+  EXPECT_EQ(dist.string(),
                       "0000000000000000000000000000000000000000");
 }
 
-BOOST_AUTO_TEST_CASE(distance_some_static) {
+TEST_F(NodeF, distance_some_static) {
   const std::string data1 = "ffffffffffffffff0000000000000001aaaaaaaa";
   auto dataBuff1 = utils::parseIDFromHex(data1);
   const std::string data2 = "ffffffffffffffff0001100000000001aaaaaaaa";
   auto dataBuff2 = utils::parseIDFromHex(data2);
 
   std::unique_ptr<Node> addr1;
-  BOOST_REQUIRE_NO_THROW(addr1.reset(new Node(dataBuff1)));
+  EXPECT_NO_THROW(addr1.reset(new Node(dataBuff1)));
   std::unique_ptr<Node> addr2;
-  BOOST_REQUIRE_NO_THROW(addr2.reset(new Node(dataBuff2)));
+  EXPECT_NO_THROW(addr2.reset(new Node(dataBuff2)));
 
-  BOOST_REQUIRE(boost::iequals(data1, addr1->string()));
-  BOOST_REQUIRE(boost::iequals(data2, addr2->string()));
+  ASSERT_TRUE(boost::iequals(data1, addr1->string()));
+  ASSERT_TRUE(boost::iequals(data2, addr2->string()));
 
   const dht::Distance dist = *addr1 ^ *addr2;
-  BOOST_REQUIRE_EQUAL(dist.string(),
+  EXPECT_EQ(dist.string(),
                       "0000000000000000000110000000000000000000");
-  BOOST_REQUIRE(boost::iequals(data1, addr1->string()));
-  BOOST_REQUIRE(boost::iequals(data2, addr2->string()));
+  ASSERT_TRUE(boost::iequals(data1, addr1->string()));
+  ASSERT_TRUE(boost::iequals(data2, addr2->string()));
 }
 
-BOOST_AUTO_TEST_CASE(distance_random) {
+TEST_F(NodeF, distance_random) {
   for (int i = 0; i < TEST_LOOP_COUNT; ++i) {
     std::string data1 = generateRandomNode();
     const std::string data2 = data1;
@@ -74,52 +72,52 @@ BOOST_AUTO_TEST_CASE(distance_random) {
     auto dataBuff2 = utils::parseIDFromHex(data2);
 
     std::unique_ptr<Node> addr1;
-    BOOST_REQUIRE_NO_THROW(addr1.reset(new Node(dataBuff1)));
+    EXPECT_NO_THROW(addr1.reset(new Node(dataBuff1)));
     std::unique_ptr<Node> addr2;
-    BOOST_REQUIRE_NO_THROW(addr2.reset(new Node(dataBuff2)));
+    EXPECT_NO_THROW(addr2.reset(new Node(dataBuff2)));
 
-    BOOST_REQUIRE(boost::iequals(data1, addr1->string()));
-    BOOST_REQUIRE(boost::iequals(data2, addr2->string()));
+    ASSERT_TRUE(boost::iequals(data1, addr1->string()));
+    ASSERT_TRUE(boost::iequals(data2, addr2->string()));
 
     const dht::Distance dist = *addr1 ^ *addr2;
-    BOOST_REQUIRE(boost::iequals(data1, addr1->string()));
-    BOOST_REQUIRE(boost::iequals(data2, addr2->string()));
+    ASSERT_TRUE(boost::iequals(data1, addr1->string()));
+    ASSERT_TRUE(boost::iequals(data2, addr2->string()));
 
     std::unique_ptr<Node> addr3;
-    BOOST_REQUIRE_NO_THROW(
+    EXPECT_NO_THROW(
         addr3.reset(new Node(utils::parseIDFromHex(dist.string()))));
     const dht::Distance dist1 = *addr3 ^ *addr2;
     const dht::Distance dist2 = *addr3 ^ *addr1;
 
-    BOOST_REQUIRE(boost::iequals(data1, addr1->string()));
-    BOOST_REQUIRE(boost::iequals(data2, addr2->string()));
+    ASSERT_TRUE(boost::iequals(data1, addr1->string()));
+    ASSERT_TRUE(boost::iequals(data2, addr2->string()));
 
-    BOOST_REQUIRE_EQUAL(dist1.string(), addr1->string());
-    BOOST_REQUIRE_EQUAL(dist2.string(), addr2->string());
+    EXPECT_EQ(dist1.string(), addr1->string());
+    EXPECT_EQ(dist2.string(), addr2->string());
   }
 }
 
-BOOST_AUTO_TEST_CASE(is_Good_Bad_Questionale) {
+TEST_F(NodeF, is_Good_Bad_Questionale) {
   setGood();
-  BOOST_REQUIRE_EQUAL(true, isGood());
-  BOOST_REQUIRE_EQUAL(isBad(), false);
-  BOOST_REQUIRE_EQUAL(isQuestionable(), false);
+  EXPECT_EQ(true, isGood());
+  EXPECT_EQ(isBad(), false);
+  EXPECT_EQ(isQuestionable(), false);
 
   _last_time_good = _last_time_good - good_interval;
-  BOOST_REQUIRE_EQUAL(_last_unanswered_queries, 0);
+  EXPECT_EQ(_last_unanswered_queries, 0);
 
-  BOOST_REQUIRE_EQUAL(isGood(), false);
-  BOOST_REQUIRE_EQUAL(isQuestionable(), true);
-  BOOST_REQUIRE_EQUAL(isBad(), false);
+  EXPECT_EQ(isGood(), false);
+  EXPECT_EQ(isQuestionable(), true);
+  EXPECT_EQ(isBad(), false);
 
   _last_unanswered_queries = allowed_unanswered_queries + 1;
 
-  BOOST_REQUIRE_EQUAL(isGood(), false);
-  BOOST_REQUIRE_EQUAL(isQuestionable(), false);
-  BOOST_REQUIRE_EQUAL(isBad(), true);
+  EXPECT_EQ(isGood(), false);
+  EXPECT_EQ(isQuestionable(), false);
+  EXPECT_EQ(isBad(), true);
 }
 
-BOOST_AUTO_TEST_CASE(serialization) {
+TEST_F(NodeF, serialization) {
   const utils::Buffer buff = utils::parseIDFromHex(generateRandomNode());
   dht::NodeData nodedata(buff);
 
@@ -131,12 +129,12 @@ BOOST_AUTO_TEST_CASE(serialization) {
 
   dht::Node node2(data.begin(), data.end());
 
-  BOOST_CHECK_EQUAL(node2.getEndpoint()->port(), 0x4445);
-  BOOST_CHECK_EQUAL(node2.getEndpoint()->address().to_v4().to_ulong(),
+  EXPECT_EQ(node2.getEndpoint()->port(), 0x4445);
+  EXPECT_EQ(node2.getEndpoint()->address().to_v4().to_ulong(),
                     0x44454647);
-  BOOST_CHECK(buff == node1.write());
-  BOOST_CHECK(buff == node2.write());
-  BOOST_CHECK(data == node2.getPackedNode());
+  EXPECT_TRUE(buff == node1.write());
+  EXPECT_TRUE(buff == node2.write());
+  EXPECT_TRUE(data == node2.getPackedNode());
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+
