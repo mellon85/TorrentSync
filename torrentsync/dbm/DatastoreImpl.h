@@ -48,6 +48,12 @@ public:
      */
     QueryStatus execute(Query& sql);
 
+    /**
+     * Direct execute an sql text
+     */
+    QueryStatus raw(std::string& query);
+    QueryStatus raw(const char * const query);
+
 private:
     sqlite3 *db;
 };

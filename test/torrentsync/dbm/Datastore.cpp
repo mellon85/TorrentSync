@@ -20,6 +20,17 @@ BOOST_AUTO_TEST_CASE(create_dbm) {
     fs::remove_all(path);
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+BOOST_AUTO_TEST_CASE(empty_transaction) {
+    auto path = fs::unique_path();
+    BOOST_REQUIRE(! fs::exists(path.c_str()));
+    {
+        Datastore db(path);
+        auto schema = db.getTransaction();
+        BOOST_REQUIRE(fs::exists(path));
+    }
+    BOOST_REQUIRE(fs::exists(path));
+    fs::remove_all(path);
+}
 
+BOOST_AUTO_TEST_SUITE_END();
 

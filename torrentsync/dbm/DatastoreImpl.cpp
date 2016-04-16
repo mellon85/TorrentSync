@@ -65,6 +65,7 @@ DatastoreImpl::compile(const std::string& sql)
             sql.c_str(), sql.size(),
             &stmt, NULL);
 
+    assert(rc == SQLITE_OK);
     if (rc != SQLITE_OK)
         throw std::runtime_error("Failed to compile: "+sql);
 
@@ -79,6 +80,18 @@ Transaction DatastoreImpl::getTransaction()
 QueryStatus DatastoreImpl::execute(Query& sql)
 {
     const int rc = sqlite3_step(sql.get());
+    return convertSQLiteRC(rc);
+}
+
+QueryStatus DatastoreImpl::raw(std::string& sql)
+{
+    const int rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, NULL);
+    return convertSQLiteRC(rc);
+}
+
+QueryStatus DatastoreImpl::raw(const char * const sql)
+{
+    const int rc = sqlite3_exec(db, sql, NULL, NULL, NULL);
     return convertSQLiteRC(rc);
 }
 

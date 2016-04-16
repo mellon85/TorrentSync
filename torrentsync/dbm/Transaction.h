@@ -1,5 +1,7 @@
 #pragma once
 
+class sqlite3;
+
 namespace torrentsync
 {
 namespace dbm
